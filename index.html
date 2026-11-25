@@ -41,8 +41,9 @@ body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans
  background-image:linear-gradient(#0e1922 1px,transparent 1px),linear-gradient(90deg,#0e1922 1px,transparent 1px);background-size:44px 44px}
 body:not(.night) .nd{background-color:#cfd7de}
 body.night #ck{filter:brightness(.82)}
-#map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
-.night .base{filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(1.15) saturate(.45)}
+#map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);touch-action:none}
+.night .base{filter:brightness(.62) contrast(1.15) saturate(1.2)}
+.night .base.pale{filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(1.15) saturate(.45)}
 #rose{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;overflow:visible}
 .ndc{position:absolute;font:700 15px/1.25 'B612 Mono',monospace;text-shadow:0 0 3px #000,0 0 6px #000,0 0 10px #000;pointer-events:none}
 .ndc small{font-size:11px;color:#9aa6b2}
@@ -118,8 +119,8 @@ body.night #ck{filter:brightness(.82)}
   <button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button>
   <label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.7"></label>
   <span class="sep"></span>
-  <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">−</button><button id="b-zi" aria-label="詳細">＋</button>
-  <button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button><button id="b-day">色 AUTO</button>
+  <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button>
+  <button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button><button id="b-base">地図 道路</button><button id="b-day">色 AUTO</button>
  </nav>
 </div>
 <div class="ov" id="start">
@@ -145,9 +146,15 @@ const msg=t=>{$('msg').textContent=t};
 /* ---------- map ---------- */
 const GSI='https://disaportaldata.gsi.go.jp/raster/';
 const HZ={flood:['01_flood_l2_shinsuishin_data'],dosha:['05_dosekiryukeikaikuiki','05_kyukeishakeikaikuiki','05_jisuberikeikaikuiki'],tsunami:['04_tsunami_newlegend_data'],takashio:['03_hightide_l2_shinsuishin_data']};
-const map=L.map('map',{zoomControl:false,attributionControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false}).setView([st.lat,st.lon],pref.z||16);
-L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{maxNativeZoom:18,maxZoom:18,className:'base'}).addTo(map);
-const op=$('op');op.value=pref.op||0.7;
+const map=L.map('map',{zoomControl:false,attributionControl:false,dragging:false,touchZoom:'center',bounceAtZoomLimits:false,minZoom:5,maxZoom:18,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false}).setView([st.lat,st.lon],pref.z||16);
+const BASES=[
+ {n:'道路',a:'© OpenStreetMap contributors',l:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:18,className:'base'})},
+ {n:'標準',a:'国土地理院',l:L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',{maxNativeZoom:18,maxZoom:18,className:'base'})},
+ {n:'淡色',a:'国土地理院',l:L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{maxNativeZoom:18,maxZoom:18,className:'base pale'})}];
+let bi=Math.max(0,BASES.findIndex(b=>b.n===pref.base));
+const setBase=()=>{BASES.forEach((b,i)=>{if(i===bi)map.addLayer(b.l);else map.removeLayer(b.l)});BASES[bi].l.bringToBack();
+ const at=document.querySelector('.attr');if(at)at.textContent=BASES[bi].a+' / ハザードマップポータルサイト';const bb=document.getElementById('b-base');if(bb)bb.textContent='地図 '+BASES[bi].n};
+const op=$('op');op.value=pref.op||0.55;
 const layers={};
 for(const k in HZ)layers[k]=L.layerGroup(HZ[k].map(p=>L.tileLayer(GSI+p+'/{z}/{x}/{y}.png',{maxNativeZoom:17,maxZoom:18,opacity:+op.value})));
 const track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(map);
@@ -322,14 +329,15 @@ function legend(){
  $('lg').innerHTML=s;$('lg').hidden=!s;
 }
 document.querySelectorAll('[data-hz]').forEach(b=>{
- const k=b.dataset.hz;pref.hz=pref.hz||{};
+ const k=b.dataset.hz;pref.hz=pref.hz||{flood:true,dosha:true}; // 初期表示は洪水＋土砂
  const apply=()=>{if(pref.hz[k]){map.addLayer(layers[k]);b.classList.add('on')}else{map.removeLayer(layers[k]);b.classList.remove('on')}legend()};
  b.addEventListener('click',()=>{pref.hz[k]=!pref.hz[k];save();apply()});apply();
 });
 op.addEventListener('input',()=>{pref.op=+op.value;save();for(const k in layers)layers[k].eachLayer(l=>l.setOpacity(+op.value))});
 const upB=$('b-up');const setUp=()=>{upB.textContent=st.hup?'HDG UP':'NORTH UP';upB.classList.toggle('on',st.hup)};
 st.hup=true;setUp();upB.addEventListener('click',()=>{st.hup=!st.hup;setUp()}); // 起動時は常に進行方向アップ
-const zoom=d=>{const z=Math.max(10,Math.min(18,map.getZoom()+d));map.setView([st.lat,st.lon],z,{animate:false});pref.z=z;save();rng()};
+const zoom=d=>{const z=Math.max(5,Math.min(18,map.getZoom()+d));map.setView([st.lat,st.lon],z,{animate:false})};
+map.on('zoomend',()=>{pref.z=map.getZoom();save();rng();map.setView([st.lat,st.lon],map.getZoom(),{animate:false})}); // 縮尺を記憶
 $('b-zi').addEventListener('click',()=>zoom(1));$('b-zo').addEventListener('click',()=>zoom(-1));
 const SRC=['AUTO','GYRO','GPS'];st.src=pref.src||'AUTO';const sB=$('b-src');sB.textContent='方位 '+st.src;
 sB.addEventListener('click',()=>{st.src=SRC[(SRC.indexOf(st.src)+1)%3];pref.src=st.src;save();sB.textContent='方位 '+st.src});
@@ -357,6 +365,7 @@ function colour(){
 dB.addEventListener('click',()=>{cmode=MODES[(MODES.indexOf(cmode)+1)%3];pref.cm=cmode;save();colour()});
 colour();setInterval(colour,30000);
 window.addEventListener('orientationchange',()=>{ref=null});
+setBase();$('b-base').addEventListener('click',()=>{bi=(bi+1)%BASES.length;pref.base=BASES[bi].n;save();setBase()});
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
