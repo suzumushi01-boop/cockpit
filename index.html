@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>Cockpit Nav</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=B612:wght@400;700&family=B612+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 旅客機のグラスコックピット。静かで正確、夜間飛行の計器盤
+   IDEA: クルマのダッシュに載る PFD（姿勢・速度・高度）と ND（コンパスローズ付き地図）
+   PICTURE: 左に姿勢指示器と速度/高度テープ、右に方位リングを重ねたハザード地図
+   COLOUR and TYPE: 黒地、空色/大地色のADI、白・緑・マゼンタ・シアン・アンバーの計器色。Airbus用書体 B612
+   LAYOUT: 横置きは PFD | ND の2画面、縦置きは PFD の下に ND。下端に操作ボタン */
+:root{color-scheme:dark;--pn:#0b1016;--ln:#26313d;--w:#eef3f6;--g:#3be36a;--m:#ff4fd8;--c:#39d0ff;--a:#ffb02e}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.mono{font-family:'B612 Mono',ui-monospace,monospace}
+#ck{display:grid;height:100vh;height:100dvh;gap:6px;grid-template:"ann ann" auto "pfd nd" minmax(0,1fr) "bar bar" auto/minmax(300px,40%) minmax(0,1fr);
+ padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+@media (max-aspect-ratio:1/1){#ck{grid-template:"ann" auto "pfd" 40vh "nd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
+.ann{grid-area:ann;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none}
+.an{font:700 12px 'B612 Mono',monospace;padding:3px 7px;border:1px solid #2a323b;border-radius:3px;color:#56616d;flex:none}
+.an.on{color:var(--g);border-color:var(--g)}
+.an.warn{color:#000;background:var(--a);border-color:var(--a)}
+#msg{flex:1;color:var(--c);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:60px}
+#clk{font:700 15px 'B612 Mono',monospace;flex:none}
+.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,1fr) auto auto;gap:6px}
+.pfdrow{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;min-height:0}
+.pfdrow svg{width:100%;height:100%;display:block}
+#hdgt{width:100%;height:38px;display:block}
+.info{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center}
+#gb{width:70px;height:70px}
+.ro{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px}
+.ro b{color:#7d8995;font-weight:400}.ro span{font-family:'B612 Mono',monospace;color:var(--w);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-aspect-ratio:1/1){.info{display:none}}
+.nd{grid-area:nd;position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--ln);background:#04070a;
+ background-image:linear-gradient(#0e1922 1px,transparent 1px),linear-gradient(90deg,#0e1922 1px,transparent 1px);background-size:44px 44px}
+body:not(.night) .nd{background-color:#cfd7de}
+body.night #ck{filter:brightness(.82)}
+#map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.night .base{filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(1.15) saturate(.45)}
+#rose{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;overflow:visible}
+.ndc{position:absolute;font:700 15px/1.25 'B612 Mono',monospace;text-shadow:0 0 3px #000,0 0 6px #000,0 0 10px #000;pointer-events:none}
+.ndc small{font-size:11px;color:#9aa6b2}
+.tl{top:8px;left:10px}.tr{top:8px;right:10px;text-align:right}
+.lg{position:absolute;left:8px;bottom:8px;background:#000c;border:1px solid var(--ln);border-radius:6px;padding:6px 8px;font-size:11px;display:grid;gap:3px}
+.lg[hidden]{display:none}
+.lg i{display:inline-block;width:14px;height:10px;margin-right:5px;vertical-align:-1px;border:1px solid #0006}
+.attr{position:absolute;right:6px;bottom:4px;font-size:10px;color:#9aa6b2;text-shadow:0 0 3px #000}
+.bar{grid-area:bar;display:flex;gap:6px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.bar button{min-height:44px;min-width:44px;padding:0 12px;background:#121920;color:var(--w);border:1px solid var(--ln);border-radius:8px;font:700 14px 'B612',sans-serif;flex:none;cursor:pointer}
+.bar button.on{border-color:var(--c);color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+.bar button:focus-visible,#go:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.bar label{font-size:12px;color:#8994a0;flex:none;display:flex;align-items:center;gap:6px}
+.bar input{width:96px;accent-color:var(--c)}
+.sep{width:1px;height:28px;background:var(--ln);flex:none}
+/* Leaflet core (inlined) */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;background:transparent}
+.leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
+.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:256px;height:256px}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}
+.leaflet-interactive{pointer-events:none}
+.ship{background:none;border:0}
+.ship svg{width:40px;height:40px;display:block}
+/* start overlay */
+.ov{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 40%,#0d2236,#000 70%)}
+.ov[hidden]{display:none}
+.card{max-width:460px;text-align:center}
+.card h1{font:700 clamp(30px,7vw,46px)/1.05 'B612',sans-serif;margin:0 0 6px;letter-spacing:.02em}
+.card p{color:#a9b5c0;margin:8px 0;font-size:15px}
+.card .warn{color:var(--a)}
+#go{margin:22px auto 10px;width:150px;height:150px;border-radius:50%;border:3px solid var(--g);background:radial-gradient(circle,#0f2a18,#050a07);color:var(--g);font:700 17px/1.2 'B612',sans-serif;cursor:pointer;box-shadow:0 0 30px #3be36a44}
+@media (prefers-reduced-motion:no-preference){#go{animation:pulse 2.4s ease-in-out infinite}}
+@keyframes pulse{50%{box-shadow:0 0 50px #3be36a88}}
+</style>
+</head>
+<body>
+<div id="ck">
+ <header class="ann">
+  <span class="an" id="a-gps">GPS</span><span class="an" id="a-hdg">HDG</span><span class="an" id="a-att">ATT</span>
+  <span class="an" id="a-haz">HAZ</span><span class="an" id="a-rec">REC</span><span class="an" id="a-wake">WAKE</span>
+  <span class="an" id="a-demo" hidden>DEMO</span>
+  <span id="msg"></span><span id="clk">--:--:--</span>
+ </header>
+ <section class="pfd" aria-label="PFD">
+  <div class="pfdrow">
+   <svg id="spd" viewBox="0 0 64 240" preserveAspectRatio="xMidYMid meet"></svg>
+   <svg id="adi" viewBox="-120 -120 240 240" preserveAspectRatio="xMidYMid meet"></svg>
+   <svg id="alt" viewBox="0 0 64 240" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <svg id="hdgt" viewBox="0 0 300 38" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="info">
+   <svg id="gb" viewBox="-50 -50 100 100">
+    <circle r="46" fill="#05080b" stroke="#26313d"/><circle r="40" fill="none" stroke="#3a4652"/><circle r="20" fill="none" stroke="#3a4652" stroke-dasharray="2 3"/>
+    <path d="M-46 0H46M0-46V46" stroke="#26313d"/><text y="-30" text-anchor="middle" font-size="8" fill="#6b7783">1G</text>
+    <circle id="gdot" r="5" fill="#ff4fd8"/>
+   </svg>
+   <div class="ro">
+    <b>POS</b><span id="r-pos">—</span><b>GPS精度</b><span id="r-acc">—</span>
+    <b>姿勢</b><span id="r-att">—</span><b>G</b><span id="r-g">—</span><b>方位源</b><span id="r-src">—</span><b>日の出/入</b><span id="r-sun">—</span>
+   </div>
+  </div>
+ </section>
+ <section class="nd" id="nd" aria-label="ナビゲーションディスプレイ">
+  <div id="map"></div>
+  <svg id="rose" viewBox="-100 -100 200 200"></svg>
+  <div class="ndc tl"><small>GS</small> <span id="n-gs">0</span><small>km/h</small><br><small>TRK</small> <span id="n-trk" style="color:var(--g)">---</span>°</div>
+  <div class="ndc tr"><small>HDG</small> <span id="n-hdg">000</span>°<br><small>RNG</small> <span id="n-rng" style="color:var(--c)">—</span></div>
+  <div class="lg" id="lg" hidden></div>
+  <div class="attr">国土地理院 / ハザードマップポータルサイト</div>
+ </section>
+ <nav class="bar" aria-label="操作">
+  <button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button>
+  <label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.7"></label>
+  <span class="sep"></span>
+  <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">−</button><button id="b-zi" aria-label="詳細">＋</button>
+  <button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button><button id="b-day">色 AUTO</button>
+ </nav>
+</div>
+<div class="ov" id="start">
+ <div class="card">
+  <h1>COCKPIT NAV</h1>
+  <p>ジャイロコンパス・姿勢指示器・ハザードマップ付きの<br>コックピット風カーナビ</p>
+  <button id="go">SYSTEM<br>START</button>
+  <p class="warn">走行中は操作しないでください。スマホはホルダーに固定して使います。</p>
+  <p style="font-size:13px">GPS・コンパス・地図は HTTPS で開いたブラウザで動きます。使えない環境では自動でデモ表示になります。</p>
+ </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+{
+const $=id=>document.getElementById(id), D2R=Math.PI/180, NS='http://www.w3.org/2000/svg';
+const st={lat:35.6812,lon:139.7671,spd:0,alt:null,acc:null,trk:null,hdg:0,cmpRaw:null,roll:0,pitch:0,gx:0,gy:0,gpk:0,gps:false,cmp:false,att:false,demo:false,wake:false,hup:true,rec:true,src:'AUTO'};
+let pref={};try{pref=JSON.parse(localStorage.getItem('cockpitnav')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('cockpitnav',JSON.stringify(pref))}catch(e){}};
+const scr=()=>(screen.orientation&&screen.orientation.angle)||window.orientation||0;
+const pad=(n,l)=>String(Math.round(n)).padStart(l,'0');
+const msg=t=>{$('msg').textContent=t};
+
+/* ---------- map ---------- */
+const GSI='https://disaportaldata.gsi.go.jp/raster/';
+const HZ={flood:['01_flood_l2_shinsuishin_data'],dosha:['05_dosekiryukeikaikuiki','05_kyukeishakeikaikuiki','05_jisuberikeikaikuiki'],tsunami:['04_tsunami_newlegend_data'],takashio:['03_hightide_l2_shinsuishin_data']};
+const map=L.map('map',{zoomControl:false,attributionControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false}).setView([st.lat,st.lon],pref.z||16);
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{maxNativeZoom:18,maxZoom:18,className:'base'}).addTo(map);
+const op=$('op');op.value=pref.op||0.7;
+const layers={};
+for(const k in HZ)layers[k]=L.layerGroup(HZ[k].map(p=>L.tileLayer(GSI+p+'/{z}/{x}/{y}.png',{maxNativeZoom:17,maxZoom:18,opacity:+op.value})));
+const track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(map);
+const ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],
+ html:'<svg viewBox="-20 -20 40 40"><path d="M0-17L11 13L0 6L-11 13Z" fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
+let roseR=100;
+function size(){
+ const nd=$('nd'),w=nd.clientWidth,h=nd.clientHeight,d=Math.ceil(Math.hypot(w,h));
+ const m=$('map');m.style.width=m.style.height=d+'px';map.invalidateSize(false);map.setView([st.lat,st.lon],map.getZoom(),{animate:false});
+ const r=Math.min(w,h)*0.92;$('rose').style.width=$('rose').style.height=r+'px';roseR=r/2*0.82;rng();
+}
+const ndObs=new ResizeObserver(size);ndObs.observe($('nd'));
+function rng(){const mpp=40075016.686*Math.cos(st.lat*D2R)/(256*2**map.getZoom()),m=roseR*mpp;$('n-rng').textContent=m<1000?Math.round(m/10)*10+'m':(m/1000).toFixed(1)+'km'}
+let lastPt=null;
+function setPos(lat,lon){
+ st.lat=lat;st.lon=lon;ship.setLatLng([lat,lon]);map.setView([lat,lon],map.getZoom(),{animate:false});
+ if(st.rec&&(!lastPt||map.distance(lastPt,[lat,lon])>4)){lastPt=[lat,lon];track.addLatLng(lastPt);const p=track.getLatLngs();if(p.length>6000)track.setLatLngs(p.slice(-5000))}
+}
+
+/* ---------- rose ---------- */
+(()=>{
+ let s='<g id="rg">';
+ for(let d=0;d<360;d+=5){const L2=d%10?5:9;s+=`<line x1="0" y1="-82" x2="0" y2="${-82+L2}" stroke="#eef3f6" stroke-width="${d%30?1:1.6}" transform="rotate(${d})"/>`}
+ const lab={0:'N',90:'E',180:'S',270:'W'};
+ for(let d=0;d<360;d+=30)s+=`<text transform="rotate(${d}) translate(0,-64)" text-anchor="middle" font-family="B612 Mono" font-weight="700" font-size="${lab[d]?11:9}" fill="${d===0?'#39d0ff':'#eef3f6'}" stroke="#000" stroke-width="2.5" paint-order="stroke">${lab[d]||d/10}</text>`;
+ s+='<line id="trkp" x1="0" y1="0" x2="0" y2="-82" stroke="#3be36a" stroke-width="1.4" stroke-dasharray="4 3"/>';
+ s+='<g id="hdgp"><path d="M-5 -92L5 -92L0 -84Z" fill="#ff4fd8" stroke="#000" stroke-width=".8"/></g></g>';
+ s+='<circle r="82" fill="none" stroke="#eef3f6" stroke-width="1.2" opacity=".85"/><circle r="41" fill="none" stroke="#eef3f6" stroke-width=".7" stroke-dasharray="2 4" opacity=".6"/>';
+ s+='<path id="lub" d="M0 -84L-6 -96H6Z" fill="#eef3f6" stroke="#000" stroke-width=".8"/>';
+ $('rose').innerHTML=s;
+})();
+
+/* ---------- ADI ---------- */
+const PX=4;
+(()=>{
+ let lad='';
+ for(let p=-40;p<=40;p+=5){if(!p)continue;const y=-p*PX,w=p%10?12:26;lad+=`<line x1="${-w}" y1="${y}" x2="${w}" y2="${y}" stroke="#fff" stroke-width="1.6"/>`;
+  if(!(p%10))lad+=`<text x="${w+5}" y="${y+4}" font-size="10" fill="#fff" font-family="B612 Mono">${Math.abs(p)}</text><text x="${-w-5}" y="${y+4}" text-anchor="end" font-size="10" fill="#fff" font-family="B612 Mono">${Math.abs(p)}</text>`}
+ let rs='';for(const a of[-60,-45,-30,-20,-10,10,20,30,45,60])rs+=`<line x1="0" y1="-100" x2="0" y2="${Math.abs(a)%30?-94:-90}" stroke="#fff" stroke-width="2" transform="rotate(${a})"/>`;
+ $('adi').innerHTML=`<defs><clipPath id="cl"><rect x="-112" y="-112" width="224" height="224" rx="22"/></clipPath>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3f86"/><stop offset="1" stop-color="#2a86e8"/></linearGradient>
+ <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6634"/><stop offset="1" stop-color="#5a3816"/></linearGradient></defs>
+ <g clip-path="url(#cl)"><g id="hz"><rect x="-400" y="-400" width="800" height="400" fill="url(#sky)"/><rect x="-400" y="0" width="800" height="400" fill="url(#gnd)"/>
+ <line x1="-400" y1="0" x2="400" y2="0" stroke="#fff" stroke-width="2"/>${lad}</g></g>
+ <rect x="-112" y="-112" width="224" height="224" rx="22" fill="none" stroke="#26313d" stroke-width="2"/>
+ ${rs}<path d="M0-101L-7-112H7Z" fill="#fff"/>
+ <g id="bank"><path d="M0-99L-7-88H7Z" fill="none" stroke="#fff" stroke-width="2"/></g>
+ <g fill="#111" stroke="#ffe14d" stroke-width="3" stroke-linejoin="round"><path d="M-78-3H-30V12H-38V5H-78Z"/><path d="M78-3H30V12H38V5H78Z"/><rect x="-4" y="-4" width="8" height="8"/></g>`;
+})();
+
+/* ---------- tapes ---------- */
+function tape(id,v,pp,step,lbl,right,col){
+ const mid=120,lo=Math.floor((v-mid/pp)/step)*step,hi=v+mid/pp;let s='<rect width="64" height="240" rx="6" fill="#151d26"/>';
+ for(let x=lo;x<=hi;x+=step){const y=mid-(x-v)*pp,maj=x%lbl===0,len=maj?10:6,x1=right?64:0,x2=right?64-len:len;
+  s+=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#cfd8e0" stroke-width="1.4"/>`;
+  if(maj)s+=`<text x="${right?48:16}" y="${y+4}" text-anchor="${right?'end':'start'}" font-size="12" fill="#cfd8e0" font-family="B612 Mono">${x}</text>`}
+ const b=right?'M2 106H50L58 120L50 134H2Z':'M62 106H14L6 120L14 134H62Z';
+ s+=`<path d="${b}" fill="#000" stroke="#fff" stroke-width="1.6"/><text x="${right?48:58}" y="126" text-anchor="end" font-size="17" font-weight="700" fill="${col}" font-family="B612 Mono">${Math.round(v)}</text>`;
+ $(id).innerHTML=s;
+}
+function htape(v){
+ const pp=4,lo=Math.floor((v-37.5)/5)*5;let s='<rect width="300" height="38" rx="6" fill="#151d26"/>';
+ for(let x=lo;x<=v+37.5;x+=5){const X=150+(x-v)*pp,n=((x%360)+360)%360,maj=!(n%10);
+  s+=`<line x1="${X}" y1="0" x2="${X}" y2="${maj?10:6}" stroke="#cfd8e0" stroke-width="1.4"/>`;
+  if(maj)s+=`<text x="${X}" y="24" text-anchor="middle" font-size="${n%90?11:13}" fill="${n%90?'#cfd8e0':'#39d0ff'}" font-family="B612 Mono" font-weight="700">${{0:'N',90:'E',180:'S',270:'W'}[n]||pad(n/10,2)}</text>`}
+ s+=`<path d="M150 0L144 -1V0Z"/><rect x="128" y="20" width="44" height="17" rx="3" fill="#000" stroke="#fff"/><text x="150" y="33" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="B612 Mono">${pad(v%360,3)}</text><path d="M150 12L145 2H155Z" fill="#ff4fd8"/>`;
+ $('hdgt').innerHTML=s;
+}
+
+/* ---------- heading choice & loop ---------- */
+function target(){
+ if(st.src==='GYRO')return st.cmpRaw;if(st.src==='GPS')return st.trk;
+ return (st.trk!=null&&st.spd>8)?st.trk:(st.cmpRaw!=null?st.cmpRaw:st.trk);
+}
+function frame(){
+ const t=target();if(t!=null){const d=((t-st.hdg+540)%360)-180;st.hdg=(st.hdg+d*0.12+360)%360}
+ const h=st.hdg,mr=st.hup?-h:0;
+ $('map').style.transform=`translate(-50%,-50%) rotate(${mr}deg)`;
+ $('rg').setAttribute('transform',`rotate(${mr})`);$('hdgp').setAttribute('transform',`rotate(${h})`);
+ const tp=$('trkp');tp.setAttribute('transform',`rotate(${st.trk??h})`);tp.style.display=st.trk==null?'none':'';
+ $('lub').style.display=st.hup?'':'none';
+ const se=ship.getElement();if(se)se.firstChild.style.transform=`rotate(${h}deg)`;
+ const r=Math.max(-60,Math.min(60,st.roll)),p=Math.max(-25,Math.min(25,st.pitch));
+ $('hz').setAttribute('transform',`rotate(${-r}) translate(0 ${p*PX})`);$('bank').setAttribute('transform',`rotate(${-r})`);
+ tape('spd',Math.max(0,st.spd),4,5,10,true,'#fff');tape('alt',st.alt??0,1.2,10,50,false,st.alt==null?'#56616d':'#fff');htape(h);
+ const gx=Math.max(-1.15,Math.min(1.15,st.gx)),gy=Math.max(-1.15,Math.min(1.15,st.gy));$('gdot').setAttribute('cx',gx*40);$('gdot').setAttribute('cy',-gy*40);
+ $('n-gs').textContent=Math.round(st.spd);$('n-trk').textContent=st.trk==null?'---':pad(st.trk,3);$('n-hdg').textContent=pad(h%360,3);
+ requestAnimationFrame(frame);
+}
+const dm=(v,P,N)=>{const a=Math.abs(v),d=Math.floor(a);return(v>=0?P:N)+d+'°'+((a-d)*60).toFixed(2)+'′'};
+function slow(){
+ const n=new Date();$('clk').textContent=n.toTimeString().slice(0,8);
+ const set=(id,c)=>{$(id).className='an'+(c?' '+c:'')};
+ set('a-gps',st.gps?'on':st.demo?'warn':'');set('a-hdg',st.cmp||(st.trk!=null)?'on':'');set('a-att',st.att?'on':st.demo?'warn':'');
+ set('a-haz',Object.values(layers).some(l=>map.hasLayer(l))?'on':'');set('a-rec',st.rec?'on':'');set('a-wake',st.wake?'on':'');
+ $('a-demo').hidden=!st.demo;$('a-demo').className='an warn';
+ $('r-pos').textContent=dm(st.lat,'N','S')+' '+dm(st.lon,'E','W');
+ $('r-acc').textContent=st.acc==null?'—':'±'+Math.round(st.acc)+' m';
+ $('r-att').textContent=`PITCH ${st.pitch>=0?'+':''}${st.pitch.toFixed(1)}° BANK ${st.roll>=0?'R':'L'}${Math.abs(st.roll).toFixed(1)}°`;
+ $('r-g').textContent=Math.hypot(st.gx,st.gy).toFixed(2)+' G  (MAX '+st.gpk.toFixed(2)+')';
+ const t=target();$('r-src').textContent=st.src+' → '+(t==null?'—':(t===st.trk&&st.trk!=null?'GPS進路':'磁気コンパス'));
+}
+setInterval(slow,500);
+
+/* ---------- sensors ---------- */
+function onOri(e){
+ let h=null;
+ if(typeof e.webkitCompassHeading==='number'&&!isNaN(e.webkitCompassHeading))h=e.webkitCompassHeading;
+ else if(e.absolute&&e.alpha!=null){
+  const a=e.alpha*D2R,b=(e.beta||0)*D2R,g=(e.gamma||0)*D2R,cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
+  const zx=cA*sG+sA*sB*cG,zy=sA*sG-cA*sB*cG,zz=cB*cG;
+  h=Math.abs(zz)>0.7?360-e.alpha+scr():Math.atan2(-zx,-zy)/D2R; // 平置きは端末上方向、立てた状態は背面カメラ方向
+ }
+ if(h!=null&&!isNaN(h)){st.cmpRaw=((h%360)+360)%360;st.cmp=true}
+}
+let ref=null;
+function onMot(e){
+ const g=e.accelerationIncludingGravity;if(!g||g.x==null)return;
+ const a=scr()*D2R,c=Math.cos(a),s=Math.sin(a),sx=g.x*c+g.y*s,sy=-g.x*s+g.y*c,sz=g.z;
+ const rr=Math.atan2(sx,sy),pp=Math.atan2(sz,Math.hypot(sx,sy));
+ if(!ref)ref={r:rr,p:pp};
+ st.att=true;let r=(rr-ref.r)/D2R;r=((r+540)%360)-180;const p=(pp-ref.p)/D2R;
+ st.roll+=(r-st.roll)*.08;st.pitch+=(p-st.pitch)*.08;
+ const l=e.acceleration;if(l&&l.x!=null){const lx=(l.x*c+l.y*s)/9.81,lz=l.z/9.81;st.gx+=(lx-st.gx)*.12;st.gy+=(lz-st.gy)*.12;st.gpk=Math.max(st.gpk,Math.hypot(st.gx,st.gy))}
+}
+let demoT=null;
+function startDemo(why){
+ if(st.demo||st.gps)return;st.demo=true;msg(why+' — デモ走行を表示中');
+ const c={lat:st.lat,lon:st.lon},R=900;let t=0,last=performance.now();
+ demoT=setInterval(()=>{
+  const now=performance.now();t+=(now-last)/1000;last=now;
+  const v=40+6*Math.sin(t*.7),a=t*(40/3.6)/R;
+  st.trk=((a/D2R)%360+360)%360;st.spd=v;st.alt=24+6*Math.sin(t*.2);st.acc=5;
+  if(!st.cmp)st.cmpRaw=(st.trk+4*Math.sin(t*1.3)+360)%360;
+  if(!st.att){st.roll=6+3*Math.sin(t*.9);st.pitch=1.5*Math.sin(t*.5);st.gx=.12+.05*Math.sin(t*2);st.gy=.06*Math.sin(t*.7);st.gpk=Math.max(st.gpk,Math.hypot(st.gx,st.gy))}
+  setPos(c.lat+R*Math.sin(a)/111320,c.lon+R*(1-Math.cos(a))/(111320*Math.cos(c.lat*D2R)));
+ },100);
+}
+function startGPS(){
+ if(!navigator.geolocation){startDemo('位置情報に非対応');return}
+ try{navigator.geolocation.watchPosition(p=>{
+  if(st.demo){clearInterval(demoT);st.demo=false;track.setLatLngs([]);lastPt=null}
+  if(!st.gps)msg('GPS受信');st.gps=true;const c=p.coords;st.acc=c.accuracy;st.alt=c.altitude;
+  if(c.speed!=null&&c.speed>=0)st.spd=c.speed*3.6;
+  if(c.heading!=null&&!isNaN(c.heading)&&st.spd>3)st.trk=c.heading;
+  setPos(c.latitude,c.longitude);rng();
+ },e=>startDemo('GPS: '+(e.code===1?'許可されていません':'取得できません')),{enableHighAccuracy:true,maximumAge:1000,timeout:20000})}catch(e){startDemo('GPSが使えません')}
+ setTimeout(()=>{if(!st.gps)startDemo('GPS待ち')},15000);
+}
+let wl=null;
+async function wake(){try{if(navigator.wakeLock){wl=await navigator.wakeLock.request('screen');st.wake=true;wl.addEventListener('release',()=>{st.wake=false})}}catch(e){st.wake=false}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake()});
+
+$('go').addEventListener('click',()=>{
+ const asks=[window.DeviceOrientationEvent,window.DeviceMotionEvent].filter(E=>E&&typeof E.requestPermission==='function').map(E=>E.requestPermission().catch(()=>'denied'));
+ Promise.all(asks).then(()=>{
+  window.addEventListener('deviceorientation',onOri);
+  if('ondeviceorientationabsolute' in window)window.addEventListener('deviceorientationabsolute',onOri);
+  window.addEventListener('devicemotion',onMot);
+ });
+ $('start').hidden=true;wake();startGPS();size();
+ try{const f=document.documentElement.requestFullscreen;f&&f.call(document.documentElement).catch(()=>{})}catch(e){}
+});
+
+/* ---------- controls ---------- */
+const LEG={depth:[['#f7f5a9','0.5m未満'],['#ffd8c0','0.5–3m'],['#ffb7b7','3–5m'],['#ff9191','5–10m'],['#f285c9','10–20m'],['#dc7adc','20m以上']],
+ dosha:[['#ffe94a','警戒区域'],['#e60000','特別警戒区域']]};
+function legend(){
+ const on=k=>map.hasLayer(layers[k]);let s='';
+ if(on('flood')||on('tsunami')||on('takashio'))s+='<b>浸水深</b>'+LEG.depth.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');
+ if(on('dosha'))s+='<b>土砂災害</b>'+LEG.dosha.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');
+ $('lg').innerHTML=s;$('lg').hidden=!s;
+}
+document.querySelectorAll('[data-hz]').forEach(b=>{
+ const k=b.dataset.hz;pref.hz=pref.hz||{};
+ const apply=()=>{if(pref.hz[k]){map.addLayer(layers[k]);b.classList.add('on')}else{map.removeLayer(layers[k]);b.classList.remove('on')}legend()};
+ b.addEventListener('click',()=>{pref.hz[k]=!pref.hz[k];save();apply()});apply();
+});
+op.addEventListener('input',()=>{pref.op=+op.value;save();for(const k in layers)layers[k].eachLayer(l=>l.setOpacity(+op.value))});
+const upB=$('b-up');const setUp=()=>{upB.textContent=st.hup?'HDG UP':'NORTH UP';upB.classList.toggle('on',st.hup)};
+st.hup=true;setUp();upB.addEventListener('click',()=>{st.hup=!st.hup;setUp()}); // 起動時は常に進行方向アップ
+const zoom=d=>{const z=Math.max(10,Math.min(18,map.getZoom()+d));map.setView([st.lat,st.lon],z,{animate:false});pref.z=z;save();rng()};
+$('b-zi').addEventListener('click',()=>zoom(1));$('b-zo').addEventListener('click',()=>zoom(-1));
+const SRC=['AUTO','GYRO','GPS'];st.src=pref.src||'AUTO';const sB=$('b-src');sB.textContent='方位 '+st.src;
+sB.addEventListener('click',()=>{st.src=SRC[(SRC.indexOf(st.src)+1)%3];pref.src=st.src;save();sB.textContent='方位 '+st.src});
+$('b-cal').addEventListener('click',()=>{ref=null;st.roll=st.pitch=0;st.gpk=0;msg('姿勢とGをリセット')});
+const rB=$('b-rec');const setRec=()=>rB.classList.toggle('on',st.rec);setRec();
+rB.addEventListener('click',()=>{st.rec=!st.rec;if(!st.rec){track.setLatLngs([]);lastPt=null}setRec()});
+/* 日の出・日の入（NOAA簡易式） */
+function sun(lat,lon){
+ const d=new Date();d.setHours(12,0,0,0);
+ const n=Math.round(d/864e5+2440587.5-2451545+0.0008),J=n-lon/360,M=((357.5291+0.98560028*J)%360)*D2R;
+ const C=1.9148*Math.sin(M)+0.02*Math.sin(2*M)+0.0003*Math.sin(3*M),lam=((M/D2R+C+282.9372)%360)*D2R;
+ const Jt=2451545+J+0.0053*Math.sin(M)-0.0069*Math.sin(2*lam),dec=Math.asin(Math.sin(lam)*Math.sin(23.4397*D2R));
+ const cw=(Math.sin(-0.833*D2R)-Math.sin(lat*D2R)*Math.sin(dec))/(Math.cos(lat*D2R)*Math.cos(dec));
+ if(cw>1||cw<-1)return null;const w=Math.acos(cw)/D2R/360,toD=x=>new Date((x-2440587.5)*864e5);
+ return{rise:toD(Jt-w),set:toD(Jt+w)};
+}
+const MODES=['AUTO','昼','夜'];let cmode=MODES.includes(pref.cm)?pref.cm:'AUTO',isNight=null;const dB=$('b-day');
+function colour(){
+ const s=sun(st.lat,st.lon),now=new Date(),hm=x=>x.toTimeString().slice(0,5);
+ $('r-sun').textContent=s?hm(s.rise)+' / '+hm(s.set):'—';
+ const nt=cmode==='夜'||(cmode==='AUTO'&&!!s&&(now<s.rise||now>s.set));
+ if(nt!==isNight){isNight=nt;document.body.classList.toggle('night',nt);if(cmode==='AUTO')msg(nt?'日没後のため夜間色に切替':'日中のため昼間色に切替')}
+ dB.textContent='色 '+cmode+(cmode==='AUTO'?(isNight?'（夜）':'（昼）'):'');dB.classList.toggle('on',cmode!=='AUTO');
+}
+dB.addEventListener('click',()=>{cmode=MODES[(MODES.indexOf(cmode)+1)%3];pref.cm=cmode;save();colour()});
+colour();setInterval(colour,30000);
+window.addEventListener('orientationchange',()=>{ref=null});
+
+msg('SYSTEM START を押してください');
+size();requestAnimationFrame(frame);slow();
+}
+</script>
+</body>
+</html>
