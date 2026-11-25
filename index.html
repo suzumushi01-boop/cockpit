@@ -326,7 +326,7 @@ function legend(){
  const on=k=>map.hasLayer(layers[k]);let s='';
  if(on('flood')||on('tsunami')||on('takashio'))s+='<b>浸水深</b>'+LEG.depth.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');
  if(on('dosha'))s+='<b>土砂災害</b>'+LEG.dosha.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');
- $('lg').innerHTML=s;$('lg').hidden=!s;
+ $('lg').hidden=true; // 凡例は表示しない
 }
 document.querySelectorAll('[data-hz]').forEach(b=>{
  const k=b.dataset.hz;pref.hz=pref.hz||{flood:true,dosha:true}; // 初期表示は洪水＋土砂
