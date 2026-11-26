@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cockpit">
 <meta name="theme-color" content="#000000">
 <title>Cockpit Nav</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,6 +76,7 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 
 .sheet{position:fixed;inset:0;z-index:1500;background:#000b;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
 .sheet[hidden]{display:none}
+#sh-out{z-index:1700}#sh-fr,#sh-ck{z-index:1600}
 .shin{background:#0b1016;border:1px solid var(--ln);border-radius:12px;width:min(760px,100%);max-height:100%;overflow:auto;padding:12px 16px 16px}
 .shin header{display:flex;justify-content:space-between;align-items:center;position:sticky;top:-12px;background:#0b1016;padding:6px 0;z-index:1}
 .shin header b{font-size:20px}
@@ -144,7 +148,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <header class="ann">
   <div class="anns"><span class="an" id="a-gps">GPS</span><span class="an" id="a-hdg">HDG</span><span class="an" id="a-att">ATT</span>
   <span class="an" id="a-haz">HAZ</span><span class="an" id="a-rec">REC</span><span class="an" id="a-wake">WAKE</span>
-  <span class="an" id="a-rain">RAIN</span><span class="an" id="a-dew">DEW</span><span class="an" id="a-air">AIR</span><span class="an" id="a-sun">SUN</span><span class="an" id="a-tfc">TFC</span><span class="an" id="a-demo" hidden>DEMO</span></div>
+  <span class="an" id="a-rain">RAIN</span><span class="an" id="a-dew">DEW</span><span class="an" id="a-air">AIR</span><span class="an" id="a-sun">SUN</span><span class="an" id="a-tfc">TFC</span><span class="an" id="a-warn">WARN</span><span class="an" id="a-spd">SPD</span><span class="an" id="a-demo" hidden>DEMO</span></div>
   <div class="tinfo"><span id="t-date">----/--/--</span><span id="clk">--:--:--</span><span><small>日の出</small><span id="t-rise">--:--</span></span><span><small>日没</small><span id="t-set">--:--</span></span><span class="opt"><small>気圧</small><span id="t-pres">----</span>hPa</span><span class="opt"><small>気温</small><span id="t-temp">--</span>℃</span><span class="opt"><small>湿度</small><span id="t-hum">--</span>%</span></div><button id="b-menu" aria-label="メニューの表示切り替え">MENU</button>
  </header>
  <section class="pfd" aria-label="PFD">
@@ -159,7 +163,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <section class="nd mapw" id="nd" aria-label="ナビゲーションディスプレイ">
   <div id="map"></div>
   <svg id="rose" viewBox="-100 -100 200 200"></svg>
-  <div class="ndc tl"><span id="n-gs" class="gsbig">0</span><small> km/h</small><br><small>海抜</small> <span id="n-alt" class="mid">---</span><small> m</small></div>
+  <div class="ndc tl"><span id="n-gs" class="gsbig">0</span><small> km/h</small><br><small>海抜</small> <span id="n-alt" class="mid">---</span><small> m</small><span style="display:none"><br><small>制限</small> <span id="n-lim" class="mid">--</span><small> km/h</small></span></div>
   <div class="ndc tr"><small>HDG</small> <span id="n-hdg">000</span>°<br><small>TRK</small> <span id="n-trk" style="color:var(--g)">---</span>°<br><small>RNG</small> <span id="n-rng" style="color:var(--c)">—</span></div>
   <div class="lg" id="lg" hidden></div>
   <div class="gd" id="gd" hidden></div>
@@ -172,11 +176,11 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <nav class="bar" aria-label="操作">
   <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-stop">案内中止</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="tr">渋滞</button><button data-wx="pm">PM2.5</button></div>
-  <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
-  <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
+  <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
+  <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-mnt">手入れ</button><button id="b-wash">洗車記録</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
  </nav>
 </div>
 <div class="sheet" id="sh-wx" hidden><div class="shin"><header><b>気象</b><button data-close>閉じる</button></header><div id="wxbody"><p class="note">データを取得中…（GitHub Pages で開いたときに表示されます）</p></div>
@@ -185,6 +189,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <p class="note" id="ac-st">中継サーバーのURLを入れると「飛行機」が使えます。</p></div></div>
 <div class="sheet" id="sh-hist" hidden><div class="shin"><header><b>走行履歴</b><button data-close>閉じる</button></header>
  <label class="chk"><input type="checkbox" id="h-show">過去の走行を地図に点線で表示</label>
+ <div class="rrow"><button id="h-gpx">全部をGPXで書き出し</button><button id="h-csv">全部をCSVで書き出し</button><span class="note">GPXはGoogle Earth・地図アプリ・Strava などで開けます</span></div>
  <p class="note">★で残した記録は消えません。★なしの記録は60日たつと自動で消えます。記録はこのiPhoneの中だけに保存され、デモ走行は記録されません。</p>
  <div id="hlist"></div></div></div>
 <div class="sheet" id="sh-rt" hidden><div class="shin"><header><b>裏道ガイド</b><button data-close>閉じる</button></header>
@@ -200,14 +205,24 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <div id="rlist"></div></div></div>
 <div class="sheet" id="sh-dest" hidden><div class="shin"><header><b>目的地・お気に入り</b><button data-close>閉じる</button></header>
  <form class="rrow" id="d-form"><input id="d-q" placeholder="施設名・住所・郵便番号（例：273-0005）" enterkeyhint="search" autocomplete="off" style="flex:1;min-width:180px;min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="目的地を検索"><button type="button" id="d-mic" aria-label="声で入力">🎤</button><button type="submit">検索</button></form>
+ <div class="bands" id="poi-row"><button data-poi="コンビニ">コンビニ</button><button data-poi="トイレ">トイレ</button><button data-poi="ガソリン">ガソリン</button><button data-poi="充電">充電</button><button data-poi="駐車場">駐車場</button><button data-poi="道の駅">道の駅</button><button data-poi="洗車場">洗車場</button></div>
  <div id="d-res"></div><div id="d-reg"></div>
  <label class="chk"><input type="checkbox" id="d-ura">登録した裏道が使えるときは裏道経由で案内（通常より早いか、1分以内の差のとき）</label>
+ <h3>駐車</h3><div class="rrow"><span id="park-st" class="note">駐車位置なし</span><label class="note">タイマー<select id="park-lim" aria-label="駐車タイマー"><option value="0">なし</option><option value="30">30分</option><option value="60">60分</option><option value="90">90分</option><option value="120">2時間</option><option value="180">3時間</option></select></label></div>
  <h3>お気に入り地点</h3><div class="bands" id="f-chips"></div><div id="f-list"></div><div class="rrow"><button id="f-here">今いる場所を登録</button></div>
  <h3>最近の目的地</h3><div id="d-recent"></div>
  <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
  <p class="note">声で「船橋駅まで案内」「自宅に帰る」「洗車場へ行きたい」「郵便番号273-0005」「今の場所をお気に入りに登録」と言えます。データ：国土地理院・OpenStreetMap／Nominatim・HeartRails Geo API／zipcloud（郵便番号）・OSRM（ルート）。</p>
 </div></div>
 <div class="sheet" id="sh-set" hidden><div class="shin"><header><b>設定</b><button data-close>閉じる</button></header>
+ <h3>GPS診断</h3>
+ <div class="bands"><button id="gps-dbtn">GPSを調べる</button></div>
+ <pre id="gps-diag" class="note" style="white-space:pre-wrap;margin:6px 0"></pre>
+ <h3>音の出し方</h3>
+ <label class="chk"><input type="radio" name="amode" value="mix">音楽優先：効果音と画面表示（CarPlayの音楽を止めない）</label>
+ <label class="chk"><input type="radio" name="amode" value="voice">すべて声で読み上げ（iPhoneの仕組み上、音楽が止まることがあります）</label>
+ <div class="bands"><button data-cue="r2">右折の音</button><button data-cue="l2">左折の音</button><button data-cue="up">加速</button><button data-cue="down">減速</button><button data-cue="n5">5</button><button data-cue="n3">3</button><button data-cue="ura">裏道</button><button data-cue="off">コース外</button><button data-cue="arr">到着</button><button data-cue="warn">警告</button></div>
+ <p class="note">音楽優先では、曲がる案内は右なら右のスピーカー、左なら左から鳴ります（ステレオのとき）。警報・地震と、声で話しかけたときの返事は声で読み上げます。iPhoneの消音スイッチがオンだと効果音は鳴りません。</p>
  <h3>日本語の声（案内・天気など）</h3><div class="rrow"><select id="v-ja" aria-label="日本語の声"></select><button id="v-ja-t">試す</button></div>
  <h3>英語の声（速度コール）</h3><div class="rrow"><select id="v-en" aria-label="英語の声"></select><button id="v-en-t">試す</button></div>
  <h3>話す速さ</h3><div class="rrow"><input type="range" id="v-rate" min="0.7" max="1.5" step="0.05" style="flex:1;accent-color:var(--c)" aria-label="話す速さ"><span id="v-rate-v" class="note"></span></div>
@@ -222,6 +237,23 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <p class="note" id="tt-st">キーを入れると、天気ページの「渋滞」で道路の混雑を色で表示し、目的地ナビの到着時間と裏道の判断に渋滞を反映します（無料枠あり）。</p>
  <h3>メニュー</h3><label class="chk"><input type="checkbox" id="set-menu">下の操作メニューを表示する（上の MENU ボタンでも切り替え）</label>
 </div></div>
+<div class="sheet" id="sh-out" hidden><div class="shin"><header><b id="out-name">書き出し</b><button data-close>閉じる</button></header><p class="note">共有メニューが使えないときは、ここからコピーして他のアプリに貼り付けてね。</p><textarea id="out-text" readonly style="width:100%;height:50vh;background:#000;color:#9aa6b2;border:1px solid #26313d;border-radius:8px;font:12px monospace"></textarea><div class="rrow"><button id="out-copy" class="on">コピー</button></div></div></div>
+<div class="sheet" id="sh-log" hidden><div class="shin"><header><b>フライトログ</b><button data-close>閉じる</button></header><div id="log-body"></div></div></div>
+<div class="sheet" id="sh-ck" hidden><div class="shin"><header><b>着陸チェックリスト</b><button data-close>閉じる</button></header><div id="ck-list"></div><details style="margin-top:10px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">項目を編集（1行に1つ）</summary><textarea id="ck-edit" style="width:100%;height:140px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:8px"></textarea><div class="rrow"><button id="ck-save" class="on">保存</button></div></details><p class="note">目的地に着くと自動で開いて読み上げます。全部にチェックすると閉じます。</p></div></div>
+<div class="sheet" id="sh-mnt" hidden><div class="shin"><header><b>手入れ</b><button data-close>閉じる</button></header>
+ <h3>今の走行距離（オドメーター）</h3><div class="rrow"><input id="m-odo" type="number" inputmode="numeric" placeholder="例：12345" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="走行距離"><span>km</span><button id="m-odo-save">設定</button></div><p class="note">一度入れると、あとはGPSの走行距離を足して推定します。ずれたら入れ直してね。</p>
+ <h3>メンテナンス</h3><div class="rrow"><input id="m-cost" type="number" inputmode="numeric" placeholder="費用（円）" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="費用"><input id="m-memo" placeholder="メモ（店・銘柄など）" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="メモ"></div><p class="note">費用・メモを入れて、項目の「記録」を押すと今日の日付で記録します。</p><div id="m-items"></div>
+ <div class="rrow"><input id="m-nname" placeholder="項目を追加（例：ワイパー交換）" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="項目名"><input id="m-ndays" type="number" placeholder="日数" style="width:90px;min-height:44px;font:16px monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px" aria-label="周期の日数"><input id="m-nkm" type="number" placeholder="km" style="width:90px;min-height:44px;font:16px monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px" aria-label="周期の距離"><button id="m-add">追加</button></div>
+ <h3>コーティング再施工</h3><div id="m-coats"></div>
+ <div class="rrow"><input id="c-nname" placeholder="被膜を追加（例：ガラコ）" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="被膜名"><input id="c-ndays" type="number" placeholder="日数" style="width:90px;min-height:44px;font:16px monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px" aria-label="再施工の周期"><button id="c-add">追加</button></div>
+ <p class="note">期限が近づくと、1日1回、音声でお知らせします。コーティングは、その日の「コーティングに向く時間」も一緒に伝えます。洗車記録で「○○を塗った」と話すと施工日が自動で更新されます。</p>
+ <h3>記録</h3><div id="m-log"></div><div class="rrow"><button id="m-exp">CSVで書き出し</button></div></div></div>
+<div class="sheet" id="sh-wash" hidden><div class="shin"><header><b>洗車記録</b><button data-close>閉じる</button></header>
+ <div class="rrow"><button id="w-mic" class="on">🎤 話して記録</button><button id="w-save">保存</button></div>
+ <textarea id="w-text" placeholder="例：ボンネットとルーフはAuto-Foamで予洗い。ホイールはSONAXのホイールクリーナー。リアガラスは非撥水クリーナーで拭いた。ボロンをボンネットに塗った。以上" style="width:100%;height:120px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:8px"></textarea>
+ <p class="note">話した内容を、部位（ボンネット・ルーフ・サイドパネル・サイドガラス・フロントグリル・フロントガラス・フロントバンパー・リア・リアガラス・タイヤ・ホイール・その他）ごとに分けて保存します。最後に「以上」と言うと自動で保存。場所（近くのお気に入り）と気温・湿度も記録します。</p>
+ <div class="rrow"><button id="w-csv">CSV</button><button id="w-md">Markdown</button><button id="w-json">JSON</button><span class="note">表計算・メモ・Notion などで使えます</span></div>
+ <div id="w-list"></div></div></div>
 <div class="sheet" id="sh-fr" hidden><div class="shin fr"><header><b id="fr-title">フライトレコーダー</b><button data-close>閉じる</button></header>
  <svg id="fr-map" viewBox="0 0 400 220" style="height:220px"></svg>
  <div class="frv"><div class="chip"><small>時刻</small><b id="fr-t">--:--</b></div><div class="chip"><small>速度</small><b id="fr-s">--</b> km/h</div><div class="chip"><small>海抜</small><b id="fr-a">--</b> m</div><div class="chip"><small>G</small><b id="fr-g">--</b></div></div>
@@ -246,6 +278,18 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
 const $=id=>document.getElementById(id), D2R=Math.PI/180, NS='http://www.w3.org/2000/svg';
 const st={lat:35.6812,lon:139.7671,spd:0,alt:null,acc:null,trk:null,hdg:0,cmpRaw:null,roll:0,pitch:0,gx:0,gy:0,gpk:0,gps:false,cmp:false,att:false,demo:false,wake:false,hup:true,rec:true,src:'AUTO'};
 let pref={};try{pref=JSON.parse(localStorage.getItem('cockpitnav')||'{}')}catch(e){}
+/* ---------- iPhoneアプリ版（Capacitor）でだけ使う部分 ---------- */
+const CAP=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const NP=n=>{try{return CAP?(Capacitor.Plugins[n]||(Capacitor.registerPlugin&&Capacitor.registerPlugin(n))):null}catch(e){return null}};
+let nVoices=null,nBriLast=null;
+if(CAP){document.documentElement.classList.add('native');try{NP('TextToSpeech').getSupportedVoices().then(r=>{nVoices=r.voices||[]}).catch(()=>{})}catch(e){}
+ if(!pref.amodeN){pref.amode='voice';pref.amodeN=1}} // アプリ版は音楽を小さくして読み上げられるので、声を標準に
+function nSpeak(t,lang,rate,flush,vname){const T=NP('TextToSpeech');if(!T)return false;
+ const o={text:t,lang,rate:Math.max(.5,Math.min(2,rate)),pitch:1,volume:1,category:'playback',queueStrategy:flush?0:1};
+ if(nVoices&&vname){const i=nVoices.findIndex(v=>v.name===vname);if(i>=0)o.voice=i}
+ try{T.speak(o).catch(()=>{})}catch(e){return false}return true}
+function nBright(night){if(!CAP||nBriLast===night)return;const B=NP('ScreenBrightness');if(!B)return;nBriLast=night;try{B.setBrightness({brightness:night?0.65:1}).catch(()=>{})}catch(e){}}
+
 const save=()=>{try{localStorage.setItem('cockpitnav',JSON.stringify(pref))}catch(e){}};
 const scr=()=>(screen.orientation&&screen.orientation.angle)||window.orientation||0;
 const pad=(n,l)=>String(Math.round(n)).padStart(l,'0'),two=n=>String(n).padStart(2,'0');
@@ -428,20 +472,49 @@ function startDemo(why){
   setPos(c.lat+R*Math.sin(a)/111320,c.lon+R*(1-Math.cos(a))/(111320*Math.cos(c.lat*D2R)));
  },100);
 }
+const isApp=()=>CAP||navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+let gpsW=null,gpsTry=0,gpsErr=null,gpsWait=0;
+const GPS_HELP='iPhoneの設定 → プライバシーとセキュリティ → 位置情報サービス → 「Safari Webサイト」を「使用中のみ」に。設定 → アプリ → Safari → 位置情報 も「確認」か「許可」に';
+function gpsOk(p){gpsTry=0;gpsErr=null;
+ if(st.demo){clearInterval(demoT);st.demo=false;clearTrack()}
+ if(!st.gps)msg('GPS受信');st.gps=true;const c=p.coords;st.acc=c.accuracy;st.alt=c.altitude;
+ if(c.speed!=null&&c.speed>=0)st.spd=c.speed*3.6;
+ if(c.heading!=null&&!isNaN(c.heading)&&st.spd>3)st.trk=c.heading;
+ setPos(c.latitude,c.longitude);rng()}
+function gpsNg(e){gpsErr={code:e.code,m:e.message||'',t:Date.now(),hi:gpsTry<2};st.gps=false;
+ gpsClear();gpsW=null;
+ if(e.code===1&&gpsTry>=1){startDemo('GPS: 許可されていません');setTimeout(()=>msg('GPS不許可：'+GPS_HELP),6500);return}
+ if(gpsTry<5){gpsTry++;setTimeout(startGPS,e.code===1?1500:3000);if(gpsTry===1)msg('GPS再試行中…')}
+ else startDemo('GPS: 取得できません（'+e.code+'）')}
+function gpsClear(){if(gpsW==null)return;const G=NP('Geolocation');try{if(G)G.clearWatch({id:gpsW}).catch(()=>{});else navigator.geolocation.clearWatch(gpsW)}catch(_){}}
+const gErr=e=>({code:/denied|permission|not authorized|拒否/i.test((e&&e.message)||'')?1:(e&&e.code===3?3:2),message:(e&&e.message)||''});
 function startGPS(){
+ const G=NP('Geolocation');
+ if(G){gpsClear();gpsW=null;(async()=>{try{ // アプリ版：iPhoneの位置情報を直接使う
+   const p=await G.checkPermissions();if(p.location!=='granted'&&p.coarseLocation!=='granted'){const q=await G.requestPermissions();if(q.location==='denied'){gpsNg({code:1,message:'denied'});return}}
+   gpsW=await G.watchPosition({enableHighAccuracy:true,timeout:20000,maximumAge:1000},(pos,err)=>{if(err)gpsNg(gErr(err));else if(pos)gpsOk(pos)})
+  }catch(e){gpsNg(gErr(e))}})();
+  clearTimeout(gpsWait);gpsWait=setTimeout(()=>{if(!st.gps)startDemo('GPS待ち')},15000);return}
  if(!navigator.geolocation){startDemo('位置情報に非対応');return}
- try{navigator.geolocation.watchPosition(p=>{
-  if(st.demo){clearInterval(demoT);st.demo=false;clearTrack()}
-  if(!st.gps)msg('GPS受信');st.gps=true;const c=p.coords;st.acc=c.accuracy;st.alt=c.altitude;
-  if(c.speed!=null&&c.speed>=0)st.spd=c.speed*3.6;
-  if(c.heading!=null&&!isNaN(c.heading)&&st.spd>3)st.trk=c.heading;
-  setPos(c.latitude,c.longitude);rng();
- },e=>startDemo('GPS: '+(e.code===1?'許可されていません':'取得できません')),{enableHighAccuracy:true,maximumAge:1000,timeout:20000})}catch(e){startDemo('GPSが使えません')}
- setTimeout(()=>{if(!st.gps)startDemo('GPS待ち')},15000);
+ gpsClear();
+ const hi=gpsTry<2; // 2回失敗したら低精度で取り直す
+ const o={enableHighAccuracy:hi,maximumAge:hi?1000:10000,timeout:hi?20000:30000};
+ try{navigator.geolocation.getCurrentPosition(gpsOk,()=>{},{enableHighAccuracy:false,maximumAge:60000,timeout:15000}); // まず大まかな位置
+  gpsW=navigator.geolocation.watchPosition(gpsOk,gpsNg,o)}catch(e){startDemo('GPSが使えません')}
+ clearTimeout(gpsWait);gpsWait=setTimeout(()=>{if(!st.gps)startDemo('GPS待ち')},15000);
 }
+async function gpsDiag(){const L=[],G=NP('Geolocation');L.push('起動のしかた：'+(CAP?'iPhoneアプリ':isApp()?'ホーム画面アプリ':'ブラウザ'));
+ if(G){try{const q=await G.checkPermissions();L.push('位置情報の許可：'+q.location)}catch(e){}L.push('GPS受信：'+(st.gps?'OK（誤差'+Math.round(st.acc||0)+'m）':'なし'));$('gps-diag').textContent=L.join('\n')+'\n…いま位置を取りに行っています';
+  try{const p=await G.getCurrentPosition({enableHighAccuracy:true,timeout:20000});gpsOk(p);$('gps-diag').textContent=L.join('\n')+'\n→ 取得成功！ 誤差'+Math.round(p.coords.accuracy)+'m';if(gpsW==null){gpsTry=0;startGPS()}}catch(e){$('gps-diag').textContent=L.join('\n')+'\n→ 失敗：'+(e.message||e)+'\niPhoneの設定 → Cockpit → 位置情報 を「使用中のみ」に'}return}
+ try{if(navigator.permissions){const q=await navigator.permissions.query({name:'geolocation'});L.push('位置情報の許可：'+({granted:'許可',denied:'拒否',prompt:'未確認'}[q.state]||q.state))}}catch(e){L.push('位置情報の許可：不明')}
+ L.push('GPS受信：'+(st.gps?'OK（誤差'+Math.round(st.acc||0)+'m）':'なし'));
+ if(gpsErr)L.push('最後のエラー：'+({1:'1 許可されていない',2:'2 位置が取れない',3:'3 時間切れ'}[gpsErr.code]||gpsErr.code)+(gpsErr.m?'（'+gpsErr.m+'）':''));
+ $('gps-diag').textContent=L.join('\n')+'\n…いま位置を取りに行っています';
+ navigator.geolocation.getCurrentPosition(p=>{gpsOk(p);$('gps-diag').textContent=L.join('\n')+'\n→ 取得成功！ 誤差'+Math.round(p.coords.accuracy)+'m';if(gpsW==null){gpsTry=0;startGPS()}},
+  e=>{$('gps-diag').textContent=L.join('\n')+'\n→ 失敗：コード'+e.code+(e.message?'（'+e.message+'）':'')+(e.code===1?'\n'+GPS_HELP:'')},{enableHighAccuracy:true,maximumAge:0,timeout:20000})}
 let wl=null;
-async function wake(){try{if(navigator.wakeLock){wl=await navigator.wakeLock.request('screen');st.wake=true;wl.addEventListener('release',()=>{st.wake=false})}}catch(e){st.wake=false}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake()});
+async function wake(){const K=NP('KeepAwake');if(K){try{await K.keepAwake();st.wake=true}catch(e){}return}try{if(navigator.wakeLock){wl=await navigator.wakeLock.request('screen');st.wake=true;wl.addEventListener('release',()=>{st.wake=false})}}catch(e){st.wake=false}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){wake();if(!st.gps&&$('start').hidden){gpsTry=0;startGPS()}}});
 
 $('go').addEventListener('click',()=>{
  const asks=[window.DeviceOrientationEvent,window.DeviceMotionEvent].filter(E=>E&&typeof E.requestPermission==='function').map(E=>E.requestPermission().catch(()=>'denied'));
@@ -449,9 +522,9 @@ $('go').addEventListener('click',()=>{
   window.addEventListener('deviceorientation',onOri);
   if('ondeviceorientationabsolute' in window)window.addEventListener('deviceorientationabsolute',onOri);
   window.addEventListener('devicemotion',onMot);
- });
- $('start').hidden=true;wake();startGPS();size();
- try{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance('システム起動');u.lang='ja-JP';if(pref.voice!==false)speechSynthesis.speak(u)}}catch(e){} // 音声の許可
+ }).finally(()=>{gpsTry=0;startGPS()}); // 許可の確認が重なるとGPSが拒否されることがあるので、順番に聞く
+ $('start').hidden=true;wake();size();actxOn();
+ if(CAP){if(pref.voice!==false)nSpeak('システム起動','ja-JP',pref.vRate||1.05,true,pref.vJa)}else try{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance('システム起動');u.lang='ja-JP';if(pref.voice!==false)speechSynthesis.speak(u)}}catch(e){} // 音声の許可
  try{const f=document.documentElement.requestFullscreen;f&&f.call(document.documentElement).catch(()=>{})}catch(e){}
 });
 
@@ -496,12 +569,12 @@ function colour(){
  const s=sun(st.lat,st.lon),now=new Date(),nt=!!s&&(now<s.rise||now>s.set);
  $('t-rise').textContent=s?hm5(s.rise):'—';$('t-set').textContent=s?hm5(s.set):'—';
  if(nt!==isNightSun){isNightSun=nt;msg(nt?'日没後のため夜間色に切替':'日中のため昼間色に切替')}
- document.body.classList.toggle('night',isNightSun);VS.forEach(v=>v.wrap.classList.toggle('mapnight',nightOf(v.cfg.cm)));syncBar();
+ nBright(isNightSun);document.body.classList.toggle('night',isNightSun);VS.forEach(v=>v.wrap.classList.toggle('mapnight',nightOf(v.cfg.cm)));syncBar();
 }
 VS.forEach(applyView);colour();setInterval(colour,30000);
 window.addEventListener('orientationchange',()=>{ref=null});
 $('a-gps').style.cursor='pointer';
-$('a-gps').addEventListener('click',()=>{if(st.gps)return;if(st.demo){clearInterval(demoT);st.demo=false}msg('GPS再試行中…');startGPS()}); // GPS表示をタップで再試行
+$('a-gps').addEventListener('click',()=>{if(st.gps)return;if(st.demo){clearInterval(demoT);st.demo=false}msg('GPS再試行中…');gpsTry=0;startGPS()}); // GPS表示をタップで再試行
 
 
 
@@ -586,15 +659,16 @@ function hList(){
  const rows=trips.slice().sort((a,b)=>b.start-a.start);
  $('hlist').innerHTML=rows.length?rows.map(t=>{const left=t.keep?'':`・あと${Math.max(0,Math.ceil((t.end+60*DAY-Date.now())/DAY))}日`;
   return `<div class="trip"><div><div class="t">${fmtD(t.start)} ${fmtT(t.start)}–${fmtT(t.end)}${t===cur?' （記録中）':''}</div>
-  <div class="d">${(t.dist/1000).toFixed(1)} km・${Math.round((t.end-t.start)/60000)}分${left}</div></div>
+  <div class="d">${(t.dist/1000).toFixed(1)} km・${Math.round((t.end-t.start)/60000)}分${left}${scoreOf(t)!=null?`・スコア <b style="color:var(--g)">${scoreOf(t)}</b>`:''}</div></div>
   <div class="acts"><button data-act="show" data-id="${t.id}" class="${t.show!==false?'on':''}">表示</button>
   <button data-act="keep" data-id="${t.id}" class="${t.keep?'on':''}">${t.keep?'★残す':'☆残す'}</button>
-  ${t.rec&&t.rec.length>5?`<button data-act="play" data-id="${t.id}">再生</button>`:''}<button data-act="route" data-id="${t.id}">裏道に登録</button><button data-act="del" data-id="${t.id}">削除</button></div></div>`}).join(''):'<p class="note">まだ記録がありません。GPSを受信して走ると記録されます。</p>';
+  ${t.rec&&t.rec.length>5?`<button data-act="play" data-id="${t.id}">再生</button>`:''}<button data-act="route" data-id="${t.id}">裏道に登録</button><button data-act="gpx" data-id="${t.id}">GPX</button><button data-act="del" data-id="${t.id}">削除</button></div></div>`}).join(''):'<p class="note">まだ記録がありません。GPSを受信して走ると記録されます。</p>';
 }
 $('hlist').addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;const t=trips.find(x=>String(x.id)===b.dataset.id);if(!t)return;
  if(b.dataset.act==='show')t.show=t.show===false;
  else if(b.dataset.act==='keep')t.keep=!t.keep;
  else if(b.dataset.act==='play'){openFR(t);return}
+ else if(b.dataset.act==='gpx'){shareOut('cockpit-nav-'+ymd(t.start)+'-'+fmtT(t.start).replace(':','')+'.gpx',gpxOf([t]),'application/gpx+xml');return}
  else if(b.dataset.act==='route'){if(addRoute(t.pts.slice(),'裏道 '+fmtD(t.start)+' '+fmtT(t.start))){b.textContent='登録済み';msg('裏道に登録しました（裏道ボタンから案内できます）')}return}
  else if(b.dataset.act==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}trips=trips.filter(x=>x!==t);if(t===cur)cur=null}
  hSave();drawPast();hList()});
@@ -664,12 +738,12 @@ function renderWx(){
   `<h3>24時間の黄砂</h3><div class="strip">${hh.dust.map(v=>`<i style="background:${dustLv(+v)[1]};opacity:.85"></i>`).join('')}</div>`+ticks(hh.time,6,t=>`<span>${hm(t)}</span>`)+
   `<p class="note">PM2.5は1日平均35µg/m³が環境基準の目安。黄砂・PM2.5が多い日は、ボディやガラスに汚れが付きやすくなります。</p>`;
  }
- html+=washHTML()+skyHTML();
+ html=warnHTML()+html+washHTML()+skyHTML();
  html+=`<p class="note">データ：環境省そらまめくん（大気の実測）／気象庁（地図の雨雲・風）／Open-Meteo（降水・結露）／Open-Meteo Air Quality（大気）。${fcTime?'取得 '+fmtT(fcTime):''}</p>`;
  if(fc||aq||sora)$('wxbody').innerHTML=html;
  $('fct').textContent=[wxSum.rainTxt,wxSum.dewTxt].filter(Boolean).join('・');
 }
-function fcTick(){if(wxSum.rain&&!rainSaid){rainSaid=true;say('まもなく雨の予報です')}else if(!wxSum.rain)rainSaid=false;
+function fcTick(){if(wxSum.rain&&!rainSaid){rainSaid=true;sayAuto('まもなく雨の予報です','rain')}else if(!wxSum.rain)rainSaid=false;
  if(Date.now()-soraTime>900000){soraTime=Date.now();fetchSora()}
  if(!fcBusy&&(!fcAt||map.distance(fcAt,[st.lat,st.lon])>5000||Date.now()-fcTime>900000)){fcBusy=true;fetchFc().catch(()=>{fcTime=Date.now()-780000}).finally(()=>{fcBusy=false})}
  const set=(id,on)=>{const e=$(id);e.className='an'+(on?' warn':'')};set('a-rain',wxSum.rain);set('a-dew',wxSum.dew);set('a-air',wxSum.air)}
@@ -683,7 +757,25 @@ $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').
 /* ---------- 音声案内（Web Speech API） ---------- */
 pref.voice=pref.voice!==false;let rainSaid=false;
 const pickV=(name,re)=>{const vs=window.speechSynthesis?speechSynthesis.getVoices():[];return vs.find(v=>v.name===name)||vs.find(v=>re.test(v.lang))};
-function say(t){if(!pref.voice||!window.speechSynthesis||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;speechSynthesis.speak(u)}catch(e){}}
+/* ---------- 音の出し方（音楽を止めない効果音モード） ---------- */
+pref.amode=pref.amode==='voice'?'voice':'mix';let actx=null;
+function aSess(t){try{if(navigator.audioSession)navigator.audioSession.type=t}catch(e){}}
+aSess('ambient');
+function actxOn(){try{if(!actx){const C=window.AudioContext||window.webkitAudioContext;if(C)actx=new C()}if(actx&&actx.state==='suspended')actx.resume()}catch(e){}return actx}
+const CUES={r1:[[880,0,.12,.8],[1319,.15,.18,.8]],l1:[[880,0,.12,-.8],[1319,.15,.18,-.8]],c1:[[880,0,.12,0],[1319,.15,.18,0]],
+ r2:[[988,0,.09,.9],[1319,.11,.09,.9],[1760,.22,.2,.9]],l2:[[988,0,.09,-.9],[1319,.11,.09,-.9],[1760,.22,.2,-.9]],c2:[[988,0,.09,0],[1319,.11,.09,0],[1760,.22,.2,0]],
+ off:[[220,0,.16,0,'triangle'],[196,.22,.22,0,'triangle']],ok:[[784,0,.12,0],[988,.12,.22,0]],arr:[[523,0,.12,0],[659,.13,.12,0],[784,.26,.12,0],[1047,.39,.35,0]],
+ ura:[[880,0,.18,0],[660,.22,.3,0]],up:[[600,0,.16,0,'sine',900]],down:[[900,0,.16,0,'sine',600]],n5:[[1000,0,.07,0],[1000,.14,.07,0]],n3:[[1200,0,.06,0],[1200,.1,.06,0],[1200,.2,.06,0]],
+ warn:[[1000,0,.12,0,'square'],[800,.15,.12,0,'square'],[1000,.3,.12,0,'square']],sun:[[1568,0,.08,0],[2093,.1,.15,0]],rain:[[1047,0,.1,0],[880,.12,.1,0],[698,.24,.2,0]],tfc:[[1319,0,.06,0],[1319,.12,.06,0]],info:[[1047,0,.15,0]]};
+function cue(k){const C=actxOn(),seq=CUES[k];if(!C||!seq||!pref.voice)return;aSess('ambient');const t0=C.currentTime+0.02;
+ for(const[f,dt,dur,pan,type,f2]of seq){const o=C.createOscillator(),g=C.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t0+dt);if(f2)o.frequency.linearRampToValueAtTime(f2,t0+dt+dur);
+  g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(type==='square'?0.08:0.22,t0+dt+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dt+dur);
+  let n=o;if(C.createStereoPanner&&pan){const p=C.createStereoPanner();p.pan.value=pan;o.connect(g);g.connect(p);p.connect(C.destination)}else{o.connect(g);g.connect(C.destination)}o.start(t0+dt);o.stop(t0+dt+dur+0.05)}}
+function sayAuto(t,k){if(pref.amode==='voice')say(t);else{cue(k||'info');if(t)msg(t)}}
+function sayEnAuto(t,k){if(pref.amode==='voice')sayEn(t);else cue(k)}
+function flashSpd(c){const e=$('n-gs');e.style.color=c;setTimeout(()=>{e.style.color=''},1500)}
+
+function say(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',pref.voice);vB.textContent=pref.voice?'音声 ON':'音声 OFF'};setV();
 vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.voice)say('音声案内をオンにしました');else if(window.speechSynthesis)speechSynthesis.cancel()});
 
@@ -742,7 +834,7 @@ function suggTick(){
   for(const rev of[false,true]){const k=r.id+(rev?'r':'f'),S=rev?r.pts[r.pts.length-1]:r.pts[0];
    if(map.distance(me,S)<150&&now-(suggAt[k]||0)>30*60000){suggAt[k]=now;sugg={r,rev};
     $('sg-t').textContent=`${r.name}${rev?'（逆）':''}が使えます${r.memo?'・'+r.memo.slice(0,20):''}`;$('sg').hidden=false;
-    say(`裏道、${r.name}が使えます`);setTimeout(()=>{if(sugg&&sugg.r===r)hideSugg()},20000);return}}}
+    sayAuto(`裏道、${r.name}が使えます`,'ura');setTimeout(()=>{if(sugg&&sugg.r===r)hideSugg()},20000);return}}}
 }
 function hideSugg(){sugg=null;$('sg').hidden=true}
 $('sg-go').addEventListener('click',()=>{if(sugg){const{r,rev}=sugg;hideSugg();startGuide(r,rev)}});
@@ -777,16 +869,16 @@ function startGuide(r,rev,opt){const P=rev?r.pts.slice().reverse():r.pts,cum=cum
  for(const t of guide.turns)guideL.addLayer(L.circleMarker(P[t.i],{radius:6,color:'#000',weight:2,fillColor:'#ffd27a',fillOpacity:1,interactive:false}));
  guideL.addLayer(L.circleMarker(P[0],{radius:9,color:'#000',weight:2,fillColor:'#3be36a',fillOpacity:1,interactive:false}));
  guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
- if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);say(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`)}else say('新しいルートで案内します')}
- else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);say(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''))}guideTick()}
-function stopGuide(t,v){if(v)say(v);guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
+ if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);sayAuto(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`,'ok')}else sayAuto('新しいルートで案内します','ok')}
+ else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);sayAuto(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''),'ok')}guideTick()}
+function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
 function guideTick(){
  if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon],now=Date.now();let lo=0,hi=P.length-1;
  if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
  let bi=lo,bd=1e12;for(let i=lo;i<=hi;i++){const d=map.distance(me,P[i]);if(d<bd){bd=d;bi=i}}
  g.prog=bi;g.off=bd>60;
- if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide(g.nav?'目的地に到着しました':'裏道ガイド：到着しました','目的地に到着しました。案内を終了します');return}
- if(g.nav){if(g.off&&bd>80){g.offN=(g.offN||0)+1;if(g.offN>=8&&now-(g.rerAt||0)>30000){g.rerAt=now;g.offN=0;say('ルートを再検索します');navTo(g.nav.dest,{quiet:true})}}else g.offN=0}
+ if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide(g.nav?'目的地に到着しました':'裏道ガイド：到着しました','目的地に到着しました。案内を終了します');if(g.nav&&pref.ckAuto!==false)setTimeout(()=>openCk(true),5000);return}
+ if(g.nav){if(g.off&&bd>80){g.offN=(g.offN||0)+1;if(g.offN>=8&&now-(g.rerAt||0)>30000){g.rerAt=now;g.offN=0;sayAuto('ルートを再検索します','off');navTo(g.nav.dest,{quiet:true})}}else g.offN=0}
  let ti=bi;if(!g.off){while(ti<P.length-1&&g.cum[ti]-g.cum[bi]<60)ti++}
  const b=brg(me,P[ti]),rel=((b-st.hdg+540)%360)-180,ar=Math.abs(rel),dir=ar<30?'まっすぐ':ar>150?'Uターン':rel>0?'右へ':'左へ';
  const left=g.cum[P.length-1]-g.cum[bi],nt=g.turns.find(t=>t.i>bi),dn=nt?g.cum[nt.i]-g.cum[bi]:null;
@@ -803,16 +895,17 @@ function guideTick(){
  const key=g.off?'off':(ar>150&&st.spd>5)?'U':'on';
  if(key===g.cand)g.candN++;else{g.cand=key;g.candN=1}
  if(g.candN>=2&&key!==g.lastKey){
-  if(key==='off'){say(`${bi===0?'スタート':'コース'}は${dir==='まっすぐ'?'前方':dir==='Uターン'?'後方':dir==='右へ'?'右方向':'左方向'}、${sayM(bd)}です`);g.offSaid=now}
-  else if(key==='U')say('Uターンしてください');
-  else if(g.lastKey==='off')say('コースに入りました');
+  if(key==='off'){sayAuto(`${bi===0?'スタート':'コース'}は${dir==='まっすぐ'?'前方':dir==='Uターン'?'後方':dir==='右へ'?'右方向':'左方向'}、${sayM(bd)}です`,'off');g.offSaid=now}
+  else if(key==='U')sayAuto('Uターンしてください','off');
+  else if(g.lastKey==='off')sayAuto('コースに入りました','ok');
   g.lastKey=key}
- else if(key==='off'&&now-(g.offSaid||0)>30000){say(`${bi===0?'スタート':'コース'}まで、${sayM(bd)}です`);g.offSaid=now}
- if(key==='on')for(const mk of g.marks||[])if(!mk.s&&bi>=mk.i){mk.s=1;if(bi-mk.i<20)say(mk.text)}
+ else if(key==='off'&&now-(g.offSaid||0)>30000){sayAuto(`${bi===0?'スタート':'コース'}まで、${sayM(bd)}です`,'off');g.offSaid=now}
+ if(key==='on')for(const mk of g.marks||[])if(!mk.s&&bi>=mk.i){mk.s=1;if(bi-mk.i<20)sayAuto(mk.text,'ura')}
  if(key==='on'&&nt){
   const rd=nt.road?`。${nt.road}`:'';
-  if(dn<=330&&dn>140&&!nt.s1){nt.s1=1;say(`${sayM(dn)}先、${nt.w}です${rd}`)}
-  else if(dn<=120&&!nt.s2){nt.s1=nt.s2=1;say(`まもなく、${nt.w}です${rd}`)}
+  const side=nt.w.includes('右')?'r':nt.w.includes('左')?'l':'c';
+  if(dn<=330&&dn>140&&!nt.s1){nt.s1=1;sayAuto(`${sayM(dn)}先、${nt.w}です${rd}`,side+'1')}
+  else if(dn<=120&&!nt.s2){nt.s1=nt.s2=1;sayAuto(`まもなく、${nt.w}です${rd}`,side+'2')}
  }
 }
 setInterval(guideTick,1000);
@@ -889,10 +982,10 @@ const angD=(a,b)=>Math.abs(((a-b+540)%360)-180);
 function glareTick(){
  if(!sky)return;const sa=sky.sun,low=sa.alt>0&&sa.alt<15,now=Date.now(),word=new Date().getHours()<12?'朝日':'西日';
  const g=low&&st.spd>10&&angD(sa.az,st.hdg)<35;$('a-sun').className='an'+(g?' warn':low?' on':'');
- if(g&&now-glareSaid>15*60000){glareSaid=now;say(`正面に${word}です。まぶしさに注意してください`);msg(`正面に${word}（太陽 高さ${sa.alt.toFixed(0)}°）`)}
+ if(g&&now-glareSaid>15*60000){glareSaid=now;sayAuto(`正面に${word}です。まぶしさに注意してください`,'sun');msg(`正面に${word}（太陽 高さ${sa.alt.toFixed(0)}°）`)}
  if(low&&guide&&!guide.off&&now-aheadSaid>10*60000){const g2=guide,P=g2.P;
   for(let i=g2.prog;i<P.length-1&&g2.cum[i]-g2.cum[g2.prog]<3000;i++){const b=brg(P[i],P[i+1]);
-   if(angD(sa.az,b)<30&&angD(sa.az,st.hdg)>=35){const d=g2.cum[i]-g2.cum[g2.prog];if(d>200){aheadSaid=now;say(`${sayM(d)}先から、${word}に向かって走ります`);msg(`${fmtM(d)}先から${word}に向かう`)}break}}}
+   if(angD(sa.az,b)<30&&angD(sa.az,st.hdg)>=35){const d=g2.cum[i]-g2.cum[g2.prog];if(d>200){aheadSaid=now;sayAuto(`${sayM(d)}先から、${word}に向かって走ります`,'sun');msg(`${fmtM(d)}先から${word}に向かう`)}break}}}
 }
 (()=>{const g=document.createElementNS(NS,'g');g.innerHTML='<g id="sunI" style="display:none"><circle r="6" fill="#ffb02e" stroke="#000" stroke-width="1"/><g stroke="#ffb02e" stroke-width="1.6">'+[0,45,90,135,180,225,270,315].map(a=>`<line x1="0" y1="-8" x2="0" y2="-11" transform="rotate(${a})"/>`).join('')+'</g></g><g id="moonI" style="display:none"><circle r="6" fill="#e9eef5" stroke="#000" stroke-width="1"/><circle r="5" cx="3" fill="#0b1016"/></g>';$('rg').appendChild(g)})();
 setInterval(skyTick,10000);setTimeout(skyTick,1500);
@@ -970,7 +1063,7 @@ function drawAc(){VS.forEach(v=>v.acL.clearLayers());let near=0;const myAlt=st.a
   const html=`<svg viewBox="-17 -17 34 34" style="transform:rotate(${isFinite(a.trk)?a.trk:0}deg)">${a.alt>0?`<path d="M0-12L4-2L13 3V6L4 3L3 10L6 12V14L0 12.5L-6 14V12L-3 10L-4 3L-13 6V3L-4-2Z" fill="${nr?'#ffb02e':'#39d0ff'}" stroke="#000" stroke-width="1.2"/>`:'<rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#9aa6b2" stroke-width="2" transform="rotate(45)"/>'}</svg><span>${esc(a.cs||'')} ${a.alt>0?(rel>=0?'+':'')+String(rel).padStart(2,'0'):'GND'}</span>`;
   for(const v of VS)if(v.cfg.wx.ac){const sm=v.m.getZoom()<10;v.acL.addLayer(L.marker([a.lat,a.lon],{interactive:false,icon:L.divIcon({className:'acm'+(nr?' near':'')+(sm?' sm':''),iconSize:sm?[18,18]:[34,34],iconAnchor:sm?[9,9]:[17,17],html})}))}}
  $('a-tfc').className='an'+(near?' warn':acList.length&&anyWx('ac')?' on':'');
- if(near&&!drawAc.said){drawAc.said=1;say('低空を飛ぶ航空機が近くにいます')}else if(!near)drawAc.said=0}
+ if(near&&!drawAc.said){drawAc.said=1;sayAuto('低空を飛ぶ航空機が近くにいます','tfc')}else if(!near)drawAc.said=0}
 function acTick(){if(!anyWx('ac')||acBusy||Date.now()-acTime<15000)return;acBusy=true;acTime=Date.now();fetchAc().finally(()=>{acBusy=false})}
 setInterval(acTick,3000);
 
@@ -1016,6 +1109,16 @@ function runCmd(t){
   return say(guide&&guide.nav&&guide.nav.delay!=null?(guide.nav.delay>60?`今のルートは渋滞で約${Math.round(guide.nav.delay/60)}分の遅れです`:'今のルートに大きな渋滞はありません'):(pref.ttKey?'目的地ナビ中に、ルートの渋滞をお知らせします':'渋滞は設定でTomTomのキーを入れると使えます')),1}
  if(has('同期')){$('b-sync').click();return say('OneDriveと同期します'),1}
  if(has('過去の走行','走行履歴')){pref.hshow=!off(t);save();drawPast();setPast();return say('過去の走行を'+(pref.hshow?'表示します':'消しました')),1}
+ if(has('洗車記録','洗車の記録')){wRender();$('sh-wash').hidden=false;setTimeout(wStart,300);return 1}
+ if(has('駐車')&&!has('駐車場')){$('b-park').click();return 1}
+ if(has('車に戻','車まで','車へ','車の場所')){if(!pref.park)return say('駐車位置が記録されていません'),1;carGo=true;return say('車まで案内します'),1}
+ if(has('チェックリスト'))return openCk(),1;
+ if(has('警報','注意報'))return say(warnNow.length?`${warnNow.place}に、${warnNow.map(x=>x.name).join('、')}が出ています`:'警報や注意報は出ていません'),1;
+ if(has('制限速度'))return say(lim?`制限速度は時速${lim}キロです`:'制限速度の情報がありません'),1;
+ if(has('手入れ','メンテナンス')){mntRender();$('sh-mnt').hidden=false;return say('手入れの画面を開きます'),1}
+ {const k=Object.keys(POI).find(x=>t.includes(x)||(x==='ガソリン'&&t.includes('スタンド')));if(k&&has('近く','この先','探して','どこ')){say(k+'を探します');poiSearch(k).then(L2=>{if(!L2.length)return say('近くに見つかりませんでした');dRes=L2;say(`${L2[0].name}が${sayM(L2[0].d)}先にあります。案内します`);navTo({name:L2[0].name,lat:L2[0].lat,lon:L2[0].lon})}).catch(()=>say('探せませんでした'));return 1}}
+ if(has('音楽優先','効果音')){pref.amode='mix';save();document.querySelectorAll('[name=amode]').forEach(r=>r.checked=r.value==='mix');return cue('ok'),msg('音楽優先にしました'),1}
+ if(has('声で読み上げ','全部声')){pref.amode='voice';save();document.querySelectorAll('[name=amode]').forEach(r=>r.checked=r.value==='voice');return say('すべて声で読み上げます'),1}
  if(has('メニュー')){setMenu(!off(t)&&!has('隠','かく','しまって'));return say(pref.menu?'メニューを表示します':'メニューを隠します'),1}
  if(has('拡大','ズームイン','詳しく','大きく'))return zoomB(1),say('拡大します'),1;
  if(has('縮小','ズームアウト','広く','小さく'))return zoomB(-1),say('縮小します'),1;
@@ -1057,20 +1160,20 @@ $('ac-save').addEventListener('click',async()=>{const v=$('ac-url').value.trim()
 setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()=>startRec(),1500));
 
 /* ---------- 速度コール（英語・10km/hごと） ---------- */
-pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,lowArm=false,low5=false,low3=false;const spcSaid={};
-function sayEn(t){if(!pref.voice||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;speechSynthesis.speak(u)}catch(e){}}
+pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,lowArm=false,low5=false,low3=false;const spcSaid={};let spcPrev=0;
+function sayEn(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
 setInterval(()=>{
  if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,band=Math.floor(v/10)*10;
  /* 減速のときだけ 5・3 */
  if(v>=8){lowArm=true;low5=low3=false}
- else if(lowArm){if(!low3&&v<=3){low3=low5=true;lowArm=false;sayEn('3')}else if(!low5&&v<=5){low5=true;sayEn('5')}}
+ else if(lowArm){if(!low3&&v<=3){low3=low5=true;lowArm=false;sayEnAuto('3','n3')}else if(!low5&&v<=5){low5=true;sayEnAuto('5','n5')}}
  if(spcLast==null){spcLast=band;return}
  if(band===spcLast){spcCand=null;return}
  if(band>spcLast&&v<band+1)return;if(band<spcLast&&v>spcLast-1)return; // 境目でのくり返しを防ぐ
  if(band===spcCand)spcN++;else{spcCand=band;spcN=1}
- if(spcN>=2){spcLast=band;spcCand=null;const now=Date.now();if(band>=10&&now-(spcSaid[band]||0)>15000){spcSaid[band]=now;sayEn(String(band))}}
+ if(spcN>=2){spcLast=band;spcCand=null;const now=Date.now();if(band>=10&&now-(spcSaid[band]||0)>15000){spcSaid[band]=now;sayEnAuto(String(band),band>spcPrev?'up':'down');flashSpd(band>spcPrev?'#3be36a':'#39d0ff')}spcPrev=band;}
 },1000);
 
 /* ---------- 設定（声・メニュー） ---------- */
@@ -1086,6 +1189,9 @@ vr.addEventListener('input',()=>{pref.vRate=+vr.value;$('v-rate-v').textContent=
 vr.addEventListener('change',()=>say('この速さで話します'));
 function setMenu(show){pref.menu=show;save();document.body.classList.toggle('nomenu',!show);$('set-menu').checked=show;$('b-menu').textContent=show?'MENU ▾':'MENU ▴'}
 setMenu(pref.menu!==false);
+document.querySelectorAll('[name=amode]').forEach(r=>{r.checked=r.value===pref.amode;r.addEventListener('change',()=>{pref.amode=r.value;save();msg(r.value==='mix'?'音楽優先にしました':'すべて声で読み上げます')})});
+$('gps-dbtn').addEventListener('click',gpsDiag);
+document.querySelectorAll('[data-cue]').forEach(b=>b.addEventListener('click',()=>cue(b.dataset.cue)));
 $('b-menu').addEventListener('click',()=>setMenu(!pref.menu));$('set-menu').addEventListener('change',()=>setMenu($('set-menu').checked));
 $('b-set').addEventListener('click',()=>{fillVoices();$('sh-set').hidden=false});
 
@@ -1123,14 +1229,14 @@ async function navTo(dest,opt){opt=opt||{};const me=[st.lat,st.lon];
   if(!opt.quiet){pref.dests=[{name:dest.name,lat:dest.lat,lon:dest.lon}].concat(pref.dests.filter(x=>x.name!==dest.name)).slice(0,10);save()}
   if(!useUra){const pts=direct.geometry.coordinates.map(c=>[+c[1].toFixed(5),+c[0].toFixed(5)]);if(pts.length<2)throw 0;
    startGuide({id:'nav',name:dest.name,pts,memo:''},false,{turns:(P,cum)=>stepTurns((direct.legs[0]&&direct.legs[0].steps)||[],P,0,P.length),nav:{dest,dist:direct.distance,dur:dT,delay},quiet:opt.quiet});
-   if(!opt.quiet&&delay>120)setTimeout(()=>say(`渋滞で約${Math.round(delay/60)}分の遅れがあります`),4500);
+   if(!opt.quiet&&delay>120)setTimeout(()=>sayAuto(`渋滞で約${Math.round(delay/60)}分の遅れがあります`,'info'),4500);
    if(best&&!opt.quiet)msg(`裏道「${best.c.r.name}」経由は約${Math.round((best.t-dT)/60)}分遅いので通常ルート`);return true}
   const {c,v}=best,u=c.rev?c.r.pts.slice().reverse():c.r.pts,A=legPts(v.legs[0]),B=legPts(v.legs[2]),P=A.concat(u,B),n0=A.length,n1=n0+u.length,dist=v.legs[0].distance+c.r.dist+v.legs[2].distance;
   startGuide({id:'nav',name:dest.name,pts:P,memo:''},false,{nav:{dest,dist,dur:best.t,ura:c.r.name,delay},quiet:opt.quiet,
    segs:[{a:0,b:n0,c:'#b48cff'},{a:n0-1,b:n1,c:'#39d0ff'},{a:n1-1,b:P.length,c:'#b48cff'}],
    turns:(PP,cum)=>{const T=stepTurns(v.legs[0].steps||[],PP,0,n0).concat(findTurns(u,cumOf(u)).map(t=>Object.assign(t,{i:t.i+n0,road:'裏道'})),stepTurns(v.legs[2].steps||[],PP,n1,PP.length));return T.sort((x,y)=>x.i-y.i)},
    marks:cum=>{let k=n0;while(k>0&&cum[n0]-cum[k]<250)k--;return[{i:k,text:`まもなく裏道、${c.r.name}に入ります`},{i:n0,text:`ここから裏道、${c.r.name}です${c.r.memo?'。'+c.r.memo:''}`},{i:n1-1,text:'裏道はここまでです'}]}});
-  if(!opt.quiet){const sv=Math.round((dT-best.t)/60);msg(`裏道「${c.r.name}」経由で案内（通常より${sv>0?'約'+sv+'分早い':'ほぼ同じ'}見込み）`);setTimeout(()=>say(`裏道、${c.r.name}を通るルートです。${sv>0?'通常より約'+sv+'分早い見込みです':'通常とほぼ同じ時間です'}`),4500)}
+  if(!opt.quiet){const sv=Math.round((dT-best.t)/60);msg(`裏道「${c.r.name}」経由で案内（通常より${sv>0?'約'+sv+'分早い':'ほぼ同じ'}見込み）`);setTimeout(()=>sayAuto(`裏道、${c.r.name}を通るルートです。${sv>0?'通常より約'+sv+'分早い見込みです':'通常とほぼ同じ時間です'}`,'ura'),4500)}
   return true}
  catch(e){msg('ルートを取得できません');say('ルートを取得できませんでした');return false}}
 
@@ -1215,7 +1321,7 @@ $('b-exp2').addEventListener('click',()=>{rList();$('sh-rt').hidden=false;$('r-e
 let preAt={};
 setInterval(()=>{if(guide||!(st.gps||st.demo)||st.spd<10)return;const me=[st.lat,st.lon],now=Date.now();
  for(const r of routes){if(!bandOK(r))continue;for(const rev of[false,true]){const k=r.id+(rev?'r':'f'),S=rev?r.pts[r.pts.length-1]:r.pts[0],d=map.distance(me,S);
-  if(d>180&&d<450&&angD(brg(me,S),st.hdg)<45&&now-(preAt[k]||0)>30*60000){preAt[k]=now;say(`この先${sayM(d)}に、抜け道、${r.name}${rev?'の逆向き':''}の入口があります`);msg(`この先 ${fmtM(d)} に抜け道「${r.name}」`);return}}}},3000);
+  if(d>180&&d<450&&angD(brg(me,S),st.hdg)<45&&now-(preAt[k]||0)>30*60000){preAt[k]=now;sayAuto(`この先${sayM(d)}に、抜け道、${r.name}${rev?'の逆向き':''}の入口があります`,'ura');msg(`この先 ${fmtM(d)} に抜け道「${r.name}」`);return}}}},3000);
 
 /* ---------- 始点と終点から抜け道を作る（走行履歴から切り出し） ---------- */
 let seP={s:null,e:null};
@@ -1241,6 +1347,7 @@ async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(awa
  const sm=j.routes&&j.routes[0]&&j.routes[0].summary;return sm?{t:+sm.travelTimeInSeconds,delay:+sm.trafficDelayInSeconds||0}:null}catch(e){return null}}
 
 /* ---------- OneDrive 同期（Microsoft Entra ID ログイン） ---------- */
+if(pref.odClient==null)pref.odClient='bd7d066f-16ef-4311-8a3e-5ee3f72ab778'; // Cockpit Nav（Entra アプリ登録）
 let msalApp=null,odAcct=null,odReady=false,odUpT=0;const OD_SCOPES=['Files.ReadWrite','User.Read'],OD_PATH='https://graph.microsoft.com/v1.0/me/drive/root:/Apps/CockpitNav/cockpit-nav.json:/content';
 const loadJs=u=>new Promise((ok,ng)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=ng;document.head.appendChild(s)});
 const odSt=t=>{$('od-st').textContent=t};
@@ -1250,12 +1357,15 @@ async function odInit(){if(!pref.odClient)return null;if(msalApp)return msalApp;
   if(msalApp.initialize)await msalApp.initialize();const r=await msalApp.handleRedirectPromise();odAcct=(r&&r.account)||msalApp.getAllAccounts()[0]||null;
   odSt(odAcct?'サインイン中：'+odAcct.username:'サインインしていません');return msalApp}catch(e){odSt('ログイン部品を読み込めません');return null}}
 async function odToken(){const a=await odInit();if(!a||!odAcct)throw 0;try{return(await a.acquireTokenSilent({scopes:OD_SCOPES,account:odAcct})).accessToken}catch(e){await a.acquireTokenRedirect({scopes:OD_SCOPES,account:odAcct});throw 0}}
-function buildData(){return{app:'cockpit-nav',ver:2,exported:new Date().toISOString(),device:navigator.platform||'',routes,trips:trips.filter(t=>t.keep),favs,cats:pref.cats,dests:pref.dests}}
+function buildData(){return{app:'cockpit-nav',ver:2,exported:new Date().toISOString(),device:navigator.platform||'',routes,trips:trips.filter(t=>t.keep),favs,cats:pref.cats,dests:pref.dests,wash,mnt,ck:pref.ck}}
 function replaceData(d){if(!d||d.app!=='cockpit-nav')return false;const ok=p=>Array.isArray(p)&&p.length>=2&&p.every(q=>Array.isArray(q)&&isFinite(q[0])&&isFinite(q[1]));
  if(Array.isArray(d.routes))routes=d.routes.filter(r=>r&&ok(r.pts)).map(r=>({id:+r.id,name:String(r.name||'裏道').slice(0,30),pts:r.pts.map(q=>[+q[0],+q[1]]),dist:+r.dist||lenOf(r.pts),created:+r.created||Date.now(),memo:String(r.memo||'').slice(0,200),bands:Array.isArray(r.bands)?r.bands.filter(b=>BANDS.includes(b)):[],runs:Array.isArray(r.runs)?r.runs.filter(z=>z&&isFinite(z.dur)):[],elev:Array.isArray(r.elev)?r.elev:undefined}));
  if(Array.isArray(d.favs))favs=d.favs.filter(f=>f&&isFinite(f.lat)&&isFinite(f.lon)).map(f=>({id:+f.id,name:String(f.name||'地点').slice(0,30),lat:+f.lat,lon:+f.lon,cat:Math.max(0,Math.min(9,+f.cat||0)),addr:String(f.addr||'').slice(0,60)}));
  if(Array.isArray(d.cats)&&d.cats.length===10)pref.cats=d.cats.map((c,i)=>String(c||CDEF[i]).slice(0,10));
  if(Array.isArray(d.dests))pref.dests=d.dests.filter(p=>p&&isFinite(p.lat)).slice(0,10);
+ if(Array.isArray(d.wash)){wash=d.wash.filter(e=>e&&e.text);try{localStorage.setItem(WKEY,JSON.stringify(wash))}catch(e){}}
+ if(d.mnt&&Array.isArray(d.mnt.items)){mnt=d.mnt;try{localStorage.setItem(MKEY,JSON.stringify(mnt))}catch(e){}}
+ if(Array.isArray(d.ck))pref.ck=d.ck.map(String).slice(0,20);
  for(const t of d.trips||[])if(t&&ok(t.pts)&&!trips.some(x=>x.id===t.id))trips.push({id:+t.id,start:+t.start,end:+t.end,dist:+t.dist||0,keep:true,show:true,pts:t.pts.map(q=>[+q[0],+q[1]])});
  try{localStorage.setItem(RKEY,JSON.stringify(routes));localStorage.setItem(FKEY,JSON.stringify(favs))}catch(e){}hSave();save();drawPast();drawFav();return true}
 async function odDown(force){try{const tk=await odToken(),r=await fetch(OD_PATH,{headers:{Authorization:'Bearer '+tk}});if(r.status===404){odSt('OneDriveにまだデータがありません（アップロードしてね）');return null}
@@ -1271,6 +1381,168 @@ $('od-up').addEventListener('click',odUp);$('od-down').addEventListener('click',
 $('od-out').addEventListener('click',async()=>{const a=await odInit();if(a&&odAcct)a.logoutRedirect({account:odAcct})});
 $('b-sync').addEventListener('click',async()=>{if(!pref.odClient){$('sh-set').hidden=false;$('od-client').scrollIntoView({block:'center'});return}await odDown(false);await odUp()});
 (async()=>{if(!pref.odClient)return;await odInit();if(odAcct){await odDown(false);odReady=true}})();
+
+/* ---------- 共通：書き出し（他のアプリへ） ---------- */
+async function shareOut(name,text,mime){
+ try{const f=new File([text],name,{type:mime});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+ try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}
+ $('out-name').textContent=name;$('out-text').value=text;$('sh-out').hidden=false}
+$('out-copy').addEventListener('click',()=>{const t=$('out-text');(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>msg('コピーしました'),()=>{t.select()})});
+const csvq=v=>{const s=String(v??'');return/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+const isoT=ms=>new Date(ms).toISOString();const ymd=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
+
+/* ---------- 走行履歴の書き出し（GPX・CSV） ---------- */
+function tripRows(t){return t.rec&&t.rec.length?t.rec.map(r=>({lat:r[5],lon:r[6],t:t.start+r[0]*1000,spd:r[1],alt:r[2],g:Math.hypot(r[3],r[4])})):t.pts.map(p=>({lat:p[0],lon:p[1]}))}
+function gpxOf(list){return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Cockpit Nav" xmlns="http://www.topografix.com/GPX/1/1">\n`+list.map(t=>`<trk><name>${esc(fmtD(t.start)+' '+fmtT(t.start)+'–'+fmtT(t.end))}</name><trkseg>\n`+tripRows(t).map(p=>`<trkpt lat="${p.lat}" lon="${p.lon}">${p.alt!=null?`<ele>${p.alt}</ele>`:''}${p.t?`<time>${isoT(p.t)}</time>`:''}</trkpt>`).join('\n')+`\n</trkseg></trk>`).join('\n')+`\n</gpx>\n`}
+function csvOf(list){return 'trip,time,lat,lon,speed_kmh,alt_m,g\n'+list.map(t=>tripRows(t).map(p=>[ymd(t.start)+'_'+fmtT(t.start).replace(':',''),p.t?isoT(p.t):'',p.lat,p.lon,p.spd??'',p.alt??'',p.g!=null?p.g.toFixed(2):''].map(csvq).join(',')).join('\n')).join('\n')+'\n'}
+$('h-gpx').addEventListener('click',()=>{const L2=trips.filter(t=>t.pts.length>1);if(!L2.length)return msg('書き出す走行がありません');shareOut('cockpit-nav-tracks-'+ymd(Date.now())+'.gpx',gpxOf(L2),'application/gpx+xml')});
+$('h-csv').addEventListener('click',()=>{const L2=trips.filter(t=>t.pts.length>1);if(!L2.length)return msg('書き出す走行がありません');shareOut('cockpit-nav-tracks-'+ymd(Date.now())+'.csv','﻿'+csvOf(L2),'text/csv')});
+
+/* ---------- 運転スコアとフライトログ ---------- */
+function scoreOf(t){if(!t.rec||t.rec.length<6)return null;const h=Math.max(0.1,(t.end-t.start)/3.6e6),ev=(t.gev||[]).length,hard=(t.gev||[]).filter(e=>e[2]>0.5).length;
+ let dv=0;for(let i=1;i<t.rec.length;i++)dv+=Math.abs(t.rec[i][1]-t.rec[i-1][1]);dv/=t.rec.length-1;
+ return Math.round(Math.max(0,Math.min(100,100-ev/h*4-hard*6-Math.max(0,dv-3)*3)))}
+function flightLog(){const M={};for(const t of trips){const k=ymd(t.start).slice(0,7),m=M[k]=M[k]||{n:0,dist:0,ms:0,max:0,sc:[]};m.n++;m.dist+=t.dist||0;m.ms+=t.end-t.start;
+  if(t.rec)for(const r of t.rec)m.max=Math.max(m.max,r[1]);const s=scoreOf(t);if(s!=null)m.sc.push(s)}
+ const RU={};for(const r of routes)for(const z of r.runs){if(z.via!=='route')continue;const k=ymd(z.at).slice(0,7);(RU[k]=RU[k]||{})[r.name]=(RU[k][r.name]||0)+1}
+ const ks=Object.keys(M).sort().reverse();
+ return ks.length?`<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="color:#9aa6b2;text-align:left"><th>月</th><th>回数</th><th>距離</th><th>時間</th><th>最高</th><th>スコア</th><th>よく使った裏道</th></tr></thead><tbody>`+
+  ks.map(k=>{const m=M[k],ru=RU[k]?Object.entries(RU[k]).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([n,c])=>esc(n)+'×'+c).join('、'):'—',av=m.sc.length?Math.round(m.sc.reduce((a,b)=>a+b,0)/m.sc.length):'—';
+   return `<tr style="border-top:1px solid #26313d"><td>${k}</td><td>${m.n}</td><td>${(m.dist/1000).toFixed(0)}km</td><td>${(m.ms/3.6e6).toFixed(1)}h</td><td>${m.max||'—'}</td><td><b style="color:var(--g)">${av}</b></td><td>${ru}</td></tr>`}).join('')+'</tbody></table>':'<p class="note">まだ記録がありません。</p>'}
+function scoreChart(){const L2=trips.filter(t=>scoreOf(t)!=null).sort((a,b)=>a.start-b.start).slice(-30);if(L2.length<2)return'';const X=i=>i/(L2.length-1)*400,Y=s=>85-s*0.8;
+ return `<h3>運転スコアの推移（最近30回）</h3><svg viewBox="0 0 400 90" style="width:100%;height:90px;background:#05080b;border:1px solid #26313d;border-radius:8px"><polyline fill="none" stroke="#3be36a" stroke-width="2" points="${L2.map((t,i)=>X(i).toFixed(1)+','+Y(scoreOf(t)).toFixed(1)).join(' ')}"/><text x="4" y="12" font-size="10" fill="#9aa6b2">100</text></svg>`}
+$('b-log').addEventListener('click',()=>{$('log-body').innerHTML=flightLog()+scoreChart()+'<p class="note">スコアは急ブレーキ・急ハンドル（0.35G以上）の回数と、速度の変化の大きさから100点満点で計算。走行ごとのスコアは「履歴」にも出ます。</p>';$('sh-log').hidden=false});
+
+/* ---------- 気象警報・地震（気象庁） ---------- */
+const WCODE={'02':'暴風雪警報','03':'大雨警報','04':'洪水警報','05':'暴風警報','06':'大雪警報','07':'波浪警報','08':'高潮警報','10':'大雨注意報','12':'大雪注意報','13':'風雪注意報','14':'雷注意報','15':'強風注意報','16':'波浪注意報','17':'融雪注意報','18':'洪水注意報','19':'高潮注意報','20':'濃霧注意報','21':'乾燥注意報','22':'なだれ注意報','23':'低温注意報','24':'霜注意報','25':'着氷注意報','26':'着雪注意報','32':'暴風雪特別警報','33':'大雨特別警報','35':'暴風特別警報','36':'大雪特別警報','37':'波浪特別警報','38':'高潮特別警報'};
+let areaJ=null,muni=null,warnNow=[],warnSaid={},quakeSeen=pref.quakeSeen||'',warnAt=0,muniAt=null;
+async function warnTick(){if(pref.warn===false||!(st.gps||st.demo))return;
+ try{if(!muni||!muniAt||map.distance(muniAt,[st.lat,st.lon])>3000){const r=await(await fetch(`https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat=${st.lat.toFixed(5)}&lon=${st.lon.toFixed(5)}`)).json();muni=r&&r.results&&r.results.muniCd;muniAt=[st.lat,st.lon]}
+  if(!muni)return;if(!areaJ)areaJ=await(await fetch(JMA+'common/const/area.json')).json();
+  const c20=String(muni).padStart(5,'0')+'00',a20=areaJ.class20s[c20];if(!a20)return;const c15=areaJ.class15s[a20.parent],c10=areaJ.class10s[c15.parent],off=c10.parent;
+  const w=await(await fetch(JMA+'warning/data/warning/'+off+'.json')).json();
+  const ar=(w.areaTypes&&w.areaTypes[1]&&w.areaTypes[1].areas||[]).find(a=>a.code===c20);
+  warnNow=ar?ar.warnings.filter(x=>x.status!=='解除'&&x.status!=='発表警報・注意報はなし'&&WCODE[x.code]).map(x=>({code:x.code,name:WCODE[x.code],st:x.status})):[];warnNow.place=a20.name;
+  const sev=warnNow.filter(x=>x.name.includes('警報'));$('a-warn').className='an'+(sev.length?' warn':warnNow.length?' on':'');
+  for(const x of sev){const k=c20+x.code;if(!warnSaid[k]){warnSaid[k]=1;say(`${a20.name}に、${x.name}が出ています`);msg(`${a20.name}：${x.name}`)}}
+ }catch(e){}
+ try{const q=await(await fetch(JMA+'quake/data/list.json')).json();const e=q.find(x=>x.ttl&&x.ttl.includes('震度')&&+String(x.maxi).replace(/[^\d]/g,'')>=3);
+  if(e&&e.json!==quakeSeen&&Date.now()-new Date(e.at)<3600e3){quakeSeen=e.json;pref.quakeSeen=e.json;save();const pr=String(muni||'').slice(0,2),pi=(e.int||[]).find(z=>z.code===pr);
+   say(`地震情報です。${e.anm}で、最大震度${e.maxi}の地震がありました${pi?'。この県の最大震度は'+pi.maxi+'です':''}`);msg(`地震：${e.anm} 最大震度${e.maxi}`)}}catch(e){}}
+setInterval(()=>{if(Date.now()-warnAt>600000){warnAt=Date.now();warnTick()}},20000);setTimeout(()=>{warnAt=Date.now();warnTick()},6000);
+function warnHTML(){return `<h3>気象警報・注意報${warnNow.place?'（'+esc(warnNow.place)+'）':''}</h3>`+(warnNow.length?`<div class="chips">${warnNow.map(x=>`<div class="chip"><b style="color:${x.name.includes('特別')?'#c86bff':x.name.includes('警報')?'#ff4d4d':'#ffb02e'}">${esc(x.name)}</b> ${esc(x.st)}</div>`).join('')}</div>`:'<p class="note">今いる市町村に、警報・注意報は出ていません。</p>')}
+
+/* ---------- 制限速度（OpenStreetMap） ---------- */
+let lim=null,limAt=null,limT=0,limBusy=false,ovN=0,ovSaid=0;pref.lim=pref.lim!==false;
+async function limTick(){if(!pref.lim||!(st.gps||st.demo)||limBusy)return;const me=[st.lat,st.lon];
+ if(limAt&&map.distance(limAt,me)<120&&Date.now()-limT<60000)return;limBusy=true;limAt=me;limT=Date.now();
+ try{const q=`[out:json][timeout:10];way(around:35,${me[0].toFixed(5)},${me[1].toFixed(5)})[highway][maxspeed];out tags geom;`;
+  const j=await(await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))).json();let best=null,bd=1e9;
+  for(const w of j.elements||[])for(const g of w.geometry||[]){const d=map.distance(me,[g.lat,g.lon]);if(d<bd){bd=d;best=w}}
+  const v=best&&parseInt(best.tags.maxspeed,10);lim=isFinite(v)?v:null}catch(e){}limBusy=false}
+setInterval(limTick,5000);
+setInterval(()=>{const e=$('n-lim');if(!pref.lim||!lim){e.parentNode.style.display='none';$('a-spd').className='an';return}e.parentNode.style.display='';e.textContent=lim;
+ const over=st.spd>lim+10;ovN=over?ovN+1:0;e.style.color=over?'#ff4d4d':'';$('a-spd').className='an'+(over?' warn':' on');
+ if(ovN>=3&&Date.now()-ovSaid>60000){ovSaid=Date.now();sayEnAuto('Speed limit, '+lim,'warn')}},1000);
+const lmB=$('b-lim');const setLm=()=>{lmB.textContent='制限速度 '+(pref.lim?'ON':'OFF');lmB.classList.toggle('on',pref.lim)};setLm();lmB.addEventListener('click',()=>{pref.lim=!pref.lim;save();setLm()});
+
+/* ---------- 近くの施設（OpenStreetMap） ---------- */
+const POI={'コンビニ':'["shop"="convenience"]','トイレ':'["amenity"="toilets"]','ガソリン':'["amenity"="fuel"]','充電':'["amenity"="charging_station"]','駐車場':'["amenity"="parking"]','道の駅':'["name"~"道の駅"]','洗車場':'["amenity"="car_wash"]'};
+async function poiSearch(kind){const me=[st.lat,st.lon],tag=POI[kind];if(!tag)return[];const R=kind==='道の駅'?20000:3000;
+ const q=`[out:json][timeout:15];(node(around:${R},${me[0].toFixed(5)},${me[1].toFixed(5)})${tag};way(around:${R},${me[0].toFixed(5)},${me[1].toFixed(5)})${tag};);out center 60;`;
+ const j=await(await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q))).json();
+ return(j.elements||[]).map(e=>{const la=e.lat??(e.center&&e.center.lat),lo=e.lon??(e.center&&e.center.lon),d=map.distance(me,[la,lo]),front=st.spd>5&&angD(brg(me,[la,lo]),st.hdg)<60;
+  return{name:String((e.tags&&(e.tags.name||e.tags.brand))||kind).slice(0,40),addr:kind+(front?'・進行方向':''),lat:la,lon:lo,d,w:d*(st.spd>5?(front?0.7:1.4):1)}}).filter(p=>isFinite(p.lat)).sort((a,b)=>a.w-b.w).slice(0,12)}
+document.querySelectorAll('[data-poi]').forEach(b=>b.addEventListener('click',async()=>{$('d-res').innerHTML='<p class="note">'+b.dataset.poi+'を探しています…</p>';try{dRes=await poiSearch(b.dataset.poi)}catch(e){dRes=[]}
+ $('d-res').innerHTML=dRes.length?destRows(dRes,'r'):'<p class="note">近くに見つかりませんでした。</p>'}));
+$('b-poi').addEventListener('click',()=>{renderDest();$('sh-dest').hidden=false;$('poi-row').scrollIntoView({block:'nearest'})});
+
+/* ---------- 駐車位置メモ ---------- */
+let carGo=false,parkM=[];
+function drawPark(){parkM.forEach(([v,m])=>v.m.removeLayer(m));parkM=[];if(!pref.park)return;for(const v of VS)parkM.push([v,L.marker([pref.park.lat,pref.park.lon],{interactive:false,icon:L.divIcon({className:'favm',iconSize:[26,26],iconAnchor:[13,13],html:'<svg viewBox="-13 -13 26 26"><rect x="-11" y="-11" width="22" height="22" rx="5" fill="#2a86e8" stroke="#fff" stroke-width="2"/><text y="6" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">P</text></svg>'})}).addTo(v.m)])}
+$('b-park').addEventListener('click',()=>{if(pref.park&&!$('park-st').dataset.arm){$('park-st').dataset.arm=1}
+ pref.park={lat:st.lat,lon:st.lon,at:Date.now(),limit:0,said:0};save();drawPark();say('駐車位置を記録しました');msg('駐車位置を記録しました（'+fmtT(Date.now())+'）')});
+$('b-car').addEventListener('click',()=>{if(!pref.park)return msg('駐車位置が記録されていません');carGo=!carGo;if(!carGo){$('gd').hidden=true;$('gdp').style.display='none'}else say('車まで案内します')});
+$('park-lim').addEventListener('change',()=>{if(pref.park){pref.park.limit=+$('park-lim').value||0;pref.park.said=0;save();msg(pref.park.limit?`${pref.park.limit}分後にお知らせします`:'タイマーを解除しました')}});
+setInterval(()=>{const p=pref.park;$('park-st').textContent=p?`駐車：${fmtT(p.at)}から ${Math.floor((Date.now()-p.at)/60000)}分`:'駐車位置なし';
+ if(p&&p.limit){const left=p.limit-(Date.now()-p.at)/60000;if(left<=10&&left>0&&p.said<1){p.said=1;save();sayAuto('駐車時間、残り10分です','warn')}if(left<=0&&p.said<2){p.said=2;save();sayAuto('駐車時間になりました')}}
+ if(carGo&&p&&!guide){const me=[st.lat,st.lon],d=map.distance(me,[p.lat,p.lon]),b=brg(me,[p.lat,p.lon]);
+  $('gd').hidden=false;$('gd').classList.remove('off');$('gd').innerHTML=`駐車位置<br><b>車まで ${fmtM(d)}</b><br>${fmtT(p.at)}から${Math.floor((Date.now()-p.at)/60000)}分`;$('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
+  if(d<15){carGo=false;$('gd').hidden=true;$('gdp').style.display='none';sayAuto('車に着きました','arr')}}},2000);
+setTimeout(drawPark,900);
+
+/* ---------- 着陸チェックリスト ---------- */
+pref.ck=Array.isArray(pref.ck)?pref.ck:['サイドブレーキ','ライト消灯','窓を閉める','貴重品を持つ','スマホと充電器'];
+function openCk(auto){$('ck-list').innerHTML=pref.ck.map((c,i)=>`<label class="chk"><input type="checkbox" data-ck="${i}">${esc(c)}</label>`).join('');$('ck-edit').value=pref.ck.join('\n');$('sh-ck').hidden=false;
+ if(auto||true){let i=0;const nx=()=>{if(i>=pref.ck.length||$('sh-ck').hidden)return;say(pref.ck[i]);i++;setTimeout(nx,2600)};say('着陸チェックリスト');setTimeout(nx,2000)}}
+$('ck-save').addEventListener('click',()=>{pref.ck=$('ck-edit').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,20);save();openCk()});
+$('b-ck').addEventListener('click',()=>openCk());
+$('sh-ck').addEventListener('change',()=>{const all=[...document.querySelectorAll('[data-ck]')];if(all.length&&all.every(c=>c.checked)){say('チェックリスト完了');setTimeout(()=>{$('sh-ck').hidden=true},1200)}});
+
+/* ---------- 手入れ（メンテナンス・コーティング） ---------- */
+const MKEY='cockpitnav-mnt';let mnt=null;try{mnt=JSON.parse(localStorage.getItem(MKEY)||'null')}catch(e){}
+mnt=mnt||{items:[{id:1,name:'オイル交換',days:180,km:5000},{id:2,name:'タイヤ点検',days:90,km:0},{id:3,name:'法定点検',days:365,km:0},{id:4,name:'給油',days:0,km:0}],
+ coats:[{id:11,name:'リキッド6.1',days:90},{id:12,name:'ボロン',days:60},{id:13,name:'BRILA',days:60},{id:14,name:'ビーディング',days:30}],log:[],odo:null};
+const mSave=()=>{try{localStorage.setItem(MKEY,JSON.stringify(mnt))}catch(e){}schedUp()};
+const daysSince=ms=>Math.floor((Date.now()-ms)/DAY);
+function odoNow(){if(!mnt.odo)return null;let km=mnt.odo.km;for(const t of trips)if(t.start>mnt.odo.at)km+=(t.dist||0)/1000;return Math.round(km)}
+function dueOf(it){const L2=mnt.log.filter(l=>l.item===it.id).sort((a,b)=>b.at-a.at)[0];if(!L2)return{txt:'記録なし',lv:0};let dl=null,kl=null;
+ if(it.days)dl=it.days-daysSince(L2.at);const on=odoNow();if(it.km&&L2.odo!=null&&on!=null)kl=it.km-(on-L2.odo);
+ const lv=(dl!=null&&dl<=0)||(kl!=null&&kl<=0)?3:(dl!=null&&dl<=14)||(kl!=null&&kl<=300)?2:1;
+ return{txt:[`前回 ${fmtD(L2.at)}`,dl!=null?(dl>=0?`あと${dl}日`:`${-dl}日超過`):'',kl!=null?(kl>=0?`あと${kl}km`:`${-kl}km超過`):''].filter(Boolean).join('・'),lv,dl,kl}}
+function coatDue(c){if(!c.last)return{txt:'施工日未登録',lv:0};const dl=c.days-daysSince(c.last);return{txt:`前回 ${fmtD(c.last)}・`+(dl>=0?`あと${dl}日`:`${-dl}日超過`),lv:dl<=0?3:dl<=3?2:1,dl}}
+const LVC=['#9aa6b2','#3be36a','#ffb02e','#ff4d4d'];
+function mntRender(){
+ $('m-odo').value=odoNow()??'';
+ $('m-items').innerHTML=mnt.items.map(it=>{const d=dueOf(it);return `<div class="trip"><div><div class="t">${esc(it.name)}</div><div class="d" style="color:${LVC[d.lv]}">${esc(d.txt)}</div><div class="d">周期 ${it.days?it.days+'日':'—'}／${it.km?it.km+'km':'—'}</div></div><div class="acts"><button data-mlog="${it.id}" class="on">記録</button><button data-mdel="${it.id}">削除</button></div></div>`}).join('');
+ $('m-coats').innerHTML=mnt.coats.map(c=>{const d=coatDue(c);return `<div class="trip"><div><div class="t">${esc(c.name)}</div><div class="d" style="color:${LVC[d.lv]}">${esc(d.txt)}</div><div class="d">周期 ${c.days}日</div></div><div class="acts"><button data-cdone="${c.id}" class="on">今日施工</button><button data-cdel="${c.id}">削除</button></div></div>`}).join('');
+ $('m-log').innerHTML=mnt.log.slice().sort((a,b)=>b.at-a.at).slice(0,30).map(l=>{const it=mnt.items.find(x=>x.id===l.item);return `<div class="d" style="padding:4px 0;border-top:1px solid #26313d">${fmtD(l.at)} ${esc(it?it.name:'?')}${l.odo!=null?'・'+l.odo+'km':''}${l.cost?'・'+l.cost+'円':''}${l.memo?'・'+esc(l.memo):''}</div>`}).join('')||'<p class="note">まだありません。</p>'}
+$('sh-mnt').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const ds=b.dataset;
+ if(ds.mlog){const it=mnt.items.find(x=>String(x.id)===ds.mlog);const odo=$('m-odo').value?+$('m-odo').value:null;if(odo!=null)mnt.odo={km:odo,at:Date.now()};
+  mnt.log.push({id:Date.now(),item:it.id,at:Date.now(),odo,cost:+$('m-cost').value||0,memo:$('m-memo').value.trim().slice(0,100)});$('m-cost').value='';$('m-memo').value='';mSave();mntRender();msg(it.name+'を記録しました')}
+ else if(ds.mdel){if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}mnt.items=mnt.items.filter(x=>String(x.id)!==ds.mdel);mSave();mntRender()}
+ else if(ds.cdone){const c=mnt.coats.find(x=>String(x.id)===ds.cdone);c.last=Date.now();mSave();mntRender();msg(c.name+'の施工日を今日にしました')}
+ else if(ds.cdel){if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}mnt.coats=mnt.coats.filter(x=>String(x.id)!==ds.cdel);mSave();mntRender()}});
+$('m-add').addEventListener('click',()=>{const n=$('m-nname').value.trim();if(!n)return;mnt.items.push({id:Date.now(),name:n.slice(0,20),days:+$('m-ndays').value||0,km:+$('m-nkm').value||0});$('m-nname').value='';mSave();mntRender()});
+$('c-add').addEventListener('click',()=>{const n=$('c-nname').value.trim();if(!n)return;mnt.coats.push({id:Date.now(),name:n.slice(0,20),days:+$('c-ndays').value||30});$('c-nname').value='';mSave();mntRender()});
+$('m-odo-save').addEventListener('click',()=>{const v=+$('m-odo').value;if(v>0){mnt.odo={km:v,at:Date.now()};mSave();msg('走行距離を'+v+'kmにしました（以後はGPSで加算）')}});
+$('m-exp').addEventListener('click',()=>shareOut('cockpit-nav-maintenance-'+ymd(Date.now())+'.csv','﻿日付,項目,走行距離km,費用円,メモ\n'+mnt.log.slice().sort((a,b)=>a.at-b.at).map(l=>{const it=mnt.items.find(x=>x.id===l.item);return[ymd(l.at),it?it.name:'',l.odo??'',l.cost||'',l.memo||''].map(csvq).join(',')}).join('\n')+'\n','text/csv'));
+$('b-mnt').addEventListener('click',()=>{mntRender();$('sh-mnt').hidden=false});
+function mntRemind(){const today=ymd(Date.now());if(pref.mntSaid===today)return;const due=mnt.items.map(it=>[it,dueOf(it)]).filter(([,d])=>d.lv>=2),cd=mnt.coats.map(c=>[c,coatDue(c)]).filter(([,d])=>d.lv>=2);
+ if(!due.length&&!cd.length)return;pref.mntSaid=today;save();
+ let win='';try{const h=document.createElement('div');h.innerHTML=washHTML();const ch=[...h.querySelectorAll('.chip')];win=ch[2]?ch[2].textContent.replace('コーティングに向く時間',''):''}catch(e){}
+ const t=[...due.map(([it,d])=>`${it.name}、${d.dl!=null&&d.dl<=0||d.kl!=null&&d.kl<=0?'時期を過ぎています':'そろそろです'}`),...cd.map(([c,d])=>`${c.name}の再施工${d.dl<=0?'時期を過ぎています':'まであと'+d.dl+'日です'}`)].join('。');
+ sayAuto(t+(cd.length&&win&&!win.includes('なし')?`。今日のコーティングに向く時間は${win.trim()}です`:''),'info');msg('手入れのお知らせ：'+t)}
+setTimeout(mntRemind,15000);setInterval(mntRemind,3600e3);
+
+/* ---------- 洗車記録（声で話して記録） ---------- */
+const WKEY='cockpitnav-wash';let wash=[];try{wash=JSON.parse(localStorage.getItem(WKEY)||'[]')}catch(e){wash=[]}
+const wSave=()=>{try{localStorage.setItem(WKEY,JSON.stringify(wash))}catch(e){msg('洗車記録を保存できません')}schedUp()};
+const PARTS=[['フロントガラス',/フロントガラス|フロントウィンドウ/],['リアガラス',/リアガラス|リアウィンドウ|リヤガラス/],['サイドガラス',/サイドガラス|サイドウィンドウ|窓/],['フロントグリル',/グリル/],['フロントバンパー',/フロントバンパー|前のバンパー|前バンパー/],['ボンネット',/ボンネット/],['ルーフ',/ルーフ|屋根/],['サイドパネル',/サイドパネル|ドア|サイド(?!ガラス|ウィンドウ)/],['リア',/リアゲート|バックドア|リアバンパー|リア(?!ガラス|ウィンドウ)|リヤ(?!ガラス)/],['タイヤ',/タイヤ/],['ホイール',/ホイール|ホイル/]];
+function parseWash(text){const out={};for(const s of text.split(/[。\n]/).map(x=>x.trim()).filter(Boolean)){let hit=false;for(const[p,re]of PARTS)if(re.test(s)){(out[p]=out[p]||[]).push(s);hit=true}if(!hit)(out['その他']=out['その他']||[]).push(s)}return out}
+let wRec=null,wBuf='';
+function wStart(){if(!SR){msg('このブラウザは音声入力に対応していません');return}if(window.speechSynthesis)speechSynthesis.cancel();wBuf=$('w-text').value?$('w-text').value+'。':'';
+ try{wRec=new SR();wRec.lang='ja-JP';wRec.continuous=true;wRec.interimResults=true;
+  wRec.onresult=e=>{let fin='',tmp='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t+'。';else tmp+=t}
+   if(fin){wBuf+=fin;if(/(以上|記録終わり|おしまい)。?$/.test(fin.trim())){wBuf=wBuf.replace(/(以上|記録終わり|おしまい)。?$/,'');wStop(true)}}$('w-text').value=wBuf+tmp};
+  wRec.onend=()=>{if(wRec&&!wRec._stop){try{wRec.start()}catch(e){}}else{$('w-mic').classList.remove('on');$('w-mic').textContent='🎤 話して記録'}};
+  wRec.start();$('w-mic').classList.add('on');$('w-mic').textContent='■ 記録を止める';say('洗車の記録をどうぞ。終わったら、以上、と言ってください')}catch(e){}}
+function wStop(saveIt){if(wRec){wRec._stop=true;try{wRec.stop()}catch(e){}}if(saveIt)wSaveEntry()}
+function wSaveEntry(){const text=$('w-text').value.trim();if(!text)return;const me=[st.lat,st.lon],place=(favs.filter(f=>map.distance(me,[f.lat,f.lon])<300).sort((a,b)=>map.distance(me,[a.lat,a.lon])-map.distance(me,[b.lat,b.lon]))[0]||{}).name||'';
+ const e={id:Date.now(),at:Date.now(),place,lat:+st.lat.toFixed(5),lon:+st.lon.toFixed(5),temp:$('t-temp').textContent,hum:$('t-hum').textContent,text,parts:parseWash(text)};wash.push(e);wSave();
+ const done=[];for(const c of mnt.coats)if(text.includes(c.name)&&/(塗|施工|かけ|掛け|上掛け|吹き付け)/.test(text)){c.last=Date.now();done.push(c.name)}if(done.length){mSave();msg('施工日を更新：'+done.join('、'))}
+ $('w-text').value='';wRender();say('洗車記録を保存しました'+(done.length?'。'+done.join('、')+'の施工日も更新しました':''))}
+function wRender(){$('w-list').innerHTML=wash.slice().reverse().slice(0,30).map(e=>`<div class="trip" style="grid-template-columns:1fr"><div><div class="t">${fmtD(e.at)} ${fmtT(e.at)}${e.place?'・'+esc(e.place):''}<small style="color:#9aa6b2"> ${esc(e.temp)}℃・${esc(e.hum)}%</small></div>
+ <table style="width:100%;font-size:13px;border-collapse:collapse">${Object.entries(e.parts).map(([p,a])=>`<tr style="border-top:1px solid #26313d"><td style="color:var(--c);white-space:nowrap;padding:3px 8px 3px 0;vertical-align:top">${esc(p)}</td><td>${a.map(esc).join('<br>')}</td></tr>`).join('')}</table>
+ <div class="acts" style="justify-content:flex-start;margin-top:6px"><button data-wdel="${e.id}">削除</button></div></div></div>`).join('')||'<p class="note">まだありません。</p>'}
+$('w-mic').addEventListener('click',()=>{if(wRec&&!wRec._stop)wStop(false);else wStart()});
+$('w-save').addEventListener('click',()=>{wStop(false);wSaveEntry()});
+$('w-list').addEventListener('click',e=>{const b=e.target.closest('[data-wdel]');if(!b)return;if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}wash=wash.filter(x=>String(x.id)!==b.dataset.wdel);wSave();wRender()});
+const WP=['ボンネット','ルーフ','サイドパネル','サイドガラス','フロントグリル','フロントガラス','フロントバンパー','リア','リアガラス','タイヤ','ホイール','その他'];
+$('w-csv').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.csv','﻿'+['日時','場所','気温','湿度',...WP,'全文'].join(',')+'\n'+wash.map(e=>[ymd(e.at)+' '+fmtT(e.at),e.place,e.temp,e.hum,...WP.map(p=>(e.parts[p]||[]).join(' / ')),e.text].map(csvq).join(',')).join('\n')+'\n','text/csv'));
+$('w-md').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.md','# 洗車記録\n\n'+wash.slice().reverse().map(e=>`## ${ymd(e.at)} ${fmtT(e.at)}${e.place?' '+e.place:''}（${e.temp}℃・${e.hum}%）\n\n| 部位 | 内容 |\n|---|---|\n`+WP.filter(p=>e.parts[p]).map(p=>`| ${p} | ${e.parts[p].join('<br>')} |`).join('\n')).join('\n\n')+'\n','text/markdown'));
+$('w-json').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.json',JSON.stringify(wash,null,1),'application/json'));
+$('b-wash').addEventListener('click',()=>{wRender();$('sh-wash').hidden=false});
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();

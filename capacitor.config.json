@@ -1,0 +1,22 @@
+{
+  "appId": "jp.tanaka.cockpitnav",
+  "appName": "Cockpit Nav",
+  "webDir": "www",
+  "server": {
+    "url": "https://suzumushi01-boop.github.io/cockpit/",
+    "errorPath": "index.html",
+    "allowNavigation": [
+      "suzumushi01-boop.github.io",
+      "login.microsoftonline.com",
+      "*.microsoftonline.com",
+      "login.live.com",
+      "*.live.com",
+      "account.microsoft.com"
+    ]
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#05090e",
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}
