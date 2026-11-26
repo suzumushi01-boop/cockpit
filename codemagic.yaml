@@ -1,12 +1,12 @@
 # Cockpit Nav — Macなしで iOS アプリを作って TestFlight に送る設定
-# 洗車OODA と同じ Codemagic のチーム設定（App Store Connect API キー：ASC_KEY）を使う
+# 洗車OODA と同じ Codemagic のチーム設定（App Store Connect API キー：ASC_key）を使う
 workflows:
   cockpit-ios:
     name: Cockpit Nav iOS (TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: ASC_KEY
+      app_store_connect: ASC_key
     environment:
       node: 22
       xcode: latest
