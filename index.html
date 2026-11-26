@@ -168,10 +168,13 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
   <button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button><button data-wx="ac">飛行機</button><button data-wx="gm">Gマップ</button>
   <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button>
   <span class="sep"></span>
-  <button id="b-wxp">気象</button><button id="b-hist">履歴</button><button id="b-route">裏道</button><button id="b-voice">音声 ON</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button>
+  <button id="b-wxp">気象</button><button id="b-hist">履歴</button><button id="b-route">裏道</button><button id="b-voice">音声 ON</button><button id="b-spc">速度コール OFF</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button>
  </nav>
 </div>
-<div class="sheet" id="sh-wx" hidden><div class="shin"><header><b>気象</b><button data-close>閉じる</button></header><div id="wxbody"><p class="note">データを取得中…（GitHub Pages で開いたときに表示されます）</p></div></div></div>
+<div class="sheet" id="sh-wx" hidden><div class="shin"><header><b>気象</b><button data-close>閉じる</button></header><div id="wxbody"><p class="note">データを取得中…（GitHub Pages で開いたときに表示されます）</p></div>
+ <h3>航空機データの中継サーバー（Cloudflare Workers）</h3>
+ <div class="rrow"><input id="ac-url" placeholder="https://cockpit-ac.○○.workers.dev" inputmode="url" autocomplete="off" style="flex:1;min-width:200px;min-height:44px;font:16px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="中継サーバーのURL"><button id="ac-save">保存してテスト</button></div>
+ <p class="note" id="ac-st">中継サーバーのURLを入れると「飛行機」が使えます。</p></div></div>
 <div class="sheet" id="sh-hist" hidden><div class="shin"><header><b>走行履歴</b><button data-close>閉じる</button></header>
  <label class="chk"><input type="checkbox" id="h-show">過去の走行を地図に点線で表示</label>
  <p class="note">★で残した記録は消えません。★なしの記録は60日たつと自動で消えます。記録はこのiPhoneの中だけに保存され、デモ走行は記録されません。</p>
@@ -906,11 +909,12 @@ $('fr-play').addEventListener('click',()=>{if(frTimer){clearInterval(frTimer);fr
 let acTime=0,acBusy=false,acList=[];
 async function fetchAc(){
  const nm=25,la=st.lat.toFixed(3),lo=st.lon.toFixed(3);
- const srcs=[async()=>{const j=await(await fetch(`https://api.adsb.lol/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
+ const px=(pref.acProxy||'').replace(/\/+$/,'');
+ const srcs=[...(px?[async()=>{const r=await fetch(`${px}/?lat=${la}&lon=${lo}&nm=${nm}`);if(!r.ok)throw 0;const j=await r.json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))}]:[]),async()=>{const j=await(await fetch(`https://api.adsb.lol/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
   async()=>{const j=await(await fetch(`https://api.airplanes.live/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
   async()=>{const d=0.45,j=await(await fetch(`https://opensky-network.org/api/states/all?lamin=${st.lat-d}&lomin=${st.lon-d*1.2}&lamax=${st.lat+d}&lomax=${st.lon+d*1.2}`)).json();return(j.states||[]).map(a=>({id:a[0],cs:(a[1]||'').trim(),lat:+a[6],lon:+a[5],alt:a[8]?0:+a[7],trk:+a[10],gs:+a[9]*3.6}))}];
  for(const f of srcs){try{acList=(await f()).filter(a=>isFinite(a.lat)&&isFinite(a.lon));drawAc();return true}catch(e){}}
- msg('航空機データを取得できません');return false}
+ msg(px?'航空機データを取得できません（中継サーバーを確認）':'飛行機を出すには「気象」画面で中継サーバーを設定してね');return false}
 function drawAc(){VS.forEach(v=>v.acL.clearLayers());let near=0;const myAlt=st.alt||0;
  for(const a of acList){const d=map.distance([st.lat,st.lon],[a.lat,a.lon]),rel=Math.round(((a.alt||0)-myAlt)/30.48),nr=d<5000&&(a.alt||0)<1500&&a.alt>0;if(nr)near++;
   const html=`<svg viewBox="-17 -17 34 34" style="transform:rotate(${isFinite(a.trk)?a.trk:0}deg)">${a.alt>0?`<path d="M0-12L4-2L13 3V6L4 3L3 10L6 12V14L0 12.5L-6 14V12L-3 10L-4 3L-13 6V3L-4-2Z" fill="${nr?'#ffb02e':'#39d0ff'}" stroke="#000" stroke-width="1.2"/>`:'<rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#9aa6b2" stroke-width="2" transform="rotate(45)"/>'}</svg><span>${esc(a.cs||'')} ${a.alt>0?(rel>=0?'+':'')+String(rel).padStart(2,'0'):'GND'}</span>`;
@@ -976,6 +980,7 @@ function runCmd(t){
  if(has('洗車','コーティング')){const h=document.createElement('div');h.innerHTML=washHTML();const c=[...h.querySelectorAll('.chip')].map(x=>x.textContent.replace(/\s+/g,' '));return say(c.length?c.slice(0,3).join('。'):'予報を取得中です'),1}
  if(has('太陽','西日','朝日')){const a=astro(new Date(),st.lat,st.lon).sun;return say(a.alt>0?`太陽は方位${Math.round(a.az)}度、高さ${Math.round(a.alt)}度です`:'今、太陽は沈んでいます'),1}
  if(has('月')&&!has('月日')){const a=astro(new Date(),st.lat,st.lon).moon;return say(`月齢${a.age.toFixed(0)}、${moonName(a.phase)}です。${a.alt>0?'方位'+Math.round(a.az)+'度に見えます':'今は地平線の下です'}`),1}
+ if(has('速度コール','スピードコール')){pref.spc=!off(t);save();setSp();spcLast=null;return say('速度コールを'+(pref.spc?'オン':'オフ')+'にしました'),1}
  if(has('速度','スピード'))return say(`時速${Math.round(st.spd)}キロです`),1;
  if(has('標高','海抜','高度'))return say(st.alt==null?'標高はまだ分かりません':`海抜${Math.round(st.alt)}メートルです`),1;
  if(has('何時','時間','時刻')){const d=new Date();return say(`${d.getHours()}時${d.getMinutes()}分です`),1}
@@ -986,7 +991,28 @@ function runCmd(t){
  return 0}
 function zoomB(d){const v=V.big,z=Math.max(5,Math.min(18,v.m.getZoom()+d));v.m.setView([st.lat,st.lon],z,{animate:false})}
 function nearRoute(){let b=null,bd=1e12;for(const r of routes){const d=Math.min(map.distance([st.lat,st.lon],r.pts[0]),map.distance([st.lat,st.lon],r.pts[r.pts.length-1]));if(d<bd){bd=d;b=r}}return b}
+$('ac-url').value=pref.acProxy||'';
+$('ac-save').addEventListener('click',async()=>{const v=$('ac-url').value.trim();if(v&&!/^https:\/\/[\w.-]+(\/.*)?$/.test(v)){$('ac-st').textContent='https:// から始まるURLを入れてね';return}
+ pref.acProxy=v;save();if(!v){$('ac-st').textContent='中継サーバーを解除しました';return}$('ac-st').textContent='テスト中…';
+ const ok=await fetchAc();$('ac-st').textContent=ok?`つながりました（近くの航空機 ${acList.length}機）`:'つながりませんでした。URLとWorkerのコードを確認してね'});
 setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()=>startRec(),1500));
+
+/* ---------- 速度コール（英語・10km/hごと） ---------- */
+pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,lowArm=false,low5=false,low3=false;const spcSaid={};
+function sayEn(t){if(!pref.voice||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=speechSynthesis.getVoices().find(x=>/^en(-|_)US/i.test(x.lang));if(v)u.voice=v;u.rate=1.0;speechSynthesis.speak(u)}catch(e){}}
+const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
+spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
+setInterval(()=>{
+ if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,band=Math.floor(v/10)*10;
+ /* 減速のときだけ 5・3 */
+ if(v>=8){lowArm=true;low5=low3=false}
+ else if(lowArm){if(!low3&&v<=3){low3=low5=true;lowArm=false;sayEn('3')}else if(!low5&&v<=5){low5=true;sayEn('5')}}
+ if(spcLast==null){spcLast=band;return}
+ if(band===spcLast){spcCand=null;return}
+ if(band>spcLast&&v<band+1)return;if(band<spcLast&&v>spcLast-1)return; // 境目でのくり返しを防ぐ
+ if(band===spcCand)spcN++;else{spcCand=band;spcN=1}
+ if(spcN>=2){spcLast=band;spcCand=null;const now=Date.now();if(band>=10&&now-(spcSaid[band]||0)>15000){spcSaid[band]=now;sayEn(String(band))}}
+},1000);
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
