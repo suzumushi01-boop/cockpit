@@ -1,0 +1,77 @@
+name: soramame
+on:
+  schedule:
+    - cron: '41 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: そらまめくんの最新データを取得
+        run: |
+          python3 - <<'PY'
+          import csv, io, json, urllib.request, datetime
+          JST = datetime.timezone(datetime.timedelta(hours=9))
+          BASE = 'https://soramame.env.go.jp/data/'
+          def get(u):
+              req = urllib.request.Request(u, headers={'User-Agent': 'cockpit-nav (GitHub Actions)'})
+              b = urllib.request.urlopen(req, timeout=60).read()
+              for enc in ('utf-8-sig', 'cp932'):
+                  try:
+                      return b.decode(enc)
+                  except UnicodeDecodeError:
+                      pass
+              raise ValueError('decode')
+          def num(v):
+              try:
+                  return float(v)
+              except (TypeError, ValueError):
+                  return None
+          now = datetime.datetime.now(JST)
+          noudo = kyoku = None
+          for back in range(1, 9):
+              t = now - datetime.timedelta(hours=back)
+              d, h = t, t.hour
+              if h == 0:
+                  d, h = t - datetime.timedelta(days=1), 24
+              p = f'{d:%Y/%m/%d}/{h:02d}'
+              try:
+                  noudo = get(BASE + 'sokutei/noudoAll/' + p + '.csv')
+                  kyoku = get(BASE + 'map/kyokuNoudo/' + p + '.csv')
+                  break
+              except Exception as e:
+                  print('skip', p, e)
+                  noudo = kyoku = None
+          if not noudo:
+              raise SystemExit('データが見つかりません')
+          pos = {}
+          for r in csv.DictReader(io.StringIO(kyoku)):
+              la, lo = num(r.get('緯度')), num(r.get('経度'))
+              if la and lo:
+                  pos[(r.get('測定局コード') or '').strip()] = (round(la, 4), round(lo, 4))
+          out = []
+          for r in csv.DictReader(io.StringIO(noudo)):
+              code = (r.get('測定局コード') or '').strip()
+              if code not in pos:
+                  continue
+              pm, spm, ox = num(r.get('PM2.5')), num(r.get('SPM')), num(r.get('OX'))
+              if pm is None and spm is None and ox is None:
+                  continue
+              la, lo = pos[code]
+              out.append([la, lo, (r.get('測定局名称') or '').strip(), pm, spm, ox,
+                          num(r.get('NO2')), (r.get('WD') or '').strip(), num(r.get('WS'))])
+          data = {'time': f'{d:%Y-%m-%d} {h:02d}:00', 'cols': ['lat', 'lon', 'name', 'pm25', 'spm', 'ox', 'no2', 'wd', 'ws'], 'st': out}
+          with open('soramame.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+          print(data['time'], len(out), 'stations')
+          PY
+      - name: 保存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add soramame.json
+          git diff --cached --quiet || (git commit -m "そらまめくん更新" && git push)
+
