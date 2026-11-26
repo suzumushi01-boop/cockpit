@@ -82,6 +82,12 @@ body.night #ck{filter:brightness(.82)}
 .trip .t{font:700 15px 'B612',sans-serif}.trip .d{font:12px 'B612 Mono',monospace;color:#9aa6b2}
 .trip .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .chk{display:flex;align-items:center;gap:10px;min-height:44px}.chk input{width:22px;height:22px;accent-color:var(--c)}
+
+.gd{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:#000c;border:1px solid var(--c);border-radius:8px;padding:5px 12px;text-align:center;font:700 14px/1.3 'B612',sans-serif;max-width:60%;pointer-events:none}
+.gd[hidden]{display:none}.gd b{color:var(--c);font-size:17px}.gd.off{border-color:var(--a)}.gd.off b{color:var(--a)}
+.rrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.rrow input{flex:1;min-width:160px;min-height:44px;font:16px 'B612',sans-serif;background:#000;color:var(--w);border:1px solid var(--ln);border-radius:8px;padding:0 10px}
+.shin button.rec{border-color:#ff4d4d;color:#ff4d4d}
 /* Leaflet core (inlined) */
 .leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-layer{position:absolute;left:0;top:0}
 .leaflet-container{overflow:hidden;background:transparent}
@@ -136,11 +142,12 @@ body.night #ck{filter:brightness(.82)}
   <div class="ndc tl"><small>GS</small> <span id="n-gs">0</span><small>km/h</small><br><small>TRK</small> <span id="n-trk" style="color:var(--g)">---</span>°</div>
   <div class="ndc tr"><small>HDG</small> <span id="n-hdg">000</span>°<br><small>RNG</small> <span id="n-rng" style="color:var(--c)">—</span></div>
   <div class="lg" id="lg" hidden></div>
+  <div class="gd" id="gd" hidden></div>
   <div class="ndc wx" id="wx"><svg id="wxa" viewBox="-12 -12 24 24"><path d="M0-10L6 2H2V10H-2V2H-6Z" fill="#39d0ff" stroke="#000"/></svg><span id="wxt"></span><br><small id="rt"></small> <small id="fct"></small></div>
   <div class="attr">国土地理院 / ハザードマップポータルサイト</div>
  </section>
  <nav class="bar" aria-label="操作">
-  <button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button><button id="b-wxp">気象</button><button id="b-hist">履歴</button>
+  <button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button><button id="b-wxp">気象</button><button id="b-hist">履歴</button><button id="b-route">裏道</button><button id="b-voice">音声 ON</button>
   <label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.7"></label>
   <span class="sep"></span>
   <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button>
@@ -152,6 +159,11 @@ body.night #ck{filter:brightness(.82)}
  <label class="chk"><input type="checkbox" id="h-show">過去の走行を地図に点線で表示</label>
  <p class="note">★で残した記録は消えません。★なしの記録は60日たつと自動で消えます。記録はこのiPhoneの中だけに保存され、デモ走行は記録されません。</p>
  <div id="hlist"></div></div></div>
+<div class="sheet" id="sh-rt" hidden><div class="shin"><header><b>裏道ガイド</b><button data-close>閉じる</button></header>
+ <p class="note">いい道を走るときに「記録開始」→ 走り終えたら「記録終了」で覚えます。走行履歴の「裏道に登録」からも作れます。</p>
+ <div class="rrow"><button id="r-rec">記録開始</button><span id="r-st" class="note"></span></div>
+ <div class="rrow" id="r-save" hidden><input id="r-name" maxlength="30" aria-label="裏道の名前"><button id="r-ok">保存</button><button id="r-ng">破棄</button></div>
+ <div id="rlist"></div></div></div>
 <div class="ov" id="start">
  <div class="card">
   <h1>COCKPIT NAV</h1>
@@ -187,6 +199,8 @@ const op=$('op');op.value=pref.op||0.55;
 const layers={};
 for(const k in HZ)layers[k]=L.layerGroup(HZ[k].map(p=>L.tileLayer(GSI+p+'/{z}/{x}/{y}.png',{maxNativeZoom:17,maxZoom:18,opacity:+op.value,zIndex:5})));
 const track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(map);
+const trackDots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(map);
+{const tA=track.addLatLng.bind(track),tS=track.setLatLngs.bind(track);track.addLatLng=ll=>{trackDots.addLatLng(ll);return tA(ll)};track.setLatLngs=a=>{trackDots.setLatLngs(a);return tS(a)}} // 履歴に白い点
 const ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],
  html:'<svg viewBox="-20 -20 40 40"><path d="M0-17L11 13L0 6L-11 13Z" fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
 let roseR=100;
@@ -200,7 +214,7 @@ function rng(){const mpp=40075016.686*Math.cos(st.lat*D2R)/(256*2**map.getZoom()
 let lastPt=null;
 function setPos(lat,lon){
  st.lat=lat;st.lon=lon;ship.setLatLng([lat,lon]);map.setView([lat,lon],map.getZoom(),{animate:false});
- hAdd(lat,lon);
+ hAdd(lat,lon);if(typeof rAdd==='function')rAdd(lat,lon);
  if(st.rec&&(!lastPt||map.distance(lastPt,[lat,lon])>4)){lastPt=[lat,lon];track.addLatLng(lastPt);const p=track.getLatLngs();if(p.length>6000)track.setLatLngs(p.slice(-5000))}
 }
 
@@ -211,6 +225,7 @@ function setPos(lat,lon){
  const lab={0:'N',90:'E',180:'S',270:'W'};
  for(let d=0;d<360;d+=30)s+=`<text transform="rotate(${d}) translate(0,-64)" text-anchor="middle" font-family="B612 Mono" font-weight="700" font-size="${lab[d]?11:9}" fill="${d===0?'#39d0ff':'#eef3f6'}" stroke="#000" stroke-width="2.5" paint-order="stroke">${lab[d]||d/10}</text>`;
  s+='<line id="trkp" x1="0" y1="0" x2="0" y2="-82" stroke="#3be36a" stroke-width="1.4" stroke-dasharray="4 3"/>';
+ s+='<g id="gdp" style="display:none"><path d="M0-82L6-70L0-58L-6-70Z" fill="#39d0ff" stroke="#000" stroke-width="1"/><line x1="0" y1="-58" x2="0" y2="-20" stroke="#39d0ff" stroke-width="2.5"/></g>';
  s+='<g id="hdgp"><path d="M-5 -92L5 -92L0 -84Z" fill="#ff4fd8" stroke="#000" stroke-width=".8"/></g></g>';
  s+='<circle r="82" fill="none" stroke="#eef3f6" stroke-width="1.2" opacity=".85"/><circle r="41" fill="none" stroke="#eef3f6" stroke-width=".7" stroke-dasharray="2 4" opacity=".6"/>';
  s+='<path id="lub" d="M0 -84L-6 -96H6Z" fill="#eef3f6" stroke="#000" stroke-width=".8"/>';
@@ -347,6 +362,7 @@ $('go').addEventListener('click',()=>{
   window.addEventListener('devicemotion',onMot);
  });
  $('start').hidden=true;wake();startGPS();size();
+ try{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance('システム起動');u.lang='ja-JP';if(pref.voice!==false)speechSynthesis.speak(u)}}catch(e){} // 音声の許可
  try{const f=document.documentElement.requestFullscreen;f&&f.call(document.documentElement).catch(()=>{})}catch(e){}
 });
 
@@ -481,7 +497,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 const pastL=L.layerGroup().addTo(map);pref.hshow=pref.hshow!==false;
 function drawPast(){pastL.clearLayers();if(!pref.hshow)return;
  for(const t of trips){if(t===cur||t.show===false||t.pts.length<2)continue;
-  pastL.addLayer(L.polyline(t.pts,{color:t.keep?'#39d0ff':'#ff9be9',weight:3,opacity:.75,dashArray:'6 8',interactive:false}))}}
+  pastL.addLayer(L.polyline(t.pts,{color:t.keep?'#39d0ff':'#ff9be9',weight:3,opacity:.75,dashArray:'6 8',interactive:false}));
+  pastL.addLayer(L.polyline(t.pts,{color:'#fff',weight:4,opacity:.85,dashArray:'0 20',lineCap:'round',interactive:false}))}}
 const WD='日月火水木金土',two=n=>String(n).padStart(2,'0');
 const fmtT=ms=>{const d=new Date(ms);return two(d.getHours())+':'+two(d.getMinutes())};
 const fmtD=ms=>{const d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
@@ -492,11 +509,12 @@ function hList(){
   <div class="d">${(t.dist/1000).toFixed(1)} km・${Math.round((t.end-t.start)/60000)}分${left}</div></div>
   <div class="acts"><button data-act="show" data-id="${t.id}" class="${t.show!==false?'on':''}">表示</button>
   <button data-act="keep" data-id="${t.id}" class="${t.keep?'on':''}">${t.keep?'★残す':'☆残す'}</button>
-  <button data-act="del" data-id="${t.id}">削除</button></div></div>`}).join(''):'<p class="note">まだ記録がありません。GPSを受信して走ると記録されます。</p>';
+  <button data-act="route" data-id="${t.id}">裏道に登録</button><button data-act="del" data-id="${t.id}">削除</button></div></div>`}).join(''):'<p class="note">まだ記録がありません。GPSを受信して走ると記録されます。</p>';
 }
 $('hlist').addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;const t=trips.find(x=>String(x.id)===b.dataset.id);if(!t)return;
  if(b.dataset.act==='show')t.show=t.show===false;
  else if(b.dataset.act==='keep')t.keep=!t.keep;
+ else if(b.dataset.act==='route'){if(addRoute(t.pts.slice(),'裏道 '+fmtD(t.start)+' '+fmtT(t.start))){b.textContent='登録済み';msg('裏道に登録しました（裏道ボタンから案内できます）')}return}
  else if(b.dataset.act==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}trips=trips.filter(x=>x!==t);if(t===cur)cur=null}
  hSave();drawPast();hList()});
 $('h-show').checked=pref.hshow;$('h-show').addEventListener('change',()=>{pref.hshow=$('h-show').checked;save();drawPast()});
@@ -568,13 +586,82 @@ function renderWx(){
  if(fc||aq||sora)$('wxbody').innerHTML=html;
  $('fct').textContent=[wxSum.rainTxt,wxSum.dewTxt].filter(Boolean).join('・');
 }
-function fcTick(){if(Date.now()-soraTime>900000){soraTime=Date.now();fetchSora()}
+function fcTick(){if(wxSum.rain&&!rainSaid){rainSaid=true;say('まもなく雨の予報です')}else if(!wxSum.rain)rainSaid=false;
+ if(Date.now()-soraTime>900000){soraTime=Date.now();fetchSora()}
  if(!fcBusy&&(!fcAt||map.distance(fcAt,[st.lat,st.lon])>5000||Date.now()-fcTime>900000)){fcBusy=true;fetchFc().catch(()=>{fcTime=Date.now()-780000}).finally(()=>{fcBusy=false})}
  const set=(id,on)=>{const e=$(id);e.className='an'+(on?' warn':'')};set('a-rain',wxSum.rain);set('a-dew',wxSum.dew);set('a-air',wxSum.air)}
 setInterval(fcTick,10000);
 const openSh=id=>{$(id).hidden=false};document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{b.closest('.sheet').hidden=true}));
 document.querySelectorAll('.sheet').forEach(sh=>sh.addEventListener('click',e=>{if(e.target===sh)sh.hidden=true}));
 $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').addEventListener('click',()=>{hList();openSh('sh-hist')});
+
+
+
+/* ---------- 音声案内（Web Speech API） ---------- */
+pref.voice=pref.voice!==false;let rainSaid=false;
+function say(t){if(!pref.voice||!window.speechSynthesis||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=1.05;speechSynthesis.speak(u)}catch(e){}}
+const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',pref.voice);vB.textContent=pref.voice?'音声 ON':'音声 OFF'};setV();
+vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.voice)say('音声案内をオンにしました');else if(window.speechSynthesis)speechSynthesis.cancel()});
+
+/* ---------- 裏道ガイド ---------- */
+const RKEY='cockpitnav-routes';let routes=[],rrec=null,rpend=null,guide=null;
+try{routes=JSON.parse(localStorage.getItem(RKEY)||'[]')}catch(e){routes=[]}
+const rSave=()=>{try{localStorage.setItem(RKEY,JSON.stringify(routes))}catch(e){msg('裏道を保存できません（容量不足）')}};
+const brg=(a,b)=>{const p1=a[0]*D2R,p2=b[0]*D2R,dl=(b[1]-a[1])*D2R;return(Math.atan2(Math.sin(dl)*Math.cos(p2),Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl))/D2R+360)%360};
+const lenOf=p=>{let d=0;for(let i=1;i<p.length;i++)d+=map.distance(p[i-1],p[i]);return d};
+const guideL=L.layerGroup().addTo(map);
+function rAdd(lat,lon){if(!rrec)return;const p=rrec.pts[rrec.pts.length-1];if(p&&map.distance(p,[lat,lon])<15)return;rrec.pts.push([+lat.toFixed(5),+lon.toFixed(5)]);$('r-st').textContent=`記録中 ${(lenOf(rrec.pts)/1000).toFixed(2)}km`}
+function addRoute(pts,name){if(pts.length<5){msg('短すぎて登録できません');return false}routes.push({id:Date.now(),name:name||'裏道',pts,dist:lenOf(pts),created:Date.now()});rSave();rList();return true}
+function rList(){
+ $('rlist').innerHTML=routes.length?routes.slice().reverse().map(r=>`<div class="trip"><div><div class="t">${esc(r.name)}</div><div class="d">${(r.dist/1000).toFixed(1)} km・${fmtD(r.created)}登録</div></div>
+ <div class="acts">${guide&&guide.r.id===r.id?`<button data-ract="stop" data-id="${r.id}" class="on">案内中止（${guide.rev?'逆方向':'順方向'}）</button><button data-ract="${guide.rev?'fwd':'rev'}" data-id="${r.id}">向きを反転</button>`:
+ (()=>{const near=map.distance([st.lat,st.lon],r.pts[r.pts.length-1])<map.distance([st.lat,st.lon],r.pts[0]);return `<button data-ract="fwd" data-id="${r.id}" class="${near?'':'on'}">順方向で案内${near?'':'（近い）'}</button><button data-ract="rev" data-id="${r.id}" class="${near?'on':''}">逆方向で案内${near?'（近い）':''}</button>`})()}
+ <button data-ract="del" data-id="${r.id}">削除</button></div></div>`).join(''):'<p class="note">まだ裏道がありません。</p>';
+ $('r-rec').textContent=rrec?'記録終了':'記録開始';$('r-rec').classList.toggle('rec',!!rrec);if(!rrec)$('r-st').textContent='';
+}
+function startGuide(r,rev){const P=rev?r.pts.slice().reverse():r.pts,cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+map.distance(P[i-1],P[i]));
+ guide={r,P,rev:!!rev,cum,prog:0,off:true};guideL.clearLayers();
+ guideL.addLayer(L.polyline(P,{color:'#39d0ff',weight:9,opacity:.5,interactive:false}));
+ guideL.addLayer(L.polyline(P,{color:'#fff',weight:5,opacity:.9,dashArray:'0 18',lineCap:'round',interactive:false}));
+ guideL.addLayer(L.circleMarker(P[0],{radius:9,color:'#000',weight:2,fillColor:'#3be36a',fillOpacity:1,interactive:false}));
+ guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
+ msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':''));say(r.name+(rev?'を逆方向で':'の')+'案内を開始します');guideTick()}
+function stopGuide(t,v){if(v)say(v);guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
+function guideTick(){
+ if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon];let lo=0,hi=P.length-1;
+ if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
+ let bi=lo,bd=1e12;for(let i=lo;i<=hi;i++){const d=map.distance(me,P[i]);if(d<bd){bd=d;bi=i}}
+ g.prog=bi;g.off=bd>60;
+ if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide('裏道ガイド：到着しました','目的地に到着しました。案内を終了します');return}
+ let ti=bi;if(!g.off){while(ti<P.length-1&&g.cum[ti]-g.cum[bi]<60)ti++}
+ const b=brg(me,P[ti]),rel=((b-st.hdg+540)%360)-180,ar=Math.abs(rel);
+ const dir=ar<30?'まっすぐ':ar>150?'Uターン':rel>0?'右へ':'左へ';
+ const left=g.cum[P.length-1]-g.cum[bi];
+ $('gd').hidden=false;$('gd').classList.toggle('off',g.off);
+ $('gd').innerHTML=`${esc(g.r.name)}${g.rev?'（逆）':''}<br><b>${g.off?(bi===0?'スタートへ':'コースへ')+' '+dir+' '+(bd<1000?Math.round(bd)+'m':(bd/1000).toFixed(1)+'km'):dir}</b><br>残り ${(left/1000).toFixed(1)}km`;
+ $('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
+ const key=g.off?'off':dir,now=Date.now(),dist=bd<1000?Math.round(bd/10)*10+'メートル':(bd/1000).toFixed(1)+'キロ';
+ if(key===g.cand)g.candN++;else{g.cand=key;g.candN=1}
+ if(g.candN>=2&&key!==g.lastKey){
+  if(key==='off'){say(`${bi===0?'スタート':'コース'}は${dir==='まっすぐ'?'前方':dir==='Uターン'?'後方':dir==='右へ'?'右方向':'左方向'}、${dist}です`);g.offSaid=now}
+  else if(key==='右へ')say('この先、右です');else if(key==='左へ')say('この先、左です');else if(key==='Uターン')say('Uターンしてください');
+  else if(g.lastKey==='off')say('コースに入りました');
+  g.lastKey=key}
+ else if(key==='off'&&now-(g.offSaid||0)>30000){say(`${bi===0?'スタート':'コース'}まで、${dist}です`);g.offSaid=now}
+}
+setInterval(guideTick,1000);
+$('r-rec').addEventListener('click',()=>{
+ if(!rrec){rrec={pts:[]};rAdd(st.lat,st.lon);msg('裏道の記録を開始');$('r-save').hidden=true}
+ else{const p=rrec.pts;rrec=null;if(p.length<5){msg('短すぎるので記録を破棄しました')}else{rpend=p;$('r-name').value='裏道 '+fmtD(Date.now())+' '+fmtT(Date.now());$('r-save').hidden=false}}
+ rList()});
+$('r-ok').addEventListener('click',()=>{if(rpend&&addRoute(rpend,$('r-name').value.trim()))msg('裏道を保存しました');rpend=null;$('r-save').hidden=true});
+$('r-ng').addEventListener('click',()=>{rpend=null;$('r-save').hidden=true});
+$('rlist').addEventListener('click',e=>{const b=e.target.closest('button[data-ract]');if(!b)return;const r=routes.find(x=>String(x.id)===b.dataset.id);if(!r)return;
+ if(b.dataset.ract==='stop'){stopGuide('裏道ガイドを中止');$('sh-rt').hidden=true}
+ else if(b.dataset.ract==='fwd'||b.dataset.ract==='rev'){startGuide(r,b.dataset.ract==='rev');$('sh-rt').hidden=true}
+ else{if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}if(guide&&guide.r.id===r.id)stopGuide();routes=routes.filter(x=>x!==r);rSave()}
+ rList()});
+$('b-route').addEventListener('click',()=>{rList();$('sh-rt').hidden=false});
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
