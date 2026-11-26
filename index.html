@@ -110,6 +110,14 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 .fr input[type=range]{width:100%;accent-color:var(--c);height:32px}
 .frv{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin:8px 0}
 .prof svg{width:100%;height:110px;display:block;background:#05080b;border:1px solid var(--ln);border-radius:8px;margin-top:6px}
+.acm.sm svg{width:18px;height:18px}.acm.sm span{display:none}
+#b-menu{flex:none;min-height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#121920;color:var(--w);font:700 12px 'B612',sans-serif;cursor:pointer}
+body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:var(--c)}
+.shin select{min-height:44px;font:16px 'B612',sans-serif;background:#000;color:var(--w);border:1px solid var(--ln);border-radius:8px;padding:0 8px;flex:1;min-width:180px}
+.favm{background:none;border:0}.favm svg{width:26px;height:26px;display:block;overflow:visible}.favm span{position:absolute;left:24px;top:2px;font:700 11px 'B612',sans-serif;color:#fff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000,0 0 5px #000}
+#d-mic.on{border-color:#ff4d4d;color:#ff4d4d}
+.tabs{display:flex;flex:none;gap:2px;border:1px solid var(--ln);border-radius:9px;padding:2px;background:#05080b}.tabs button{min-width:52px;border:0!important;padding:0 10px}.tabs button.on{background:#1b2a36;color:var(--c);box-shadow:none}
+.pg{display:none;gap:6px;flex:none;align-items:center}.pg.on{display:flex}
 /* Leaflet core (inlined) */
 .leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-layer{position:absolute;left:0;top:0}
 .leaflet-container{overflow:hidden;background:transparent}
@@ -137,7 +145,7 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
   <div class="anns"><span class="an" id="a-gps">GPS</span><span class="an" id="a-hdg">HDG</span><span class="an" id="a-att">ATT</span>
   <span class="an" id="a-haz">HAZ</span><span class="an" id="a-rec">REC</span><span class="an" id="a-wake">WAKE</span>
   <span class="an" id="a-rain">RAIN</span><span class="an" id="a-dew">DEW</span><span class="an" id="a-air">AIR</span><span class="an" id="a-sun">SUN</span><span class="an" id="a-tfc">TFC</span><span class="an" id="a-demo" hidden>DEMO</span></div>
-  <div class="tinfo"><span id="t-date">----/--/--</span><span id="clk">--:--:--</span><span><small>日の出</small><span id="t-rise">--:--</span></span><span><small>日没</small><span id="t-set">--:--</span></span><span class="opt"><small>気圧</small><span id="t-pres">----</span>hPa</span><span class="opt"><small>気温</small><span id="t-temp">--</span>℃</span><span class="opt"><small>湿度</small><span id="t-hum">--</span>%</span></div>
+  <div class="tinfo"><span id="t-date">----/--/--</span><span id="clk">--:--:--</span><span><small>日の出</small><span id="t-rise">--:--</span></span><span><small>日没</small><span id="t-set">--:--</span></span><span class="opt"><small>気圧</small><span id="t-pres">----</span>hPa</span><span class="opt"><small>気温</small><span id="t-temp">--</span>℃</span><span class="opt"><small>湿度</small><span id="t-hum">--</span>%</span></div><button id="b-menu" aria-label="メニューの表示切り替え">MENU</button>
  </header>
  <section class="pfd" aria-label="PFD">
   <div class="pfdrow">
@@ -162,13 +170,13 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
   <div class="attr">国土地理院 / ハザードマップポータルサイト</div>
  </section>
  <nav class="bar" aria-label="操作">
-  <span class="seg"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button>
-  <label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label>
-  <button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button><button data-wx="ac">飛行機</button><button data-wx="gm">Gマップ</button>
-  <button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button>
-  <span class="sep"></span>
-  <button id="b-wxp">気象</button><button id="b-hist">履歴</button><button id="b-route">裏道</button><button id="b-voice">音声 ON</button><button id="b-spc">速度コール OFF</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-rec">航跡</button>
+  <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
+  <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-stop">案内中止</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
+  <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="tr">渋滞</button><button data-wx="pm">PM2.5</button></div>
+  <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
+  <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
  </nav>
 </div>
 <div class="sheet" id="sh-wx" hidden><div class="shin"><header><b>気象</b><button data-close>閉じる</button></header><div id="wxbody"><p class="note">データを取得中…（GitHub Pages で開いたときに表示されます）</p></div>
@@ -182,10 +190,38 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 <div class="sheet" id="sh-rt" hidden><div class="shin"><header><b>裏道ガイド</b><button data-close>閉じる</button></header>
  <p class="note">いい道を走るときに「記録開始」→ 走り終えたら「記録終了」で覚えます。走行履歴の「裏道に登録」からも作れます。スタート地点に近づくと自動で案内を提案し、裏道といつもの道の所要時間も自動で記録します。</p>
  <div class="rrow"><button id="r-rec">記録開始</button><span id="r-st" class="note"></span></div>
+ <h3>始点と終点から作る</h3>
+ <div class="rrow"><span style="width:3em">始点</span><select id="se-s" aria-label="始点"></select><button id="se-s-here">今いる場所</button></div>
+ <div class="rrow"><span style="width:3em">終点</span><select id="se-e" aria-label="終点"></select><button id="se-e-here">今いる場所</button></div>
+ <div class="rrow"><button id="se-make">走行履歴から抜け道を作る</button></div><p class="note" id="se-st">お気に入り・最近の目的地・今いる場所から選んで、過去60日の走行履歴からその区間を切り出します。</p>
  <div class="rrow" id="r-save" hidden><input id="r-name" maxlength="30" aria-label="裏道の名前"><button id="r-ok">保存</button><button id="r-ng">破棄</button></div>
- <div class="rrow"><button id="r-exp">書き出し</button><label class="chk" style="min-height:44px"><button id="r-imp" type="button">読み込み</button></label><input type="file" id="r-file" accept=".json,application/json" hidden><span class="note">裏道と★の履歴をファイルに保存／復元</span></div>
+ <div class="rrow"><button id="r-exp">書き出し</button><label class="chk" style="min-height:44px"><button id="r-imp" type="button">読み込み</button></label><input type="file" id="r-file" accept=".json,application/json" hidden><span class="note">裏道・★の履歴・お気に入り地点をファイルに保存／復元</span></div>
  <div class="rrow" id="r-exbox" hidden><textarea id="r-extext" readonly style="width:100%;height:90px;background:#000;color:#9aa6b2;border:1px solid #26313d;border-radius:8px;font:12px monospace"></textarea><button id="r-excopy">コピー</button></div>
  <div id="rlist"></div></div></div>
+<div class="sheet" id="sh-dest" hidden><div class="shin"><header><b>目的地・お気に入り</b><button data-close>閉じる</button></header>
+ <form class="rrow" id="d-form"><input id="d-q" placeholder="施設名・住所・郵便番号（例：273-0005）" enterkeyhint="search" autocomplete="off" style="flex:1;min-width:180px;min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="目的地を検索"><button type="button" id="d-mic" aria-label="声で入力">🎤</button><button type="submit">検索</button></form>
+ <div id="d-res"></div><div id="d-reg"></div>
+ <label class="chk"><input type="checkbox" id="d-ura">登録した裏道が使えるときは裏道経由で案内（通常より早いか、1分以内の差のとき）</label>
+ <h3>お気に入り地点</h3><div class="bands" id="f-chips"></div><div id="f-list"></div><div class="rrow"><button id="f-here">今いる場所を登録</button></div>
+ <h3>最近の目的地</h3><div id="d-recent"></div>
+ <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
+ <p class="note">声で「船橋駅まで案内」「自宅に帰る」「洗車場へ行きたい」「郵便番号273-0005」「今の場所をお気に入りに登録」と言えます。データ：国土地理院・OpenStreetMap／Nominatim・HeartRails Geo API／zipcloud（郵便番号）・OSRM（ルート）。</p>
+</div></div>
+<div class="sheet" id="sh-set" hidden><div class="shin"><header><b>設定</b><button data-close>閉じる</button></header>
+ <h3>日本語の声（案内・天気など）</h3><div class="rrow"><select id="v-ja" aria-label="日本語の声"></select><button id="v-ja-t">試す</button></div>
+ <h3>英語の声（速度コール）</h3><div class="rrow"><select id="v-en" aria-label="英語の声"></select><button id="v-en-t">試す</button></div>
+ <h3>話す速さ</h3><div class="rrow"><input type="range" id="v-rate" min="0.7" max="1.5" step="0.05" style="flex:1;accent-color:var(--c)" aria-label="話す速さ"><span id="v-rate-v" class="note"></span></div>
+ <p class="note">声の種類を増やすには：iPhoneの 設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語／英語 で好きな声をダウンロードして、アプリを開き直してね（Siriの声はWebアプリからは使えません）。</p>
+ <h3>OneDrive 同期（パソコンからも編集）</h3>
+ <div class="rrow"><input id="od-client" placeholder="アプリのクライアントID（Entra で登録）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="クライアントID"><input id="od-tenant" placeholder="テナント（空欄でOK）" autocomplete="off" style="width:150px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="テナントID"><button id="od-save">保存</button></div>
+ <div class="rrow"><button id="od-in">サインイン</button><button id="od-up">OneDriveへ保存</button><button id="od-down">OneDriveから読み込み</button><button id="od-out">サインアウト</button></div>
+ <p class="note" id="od-st">未設定</p>
+ <p class="note">裏道・お気に入り・カテゴリー名・最近の目的地・★の履歴を OneDrive の「Apps/CockpitNav/cockpit-nav.json」に保存します。サインイン後は、起動時に新しいほうを読み込み、変更すると自動で保存します。パソコンでも同じURLを開いてサインインすれば、同じデータを編集できます。</p>
+ <h3>渋滞情報（TomTom）</h3>
+ <div class="rrow"><input id="tt-key" placeholder="TomTom の API キー" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="TomTom APIキー"><button id="tt-save">保存</button></div>
+ <p class="note" id="tt-st">キーを入れると、天気ページの「渋滞」で道路の混雑を色で表示し、目的地ナビの到着時間と裏道の判断に渋滞を反映します（無料枠あり）。</p>
+ <h3>メニュー</h3><label class="chk"><input type="checkbox" id="set-menu">下の操作メニューを表示する（上の MENU ボタンでも切り替え）</label>
+</div></div>
 <div class="sheet" id="sh-fr" hidden><div class="shin fr"><header><b id="fr-title">フライトレコーダー</b><button data-close>閉じる</button></header>
  <svg id="fr-map" viewBox="0 0 400 220" style="height:220px"></svg>
  <div class="frv"><div class="chip"><small>時刻</small><b id="fr-t">--:--</b></div><div class="chip"><small>速度</small><b id="fr-s">--</b> km/h</div><div class="chip"><small>海抜</small><b id="fr-a">--</b> m</div><div class="chip"><small>G</small><b id="fr-g">--</b></div></div>
@@ -226,18 +262,18 @@ const BASEDEF=[
 const SHIP='<svg viewBox="-20 -20 40 40"><path d="M0-17L11 13L0 6L-11 13Z" fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/></svg>';
 const RM=['今','30分後','60分後'],CMS=['AUTO','昼','夜'];let rainUrls=[null,null,null],rainLbl=['','',''],isNightSun=false;
 pref.v=pref.v||{};
-const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.hz||{flood:true,dosha:true},wx:Object.assign({wind:true,rain:true,pm:false,ac:false,gm:false},pref.wx||{}),rm:0,hup:true,cm:pref.cm||'AUTO'},
- mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false},rm:0,hup:false,cm:'AUTO'}};
+const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.hz||{flood:true,dosha:true},wx:Object.assign({wind:true,rain:true,pm:false,ac:false,gm:false,fav:true},pref.wx||{}),rm:0,hup:true,cm:pref.cm||'AUTO'},
+ mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false,fav:true},rm:0,hup:false,cm:'AUTO'}};
 function mkView(id,el,wrap){
- const cfg=Object.assign({},DEF[id],pref.v[id]||{});cfg.hz=Object.assign({},cfg.hz);cfg.wx=Object.assign({},cfg.wx);pref.v[id]=cfg;
+ const cfg=Object.assign({},DEF[id],pref.v[id]||{});cfg.hz=Object.assign({},cfg.hz);cfg.wx=Object.assign({fav:true},cfg.wx);pref.v[id]=cfg;
  if(id==='big')cfg.hup=true; // 大地図は起動時いつも進行方向アップ
  const m=L.map(el,MOPT).setView([st.lat,st.lon],cfg.z);
- const v={id,m,cfg,el:$(el),wrap:$(wrap),bases:BASEDEF.map(b=>L.tileLayer(b.u,b.o)),hz:{},rainL:null,rainU:null,wxL:L.layerGroup(),soraL:L.layerGroup(),acL:L.layerGroup(),gmL:L.layerGroup()};
+ const v={id,m,cfg,el:$(el),wrap:$(wrap),bases:BASEDEF.map(b=>L.tileLayer(b.u,b.o)),hz:{},rainL:null,rainU:null,wxL:L.layerGroup(),soraL:L.layerGroup(),acL:L.layerGroup(),gmL:L.layerGroup(),favL:L.layerGroup(),trL:null,trK:''};
  for(const k in HZ)v.hz[k]=L.layerGroup(HZ[k].map(p=>L.tileLayer(GSI+p+'/{z}/{x}/{y}.png',{maxNativeZoom:17,maxZoom:18,opacity:cfg.op,zIndex:5})));
  v.track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(m);
  v.dots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(m);
  v.ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],html:SHIP})}).addTo(m);
- m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView([st.lat,st.lon],cfg.z,{animate:false});rng()});
+ m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView([st.lat,st.lon],cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
  return v;
 }
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
@@ -251,6 +287,8 @@ function applyView(v){
  if(c.wx.pm)m.addLayer(v.soraL);else m.removeLayer(v.soraL);
  if(c.wx.ac)m.addLayer(v.acL);else m.removeLayer(v.acL);
  if(c.wx.gm)m.addLayer(v.gmL);else m.removeLayer(v.gmL);
+ if(c.wx.fav!==false)m.addLayer(v.favL);else m.removeLayer(v.favL);
+ {const k=c.wx.tr&&pref.ttKey?pref.ttKey:'';if(k!==v.trK){if(v.trL)m.removeLayer(v.trL);v.trL=k?L.tileLayer(`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${encodeURIComponent(k)}&thickness=8`,{maxZoom:18,opacity:.85,zIndex:8}).addTo(m):null;v.trK=k}}
  v.wrap.classList.toggle('mapnight',nightOf(c.cm));
  if(m.getZoom()!==c.z)m.setView([st.lat,st.lon],c.z,{animate:false});
  if(v.id==='big'){const at=document.querySelector('.attr');if(at)at.textContent=BASEDEF[bi].a+' / 気象庁 / ハザードマップポータルサイト'}
@@ -430,7 +468,7 @@ function syncBar(){const c=SV().cfg;
 const upd=()=>{save();applyView(SV());syncBar()};
 $('t-big').addEventListener('click',()=>{sel='big';syncBar()});$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
 document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg;c.hz[b.dataset.hz]=!c.hz[b.dataset.hz];upd()}));
-document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();wxTick()}}));
+document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey)msg('渋滞は「設定」でTomTomのキーを入れると使えます');wxTick()}}));
 $('op').addEventListener('input',()=>{SV().cfg.op=+$('op').value;upd()});
 $('b-rt').addEventListener('click',()=>{const c=SV().cfg;c.rm=(c.rm+1)%3;upd();if(c.rm&&!rainUrls[c.rm])msg('雨雲の予報データを待っています');updRt()});
 $('b-up').addEventListener('click',()=>{const c=SV().cfg;c.hup=!c.hup;upd()});
@@ -644,7 +682,8 @@ $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').
 
 /* ---------- 音声案内（Web Speech API） ---------- */
 pref.voice=pref.voice!==false;let rainSaid=false;
-function say(t){if(!pref.voice||!window.speechSynthesis||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=1.05;speechSynthesis.speak(u)}catch(e){}}
+const pickV=(name,re)=>{const vs=window.speechSynthesis?speechSynthesis.getVoices():[];return vs.find(v=>v.name===name)||vs.find(v=>re.test(v.lang))};
+function say(t){if(!pref.voice||!window.speechSynthesis||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;speechSynthesis.speak(u)}catch(e){}}
 const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',pref.voice);vB.textContent=pref.voice?'音声 ON':'音声 OFF'};setV();
 vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.voice)say('音声案内をオンにしました');else if(window.speechSynthesis)speechSynthesis.cancel()});
 
@@ -652,7 +691,7 @@ vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.vo
 const RKEY='cockpitnav-routes';let routes=[],rrec=null,rpend=null,guide=null,editId=null,profId=null;
 try{routes=JSON.parse(localStorage.getItem(RKEY)||'[]')}catch(e){routes=[]}
 routes.forEach(r=>{r.runs=r.runs||[];r.bands=r.bands||[];r.memo=r.memo||''});
-const rSave=()=>{try{localStorage.setItem(RKEY,JSON.stringify(routes))}catch(e){msg('裏道を保存できません（容量不足）')}};
+const rSave=()=>{try{localStorage.setItem(RKEY,JSON.stringify(routes))}catch(e){msg('裏道を保存できません（容量不足）')}schedUp()};
 const brg=(a,b)=>{const p1=a[0]*D2R,p2=b[0]*D2R,dl=(b[1]-a[1])*D2R;return(Math.atan2(Math.sin(dl)*Math.cos(p2),Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl))/D2R+360)%360};
 const lenOf=p=>{let d=0;for(let i=1;i<p.length;i++)d+=map.distance(p[i-1],p[i]);return d};
 const cumOf=P=>{const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+map.distance(P[i-1],P[i]));return c};
@@ -729,31 +768,36 @@ function rList(){
 }
 
 /* 案内 */
-function startGuide(r,rev){const P=rev?r.pts.slice().reverse():r.pts,cum=cumOf(P);
- guide={r,P,rev:!!rev,cum,prog:0,off:true,turns:findTurns(P,cum)};guideL.clearLayers();hideSugg();
- guideL.addLayer(L.polyline(P,{color:'#39d0ff',weight:9,opacity:.5,interactive:false}));
+function startGuide(r,rev,opt){const P=rev?r.pts.slice().reverse():r.pts,cum=cumOf(P);opt=opt||{};if(!P||P.length<2){msg('ルートが短すぎます');return}
+ guide={r,P,rev:!!rev,cum,prog:0,off:true,turns:opt.turns?opt.turns(P,cum):findTurns(P,cum),nav:opt.nav||null};guideL.clearLayers();hideSugg();
+ if(opt.segs)for(const sg of opt.segs)guideL.addLayer(L.polyline(P.slice(Math.max(0,sg.a),sg.b),{color:sg.c,weight:9,opacity:.6,interactive:false}));
+ else guideL.addLayer(L.polyline(P,{color:'#39d0ff',weight:9,opacity:.5,interactive:false}));
+ guide.marks=opt.marks?opt.marks(cum):[];
  guideL.addLayer(L.polyline(P,{color:'#fff',weight:5,opacity:.9,dashArray:'0 18',lineCap:'round',interactive:false}));
  for(const t of guide.turns)guideL.addLayer(L.circleMarker(P[t.i],{radius:6,color:'#000',weight:2,fillColor:'#ffd27a',fillOpacity:1,interactive:false}));
  guideL.addLayer(L.circleMarker(P[0],{radius:9,color:'#000',weight:2,fillColor:'#3be36a',fillOpacity:1,interactive:false}));
  guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
- msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);say(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''));guideTick()}
+ if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);say(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`)}else say('新しいルートで案内します')}
+ else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);say(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''))}guideTick()}
 function stopGuide(t,v){if(v)say(v);guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
 function guideTick(){
  if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon],now=Date.now();let lo=0,hi=P.length-1;
  if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
  let bi=lo,bd=1e12;for(let i=lo;i<=hi;i++){const d=map.distance(me,P[i]);if(d<bd){bd=d;bi=i}}
  g.prog=bi;g.off=bd>60;
- if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide('裏道ガイド：到着しました','目的地に到着しました。案内を終了します');return}
+ if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide(g.nav?'目的地に到着しました':'裏道ガイド：到着しました','目的地に到着しました。案内を終了します');return}
+ if(g.nav){if(g.off&&bd>80){g.offN=(g.offN||0)+1;if(g.offN>=8&&now-(g.rerAt||0)>30000){g.rerAt=now;g.offN=0;say('ルートを再検索します');navTo(g.nav.dest,{quiet:true})}}else g.offN=0}
  let ti=bi;if(!g.off){while(ti<P.length-1&&g.cum[ti]-g.cum[bi]<60)ti++}
  const b=brg(me,P[ti]),rel=((b-st.hdg+540)%360)-180,ar=Math.abs(rel),dir=ar<30?'まっすぐ':ar>150?'Uターン':rel>0?'右へ':'左へ';
  const left=g.cum[P.length-1]-g.cum[bi],nt=g.turns.find(t=>t.i>bi),dn=nt?g.cum[nt.i]-g.cum[bi]:null;
  let main;
  if(g.off)main=(bi===0?'スタートへ':'コースへ')+' '+dir+' '+fmtM(bd);
  else if(ar>150&&st.spd>5)main='Uターン';
- else if(nt&&dn<700)main=`${ARW[nt.w]} ${fmtM(dn)}先 ${nt.w}`;
+ else if(nt&&dn<700)main=`${nt.w.includes('Uターン')?'↶':nt.w.includes('右')?'↱':nt.w.includes('左')?'↰':'↑'} ${fmtM(dn)}先 ${nt.w}${nt.road?' '+nt.road:''}`;
  else main='しばらく道なり';
  $('gd').hidden=false;$('gd').classList.toggle('off',g.off);
- $('gd').innerHTML=`${esc(g.r.name)}${g.rev?'（逆）':''}<br><b>${esc(main)}</b><br>残り ${(left/1000).toFixed(1)}km${g.r.memo?`<br><small>${esc(g.r.memo.slice(0,30))}</small>`:''}`;
+ const eta=g.nav?(()=>{const rem=g.nav.dur*left/(g.cum[P.length-1]||1);return `・約${Math.max(1,Math.round(rem/60))}分（${fmtT(Date.now()+rem*1000)}着）${g.nav.delay>60?`<small> 渋滞+${Math.round(g.nav.delay/60)}分</small>`:''}`})():'';
+ $('gd').innerHTML=`${esc(g.r.name)}${g.rev?'（逆）':''}${g.nav&&g.nav.ura?`<small> 裏道「${esc(g.nav.ura)}」経由</small>`:''}<br><b>${esc(main)}</b><br>残り ${(left/1000).toFixed(1)}km${eta}${g.r.memo?`<br><small>${esc(g.r.memo.slice(0,30))}</small>`:''}`;
  $('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
  /* 音声 */
  const key=g.off?'off':(ar>150&&st.spd>5)?'U':'on';
@@ -764,16 +808,18 @@ function guideTick(){
   else if(g.lastKey==='off')say('コースに入りました');
   g.lastKey=key}
  else if(key==='off'&&now-(g.offSaid||0)>30000){say(`${bi===0?'スタート':'コース'}まで、${sayM(bd)}です`);g.offSaid=now}
+ if(key==='on')for(const mk of g.marks||[])if(!mk.s&&bi>=mk.i){mk.s=1;if(bi-mk.i<20)say(mk.text)}
  if(key==='on'&&nt){
-  if(dn<=330&&dn>140&&!nt.s1){nt.s1=1;say(`${sayM(dn)}先、${nt.w}です`)}
-  else if(dn<=120&&!nt.s2){nt.s1=nt.s2=1;say(`まもなく、${nt.w}です`)}
+  const rd=nt.road?`。${nt.road}`:'';
+  if(dn<=330&&dn>140&&!nt.s1){nt.s1=1;say(`${sayM(dn)}先、${nt.w}です${rd}`)}
+  else if(dn<=120&&!nt.s2){nt.s1=nt.s2=1;say(`まもなく、${nt.w}です${rd}`)}
  }
 }
 setInterval(guideTick,1000);
 
 /* 書き出し・読み込み */
 function exportData(){
- const data={app:'cockpit-nav',ver:1,exported:new Date().toISOString(),routes,trips:trips.filter(t=>t.keep)};
+ const data={app:'cockpit-nav',ver:2,exported:new Date().toISOString(),routes,trips:trips.filter(t=>t.keep),favs,cats:pref.cats};
  const txt=JSON.stringify(data),name='cockpit-nav-'+new Date().toISOString().slice(0,10)+'.json';
  try{const f=new File([txt],name,{type:'application/json'});
   if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'Cockpit Nav 裏道データ'}).catch(()=>{});return}}catch(e){}
@@ -787,7 +833,9 @@ function importData(txt){
  for(const r of d.routes){if(!r||!valid(r.pts)||routes.some(x=>x.id===r.id))continue;
   routes.push({id:+r.id||Date.now()+nr,name:String(r.name||'裏道').slice(0,30),pts:r.pts.map(q=>[+q[0],+q[1]]),dist:+r.dist||lenOf(r.pts),created:+r.created||Date.now(),memo:String(r.memo||'').slice(0,200),bands:Array.isArray(r.bands)?r.bands.filter(b=>BANDS.includes(b)):[],runs:Array.isArray(r.runs)?r.runs.filter(z=>z&&isFinite(z.dur)).map(z=>({dur:+z.dur,at:+z.at,rev:!!z.rev,via:z.via==='normal'?'normal':'route'})):[]});nr++}
  for(const t of d.trips||[]){if(!t||!valid(t.pts)||trips.some(x=>x.id===t.id))continue;trips.push({id:+t.id,start:+t.start,end:+t.end,dist:+t.dist||0,keep:true,show:true,pts:t.pts.map(q=>[+q[0],+q[1]])});nt++}
- rSave();hSave();drawPast();rList();msg(`読み込み：裏道 ${nr}件・履歴 ${nt}件`);
+ let nf=0;for(const f of d.favs||[]){if(!f||!isFinite(f.lat)||!isFinite(f.lon)||favs.some(x=>x.id===f.id))continue;favs.push({id:+f.id||Date.now()+nf,name:String(f.name||'地点').slice(0,30),lat:+f.lat,lon:+f.lon,cat:Math.max(0,Math.min(9,+f.cat||0)),addr:String(f.addr||'').slice(0,60)});nf++}
+ if(Array.isArray(d.cats)&&d.cats.length===10)pref.cats=d.cats.map((c,i)=>String(c||CDEF[i]).slice(0,10));save();fSave();
+ rSave();hSave();drawPast();rList();msg(`読み込み：裏道 ${nr}件・履歴 ${nt}件・お気に入り ${nf}件`);
 }
 $('r-exp').addEventListener('click',exportData);
 $('r-imp').addEventListener('click',()=>$('r-file').click());
@@ -811,7 +859,7 @@ $('rlist').addEventListener('click',e=>{const b=e.target.closest('button[data-ra
  else if(a==='reset'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に消す';return}r.runs=[];rSave()}
  else if(a==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}if(guide&&guide.r.id===r.id)stopGuide();routes=routes.filter(x=>x!==r);rSave()}
  rList()});
-$('b-route').addEventListener('click',()=>{rList();$('sh-rt').hidden=false});
+$('b-route').addEventListener('click',()=>{rList();if(typeof seRender==='function')seRender();$('sh-rt').hidden=false});
 
 /* ---------- 太陽と月（SunCalc の式） ---------- */
 const RAD=Math.PI/180,OBL=23.4397*RAD;
@@ -906,19 +954,21 @@ $('fr-play').addEventListener('click',()=>{if(frTimer){clearInterval(frTimer);fr
  $('fr-play').textContent='■ 停止';frTimer=setInterval(()=>{const r=$('fr-r');let i=+r.value+1;if(i>+r.max){clearInterval(frTimer);frTimer=null;$('fr-play').textContent='▶ 再生（10倍速）';return}r.value=i;frAt(i)},500)});
 
 /* ---------- 上空の飛行機（TCAS風） ---------- */
-let acTime=0,acBusy=false,acList=[];
+let acTime=0,acBusy=false,acList=[],acErr='',acFail=0,acFailMsg=0;
 async function fetchAc(){
  const nm=25,la=st.lat.toFixed(3),lo=st.lon.toFixed(3);
- const px=(pref.acProxy||'').replace(/\/+$/,'');
- const srcs=[...(px?[async()=>{const r=await fetch(`${px}/?lat=${la}&lon=${lo}&nm=${nm}`);if(!r.ok)throw 0;const j=await r.json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))}]:[]),async()=>{const j=await(await fetch(`https://api.adsb.lol/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
+ const px=(pref.acProxy==null?'https://cockpit-ac.suzumushi03.workers.dev':pref.acProxy||'').replace(/\/+$/,'');
+ const srcs=[...(px?[async()=>{let r;try{r=await fetch(`${px}/?lat=${la}&lon=${lo}&nm=${nm}`)}catch(e){acErr='接続できません（'+location.host+' からの読み込みが拒否された可能性）';throw e}if(!r.ok){acErr='中継サーバーの応答 '+r.status;throw 0}acErr='';const j=await r.json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))}]:[]),async()=>{const j=await(await fetch(`https://api.adsb.lol/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
   async()=>{const j=await(await fetch(`https://api.airplanes.live/v2/point/${la}/${lo}/${nm}`)).json();return(j.ac||[]).map(a=>({id:a.hex,cs:(a.flight||a.r||'').trim(),lat:+a.lat,lon:+a.lon,alt:a.alt_baro==='ground'?0:+a.alt_baro*0.3048,trk:+a.track,gs:+a.gs*1.852}))},
   async()=>{const d=0.45,j=await(await fetch(`https://opensky-network.org/api/states/all?lamin=${st.lat-d}&lomin=${st.lon-d*1.2}&lamax=${st.lat+d}&lomax=${st.lon+d*1.2}`)).json();return(j.states||[]).map(a=>({id:a[0],cs:(a[1]||'').trim(),lat:+a[6],lon:+a[5],alt:a[8]?0:+a[7],trk:+a[10],gs:+a[9]*3.6}))}];
- for(const f of srcs){try{acList=(await f()).filter(a=>isFinite(a.lat)&&isFinite(a.lon));drawAc();return true}catch(e){}}
- msg(px?'航空機データを取得できません（中継サーバーを確認）':'飛行機を出すには「気象」画面で中継サーバーを設定してね');return false}
+ for(const f of srcs){try{acList=(await f()).filter(a=>isFinite(a.lat)&&isFinite(a.lon));acFail=0;drawAc();return true}catch(e){}}
+ acFail++;if(acFail>=3&&Date.now()-acFailMsg>180000){acFailMsg=Date.now();msg(px?'航空機データが一時的に取れません（前回の表示を続けます）':'飛行機を出すには「気象」画面で中継サーバーを設定してね')}
+ if(acFail<3)acTime=Date.now()-10000; // 5秒後にもう一度
+ return false}
 function drawAc(){VS.forEach(v=>v.acL.clearLayers());let near=0;const myAlt=st.alt||0;
  for(const a of acList){const d=map.distance([st.lat,st.lon],[a.lat,a.lon]),rel=Math.round(((a.alt||0)-myAlt)/30.48),nr=d<5000&&(a.alt||0)<1500&&a.alt>0;if(nr)near++;
   const html=`<svg viewBox="-17 -17 34 34" style="transform:rotate(${isFinite(a.trk)?a.trk:0}deg)">${a.alt>0?`<path d="M0-12L4-2L13 3V6L4 3L3 10L6 12V14L0 12.5L-6 14V12L-3 10L-4 3L-13 6V3L-4-2Z" fill="${nr?'#ffb02e':'#39d0ff'}" stroke="#000" stroke-width="1.2"/>`:'<rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#9aa6b2" stroke-width="2" transform="rotate(45)"/>'}</svg><span>${esc(a.cs||'')} ${a.alt>0?(rel>=0?'+':'')+String(rel).padStart(2,'0'):'GND'}</span>`;
-  for(const v of VS)if(v.cfg.wx.ac)v.acL.addLayer(L.marker([a.lat,a.lon],{interactive:false,icon:L.divIcon({className:'acm'+(nr?' near':''),iconSize:[34,34],iconAnchor:[17,17],html})}))}
+  for(const v of VS)if(v.cfg.wx.ac){const sm=v.m.getZoom()<10;v.acL.addLayer(L.marker([a.lat,a.lon],{interactive:false,icon:L.divIcon({className:'acm'+(nr?' near':'')+(sm?' sm':''),iconSize:sm?[18,18]:[34,34],iconAnchor:sm?[9,9]:[17,17],html})}))}}
  $('a-tfc').className='an'+(near?' warn':acList.length&&anyWx('ac')?' on':'');
  if(near&&!drawAc.said){drawAc.said=1;say('低空を飛ぶ航空機が近くにいます')}else if(!near)drawAc.said=0}
 function acTick(){if(!anyWx('ac')||acBusy||Date.now()-acTime<15000)return;acBusy=true;acTime=Date.now();fetchAc().finally(()=>{acBusy=false})}
@@ -961,7 +1011,12 @@ const B=()=>V.big.cfg,apB=()=>{save();applyView(V.big);syncBar()};
 const off=t=>/消して|けして|オフ|非表示|隠して|やめ|止め|とめ/.test(t);
 function runCmd(t){
  const has=(...w)=>w.some(x=>t.includes(x));
- if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
+ if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、船橋駅まで案内、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
+ if(has('渋滞')){if(off(t)||has('表示','出して','見せて')){B().wx.tr=!off(t);apB();return say(off(t)?'渋滞を消しました':(pref.ttKey?'渋滞を表示します':'渋滞は設定でTomTomのキーを入れると使えます')),1}
+  return say(guide&&guide.nav&&guide.nav.delay!=null?(guide.nav.delay>60?`今のルートは渋滞で約${Math.round(guide.nav.delay/60)}分の遅れです`:'今のルートに大きな渋滞はありません'):(pref.ttKey?'目的地ナビ中に、ルートの渋滞をお知らせします':'渋滞は設定でTomTomのキーを入れると使えます')),1}
+ if(has('同期')){$('b-sync').click();return say('OneDriveと同期します'),1}
+ if(has('過去の走行','走行履歴')){pref.hshow=!off(t);save();drawPast();setPast();return say('過去の走行を'+(pref.hshow?'表示します':'消しました')),1}
+ if(has('メニュー')){setMenu(!off(t)&&!has('隠','かく','しまって'));return say(pref.menu?'メニューを表示します':'メニューを隠します'),1}
  if(has('拡大','ズームイン','詳しく','大きく'))return zoomB(1),say('拡大します'),1;
  if(has('縮小','ズームアウト','広く','小さく'))return zoomB(-1),say('縮小します'),1;
  if(has('北を上','ノースアップ','北が上'))return B().hup=false,apB(),say('北を上にしました'),1;
@@ -970,6 +1025,9 @@ function runCmd(t){
  if(has('逆向き','反転','逆方向'))return guide?startGuide(guide.r,!guide.rev):say('案内していません'),1;
  if(has('記録開始','記録して','記録スタート'))return rrec?say('記録中です'):($('r-rec').click(),say('裏道の記録を開始します')),1;
  if(has('記録終了','記録ストップ','記録止め','記録やめ'))return rrec?($('r-rec').click(),$('r-save').hidden?say('短すぎるので記録を破棄しました'):($('r-ok').click(),say('裏道を保存しました'))):say('記録していません'),1;
+ if(has('お気に入りに登録','お気に入り登録','ここを登録','今の場所を登録')){const ci=pref.cats.findIndex(c=>t.includes(c));const f=addFav({name:'地点 '+fmtD(Date.now())+' '+fmtT(Date.now()),lat:st.lat,lon:st.lon,addr:'登録地点'},ci>=0?ci:9);return say(`${pref.cats[f.cat]}に登録しました`),1}
+ {const z=zipOf(t.replace(/(まで|へ).*$/,''));const mm=z?[0,t.replace(/(まで|へ).*$/,'')]:(t.match(/^(?:目的地(?:は|を)?)?(.+?)(?:まで|へ|に)(?:の)?(?:案内|ナビ|行きたい|行く|連れて|向かう|帰る|帰りたい)/)||t.match(/^(.+?)に帰/)||t.match(/^目的地(?:は|を)?(.+)$/));
+  if(mm&&!/^裏道/.test(mm[1])){const q=mm[1].replace(/^家$/,'自宅');say((z?'郵便番号':q)+'を検索します');findAny(q).then(L2=>{if(!L2.length)return say('見つかりませんでした');say(L2[0].name+'へのルートを検索します');navTo({name:L2[0].name,lat:L2[0].lat,lon:L2[0].lon})}).catch(()=>say('検索できませんでした'));return 1}}
  if(has('裏道','ガイド','案内')){const r=routes.find(x=>t.includes(x.name.replace(/\s/g,'')))||nearRoute();if(!r)return say('登録された裏道がありません'),1;
   const rev=map.distance([st.lat,st.lon],r.pts[r.pts.length-1])<map.distance([st.lat,st.lon],r.pts[0]);startGuide(r,rev);return 1}
  if(has('雨雲')){if(off(t)){B().wx.rain=false}else{B().wx.rain=true;B().rm=has('60分','六十分','1時間','一時間')?2:has('30分','三十分')?1:has('今','現在')?0:B().rm}apB();updRt();say(off(t)?'雨雲を消しました':'雨雲を'+(['今','30分後','60分後'][B().rm])+'で表示します');return 1}
@@ -991,15 +1049,16 @@ function runCmd(t){
  return 0}
 function zoomB(d){const v=V.big,z=Math.max(5,Math.min(18,v.m.getZoom()+d));v.m.setView([st.lat,st.lon],z,{animate:false})}
 function nearRoute(){let b=null,bd=1e12;for(const r of routes){const d=Math.min(map.distance([st.lat,st.lon],r.pts[0]),map.distance([st.lat,st.lon],r.pts[r.pts.length-1]));if(d<bd){bd=d;b=r}}return b}
+const AC_DEFAULT='https://cockpit-ac.suzumushi03.workers.dev';if(pref.acProxy==null)pref.acProxy=AC_DEFAULT;
 $('ac-url').value=pref.acProxy||'';
 $('ac-save').addEventListener('click',async()=>{const v=$('ac-url').value.trim();if(v&&!/^https:\/\/[\w.-]+(\/.*)?$/.test(v)){$('ac-st').textContent='https:// から始まるURLを入れてね';return}
  pref.acProxy=v;save();if(!v){$('ac-st').textContent='中継サーバーを解除しました';return}$('ac-st').textContent='テスト中…';
- const ok=await fetchAc();$('ac-st').textContent=ok?`つながりました（近くの航空機 ${acList.length}機）`:'つながりませんでした。URLとWorkerのコードを確認してね'});
+ const ok=await fetchAc();$('ac-st').textContent=ok?`つながりました（近くの航空機 ${acList.length}機）`:'つながりませんでした：'+(acErr||'データの形式が違います')});
 setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()=>startRec(),1500));
 
 /* ---------- 速度コール（英語・10km/hごと） ---------- */
 pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,lowArm=false,low5=false,low3=false;const spcSaid={};
-function sayEn(t){if(!pref.voice||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=speechSynthesis.getVoices().find(x=>/^en(-|_)US/i.test(x.lang));if(v)u.voice=v;u.rate=1.0;speechSynthesis.speak(u)}catch(e){}}
+function sayEn(t){if(!pref.voice||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
 setInterval(()=>{
@@ -1013,6 +1072,205 @@ setInterval(()=>{
  if(band===spcCand)spcN++;else{spcCand=band;spcN=1}
  if(spcN>=2){spcLast=band;spcCand=null;const now=Date.now();if(band>=10&&now-(spcSaid[band]||0)>15000){spcSaid[band]=now;sayEn(String(band))}}
 },1000);
+
+/* ---------- 設定（声・メニュー） ---------- */
+function fillVoices(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices(),opt=(re,cur)=>{const L2=vs.filter(v=>re.test(v.lang));return(L2.length?L2:[]).map(v=>`<option value="${esc(v.name)}"${v.name===cur?' selected':''}>${esc(v.name)}${v.localService?'':'（ネット）'}</option>`).join('')||'<option value="">（声が見つかりません）</option>'};
+ $('v-ja').innerHTML='<option value="">おまかせ</option>'+opt(/^ja/i,pref.vJa);$('v-en').innerHTML='<option value="">おまかせ</option>'+opt(/^en/i,pref.vEn);
+ if(pref.vJa)$('v-ja').value=pref.vJa;if(pref.vEn)$('v-en').value=pref.vEn}
+if(window.speechSynthesis&&speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',fillVoices);
+$('v-ja').addEventListener('change',()=>{pref.vJa=$('v-ja').value;save();say('この声で案内します')});
+$('v-en').addEventListener('change',()=>{pref.vEn=$('v-en').value;save();sayEn('forty. fifty')});
+$('v-ja-t').addEventListener('click',()=>say('300メートル先、右です'));$('v-en-t').addEventListener('click',()=>sayEn('sixty'));
+const vr=$('v-rate');vr.value=pref.vRate||1.05;$('v-rate-v').textContent=(+vr.value).toFixed(2)+'倍';
+vr.addEventListener('input',()=>{pref.vRate=+vr.value;$('v-rate-v').textContent=pref.vRate.toFixed(2)+'倍';save()});
+vr.addEventListener('change',()=>say('この速さで話します'));
+function setMenu(show){pref.menu=show;save();document.body.classList.toggle('nomenu',!show);$('set-menu').checked=show;$('b-menu').textContent=show?'MENU ▾':'MENU ▴'}
+setMenu(pref.menu!==false);
+$('b-menu').addEventListener('click',()=>setMenu(!pref.menu));$('set-menu').addEventListener('change',()=>setMenu($('set-menu').checked));
+$('b-set').addEventListener('click',()=>{fillVoices();$('sh-set').hidden=false});
+
+/* ---------- 目的地ナビ（住所検索＋OSRMのルート） ---------- */
+pref.dests=Array.isArray(pref.dests)?pref.dests:[];
+async function searchPlace(q){
+ const me=[st.lat,st.lon],out=[];
+ const [g,n]=await Promise.allSettled([
+  fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q='+encodeURIComponent(q)).then(r=>r.json()),
+  fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=jp&accept-language=ja&viewbox=${st.lon-0.6},${st.lat+0.5},${st.lon+0.6},${st.lat-0.5}&q=`+encodeURIComponent(q)).then(r=>r.json())]);
+ if(n.status==='fulfilled'&&Array.isArray(n.value))for(const x of n.value)out.push({name:String(x.name||x.display_name).slice(0,40),addr:String(x.display_name||'').split(',').slice(0,4).reverse().join(' ').slice(0,60),lat:+x.lat,lon:+x.lon});
+ if(g.status==='fulfilled'&&Array.isArray(g.value))for(const x of g.value.slice(0,12)){const c=x.geometry&&x.geometry.coordinates;if(c)out.push({name:String(x.properties&&x.properties.title||q).slice(0,40),addr:'住所',lat:+c[1],lon:+c[0]})}
+ const ok=out.filter(p=>isFinite(p.lat)&&isFinite(p.lon));ok.forEach(p=>p.d=map.distance(me,[p.lat,p.lon]));
+ const seen=new Set();return ok.filter(p=>{const k=p.name+Math.round(p.lat*1e3)+Math.round(p.lon*1e3);if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>a.d-b.d).slice(0,12)}
+const MOD={right:'右方向','slight right':'斜め右','sharp right':'大きく右',left:'左方向','slight left':'斜め左','sharp left':'大きく左',uturn:'Uターン',straight:'直進'};
+/* ---------- ルート計算（通常／裏道経由） ---------- */
+async function osrm(pts){const u=`https://router.project-osrm.org/route/v1/driving/${pts.map(p=>p[1].toFixed(5)+','+p[0].toFixed(5)).join(';')}?overview=full&geometries=geojson&steps=true`;
+ const j=await(await fetch(u)).json();if(!j.routes||!j.routes[0])throw 0;return j.routes[0]}
+const legPts=leg=>{const o=[];for(const s of leg.steps||[])for(const c of(s.geometry&&s.geometry.coordinates)||[]){const p=[+c[1].toFixed(5),+c[0].toFixed(5)],l=o[o.length-1];if(!l||l[0]!==p[0]||l[1]!==p[1])o.push(p)}return o};
+function stepTurns(steps,P,a,b){const T=[];let j0=a;for(const sp of steps){const m=sp.maneuver||{},ty=m.type;if(ty==='arrive'||ty==='depart')continue;
+  let w=ty==='roundabout'||ty==='rotary'?'ロータリー':MOD[m.modifier]||'';if(!w||(w==='直進'&&ty!=='fork'))continue;if(ty==='fork')w=w.replace('方向','')+'の分岐';if(ty==='merge')w=w.replace('方向','')+'へ合流';if(ty==='on ramp')w=w.replace('方向','')+'のランプ';
+  const L2=[m.location[1],m.location[0]];let bi=j0,bd=1e12;for(let i=j0;i<b;i++){const d=map.distance(L2,P[i]);if(d<bd){bd=d;bi=i}if(d>bd+300)break}j0=bi;
+  T.push({i:Math.max(1,bi),w,road:String(sp.name||sp.ref||'').slice(0,24)})}return T}
+function uraTime(r){const x=r.runs.filter(z=>z.via==='route').map(z=>z.dur/1000);return x.length?x.reduce((a,b)=>a+b,0)/x.length:r.dist/(25/3.6)}
+function uraCands(dest){const me=[st.lat,st.lon],D=map.distance(me,[dest.lat,dest.lon]),C=[];
+ for(const r of routes)for(const rev of[false,true]){if(r.dist<300)continue;const S=rev?r.pts[r.pts.length-1]:r.pts[0],E=rev?r.pts[0]:r.pts[r.pts.length-1];
+  const a=map.distance(me,S),c=map.distance(E,[dest.lat,dest.lon]),sc=a+r.dist+c;
+  if(c<map.distance(S,[dest.lat,dest.lon])&&sc<D*1.35+500&&a<D)C.push({r,rev,S,E,sc})}
+ return C.sort((x,y)=>x.sc-y.sc).slice(0,2)}
+async function navTo(dest,opt){opt=opt||{};const me=[st.lat,st.lon];
+ try{const [direct,tt]=await Promise.all([osrm([me,[dest.lat,dest.lon]]),ttRoute(me,dest)]);let best=null;const ratio=tt&&direct.duration?Math.max(0.6,Math.min(3,tt.t/direct.duration)):1,dT=tt?tt.t:direct.duration,delay=tt?tt.delay:null;
+  if(pref.preferUra!==false){for(const c of uraCands(dest)){try{const v=await osrm([me,c.S,c.E,[dest.lat,dest.lon]]);const t=(v.legs[0].duration+v.legs[2].duration)*ratio+uraTime(c.r);
+    if(!best||t<best.t)best={c,v,t}}catch(e){}}}
+  const useUra=best&&best.t<=dT+60;
+  if(!opt.quiet){pref.dests=[{name:dest.name,lat:dest.lat,lon:dest.lon}].concat(pref.dests.filter(x=>x.name!==dest.name)).slice(0,10);save()}
+  if(!useUra){const pts=direct.geometry.coordinates.map(c=>[+c[1].toFixed(5),+c[0].toFixed(5)]);if(pts.length<2)throw 0;
+   startGuide({id:'nav',name:dest.name,pts,memo:''},false,{turns:(P,cum)=>stepTurns((direct.legs[0]&&direct.legs[0].steps)||[],P,0,P.length),nav:{dest,dist:direct.distance,dur:dT,delay},quiet:opt.quiet});
+   if(!opt.quiet&&delay>120)setTimeout(()=>say(`渋滞で約${Math.round(delay/60)}分の遅れがあります`),4500);
+   if(best&&!opt.quiet)msg(`裏道「${best.c.r.name}」経由は約${Math.round((best.t-dT)/60)}分遅いので通常ルート`);return true}
+  const {c,v}=best,u=c.rev?c.r.pts.slice().reverse():c.r.pts,A=legPts(v.legs[0]),B=legPts(v.legs[2]),P=A.concat(u,B),n0=A.length,n1=n0+u.length,dist=v.legs[0].distance+c.r.dist+v.legs[2].distance;
+  startGuide({id:'nav',name:dest.name,pts:P,memo:''},false,{nav:{dest,dist,dur:best.t,ura:c.r.name,delay},quiet:opt.quiet,
+   segs:[{a:0,b:n0,c:'#b48cff'},{a:n0-1,b:n1,c:'#39d0ff'},{a:n1-1,b:P.length,c:'#b48cff'}],
+   turns:(PP,cum)=>{const T=stepTurns(v.legs[0].steps||[],PP,0,n0).concat(findTurns(u,cumOf(u)).map(t=>Object.assign(t,{i:t.i+n0,road:'裏道'})),stepTurns(v.legs[2].steps||[],PP,n1,PP.length));return T.sort((x,y)=>x.i-y.i)},
+   marks:cum=>{let k=n0;while(k>0&&cum[n0]-cum[k]<250)k--;return[{i:k,text:`まもなく裏道、${c.r.name}に入ります`},{i:n0,text:`ここから裏道、${c.r.name}です${c.r.memo?'。'+c.r.memo:''}`},{i:n1-1,text:'裏道はここまでです'}]}});
+  if(!opt.quiet){const sv=Math.round((dT-best.t)/60);msg(`裏道「${c.r.name}」経由で案内（通常より${sv>0?'約'+sv+'分早い':'ほぼ同じ'}見込み）`);setTimeout(()=>say(`裏道、${c.r.name}を通るルートです。${sv>0?'通常より約'+sv+'分早い見込みです':'通常とほぼ同じ時間です'}`),4500)}
+  return true}
+ catch(e){msg('ルートを取得できません');say('ルートを取得できませんでした');return false}}
+
+/* ---------- お気に入り地点（10カテゴリー） ---------- */
+const FKEY='cockpitnav-favs',CDEF=['自宅','職場','洗車場','買い物','飲食','カフェ','給油・充電','病院','観光','その他'],CCOL=['#3be36a','#39d0ff','#4f8bff','#ffb02e','#ff7a59','#c58b5a','#ff4d4d','#ff9be9','#b48cff','#cfd8e0'];
+let favs=[];try{favs=JSON.parse(localStorage.getItem(FKEY)||'[]')}catch(e){favs=[]}
+pref.cats=Array.isArray(pref.cats)&&pref.cats.length===10?pref.cats:CDEF.slice();
+const fSave=()=>{try{localStorage.setItem(FKEY,JSON.stringify(favs))}catch(e){msg('お気に入りを保存できません')}drawFav();schedUp()};
+function addFav(p,cat,name){const f={id:Date.now(),name:String(name||p.name||'地点').slice(0,30),lat:+(+p.lat).toFixed(6),lon:+(+p.lon).toFixed(6),cat:Math.max(0,Math.min(9,+cat||0)),addr:String(p.addr||'').slice(0,60)};favs.push(f);fSave();return f}
+function drawFav(){VS.forEach(v=>v.favL.clearLayers());for(const f of favs){const c=CCOL[f.cat]||'#fff',ch=esc((pref.cats[f.cat]||'?').slice(0,1));
+ for(const v of VS)if(v.cfg.wx.fav){const big=v.m.getZoom()>=14;v.favL.addLayer(L.marker([f.lat,f.lon],{interactive:false,icon:L.divIcon({className:'favm',iconSize:[26,26],iconAnchor:[13,26],
+  html:`<svg viewBox="-13 -26 26 26"><path d="M0 0C-3-7-11-10-11-16A11 11 0 0 1 11-16C11-10 3-7 0 0Z" fill="${c}" stroke="#000" stroke-width="1.5"/><text y="-12" text-anchor="middle" font-size="11" font-weight="700" fill="#000">${ch}</text></svg>${big?`<span>${esc(f.name)}</span>`:''}`})}))}}}
+let fFilter=-1,fEdit=null,dReg=null;
+function favRows(){const me=[st.lat,st.lon],L2=favs.filter(f=>fFilter<0||f.cat===fFilter).map(f=>Object.assign({d:map.distance(me,[f.lat,f.lon])},f)).sort((a,b)=>a.d-b.d);
+ return L2.length?L2.map(f=>`<div class="trip"><div><div class="t"><span style="color:${CCOL[f.cat]}">●</span> ${esc(f.name)}</div><div class="d">${esc(pref.cats[f.cat])}・${fmtM(f.d)}${f.addr?'・'+esc(f.addr):''}</div></div>
+ <div class="acts"><button data-fgo="${f.id}" class="on">案内</button><button data-fed="${f.id}">編集</button><button data-fdel="${f.id}">削除</button></div>
+ ${fEdit===f.id?`<div class="medit"><input data-fname value="${esc(f.name)}" maxlength="30" aria-label="名前" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px"><select data-fcat aria-label="カテゴリー">${pref.cats.map((c,i)=>`<option value="${i}"${i===f.cat?' selected':''}>${esc(c)}</option>`).join('')}</select><div class="bands"><button data-fsave="${f.id}" class="on">保存</button><button data-fclose>閉じる</button></div></div>`:''}</div>`).join(''):'<p class="note">まだありません。検索結果の「★登録」や「今いる場所を登録」から追加できます。</p>'}
+function regBox(p){return `<div class="medit" style="border-top:1px solid var(--ln)"><b>★お気に入りに登録</b><input data-rname value="${esc(p.name)}" maxlength="30" aria-label="名前" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px"><select data-rcat aria-label="カテゴリー">${pref.cats.map((c,i)=>`<option value="${i}"${i===9?' selected':''}>${esc(c)}</option>`).join('')}</select><div class="bands"><button data-rok class="on">登録</button><button data-rno>やめる</button></div></div>`}
+function renderDest(){
+ $('f-chips').innerHTML=`<button data-fcf="-1" class="${fFilter<0?'on':''}">すべて</button>`+pref.cats.map((c,i)=>`<button data-fcf="${i}" class="${fFilter===i?'on':''}"><span style="color:${CCOL[i]}">●</span> ${esc(c)}</button>`).join('');
+ $('f-list').innerHTML=favRows();$('d-reg').innerHTML=dReg?regBox(dReg):'';
+ $('c-edit').innerHTML=pref.cats.map((c,i)=>`<label class="rrow" style="margin:4px 0"><span style="color:${CCOL[i]};width:1.2em">●</span><input data-cname="${i}" value="${esc(c)}" maxlength="10" style="flex:1;min-height:40px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="カテゴリー${i+1}の名前"></label>`).join('');
+ const me=[st.lat,st.lon],R=pref.dests.map(p=>Object.assign({},p,{d:map.distance(me,[p.lat,p.lon]),addr:'最近'}));$('d-recent').innerHTML=R.length?destRows(R,'h'):'<p class="note">まだありません。</p>';
+ $('d-ura').checked=pref.preferUra!==false}
+function destRows(L2,btn){return L2.map((p,i)=>`<div class="trip"><div><div class="t">${esc(p.name)}</div><div class="d">${esc(p.addr||'')}${p.d!=null?'・'+fmtM(p.d):''}</div></div><div class="acts"><button data-dgo="${btn}${i}" class="on">ここへ案内</button><button data-dreg="${btn}${i}">★登録</button></div></div>`).join('')}
+
+/* ---------- 検索（施設・住所・郵便番号・お気に入り） ---------- */
+function jsonp(url,param){return new Promise((ok,ng)=>{const cb='__jp'+Date.now()+Math.floor(Math.random()*1e4),s=document.createElement('script');const t=setTimeout(()=>{clean();ng(0)},8000);
+ function clean(){clearTimeout(t);try{delete window[cb]}catch(e){window[cb]=undefined}s.remove()}window[cb]=d=>{clean();ok(d)};s.src=url+(url.includes('?')?'&':'?')+param+'='+cb;s.onerror=()=>{clean();ng(0)};document.head.appendChild(s)})}
+const z2h=s=>s.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[－ー−‐の]/g,'-');
+function zipOf(q){const s=z2h(q).replace(/郵便番号|〒|\s/g,'');const m=s.match(/^(\d{3})-?(\d{4})$/);return m?m[1]+m[2]:null}
+async function searchZip(z){const me=[st.lat,st.lon];
+ try{const d=await jsonp('https://geoapi.heartrails.com/api/json?method=searchByPostal&postal='+z,'jsonp');const L2=(d&&d.response&&d.response.location)||[];
+  if(L2.length)return L2.map(x=>({name:`〒${z.slice(0,3)}-${z.slice(3)} ${x.prefecture}${x.city}${x.town}`,addr:'郵便番号',lat:+x.y,lon:+x.x})).filter(p=>isFinite(p.lat)).map(p=>Object.assign(p,{d:map.distance(me,[p.lat,p.lon])}))}catch(e){}
+ try{const d=await jsonp('https://zipcloud.ibsnet.co.jp/api/search?zipcode='+z,'callback');const r=d&&d.results;if(r&&r.length){const a=r[0].address1+r[0].address2+r[0].address3,L2=await searchPlace(a);return L2.map(p=>Object.assign(p,{name:`〒${z.slice(0,3)}-${z.slice(3)} ${a}`}))}}catch(e){}
+ return[]}
+function favMatch(q){const me=[st.lat,st.lon],qq=q.replace(/\s/g,'');let L2=favs.filter(f=>f.name.replace(/\s/g,'').includes(qq)||qq.includes(f.name.replace(/\s/g,'')));
+ if(!L2.length){const ci=pref.cats.findIndex(c=>qq.includes(c)||c.includes(qq));if(ci>=0)L2=favs.filter(f=>f.cat===ci)}
+ return L2.map(f=>({name:f.name,addr:'★'+pref.cats[f.cat],lat:f.lat,lon:f.lon,d:map.distance(me,[f.lat,f.lon])})).sort((a,b)=>a.d-b.d)}
+async function findAny(q){const fm=favMatch(q),z=zipOf(q);if(z)return fm.concat(await searchZip(z));let L2=[];try{L2=await searchPlace(q)}catch(e){}return fm.concat(L2)}
+let dRes=[];
+async function doSearch(q){if(!q)return;$('d-res').innerHTML='<p class="note">検索中…</p>';dRes=await findAny(q);dReg=null;$('d-reg').innerHTML='';
+ $('d-res').innerHTML=dRes.length?destRows(dRes,'r'):'<p class="note">見つかりませんでした。住所・郵便番号・別の呼び方で試してね。</p>'}
+$('d-form').addEventListener('submit',e=>{e.preventDefault();doSearch($('d-q').value.trim())});
+$('d-mic').addEventListener('click',()=>{if(!SR){msg('このブラウザは音声入力に対応していません');return}if(window.speechSynthesis)speechSynthesis.cancel();
+ try{const r=new SR();r.lang='ja-JP';r.interimResults=false;r.onresult=e=>{const t=e.results[0][0].transcript.replace(/。$/,'');$('d-q').value=t;doSearch(t)};
+  r.onend=()=>{$('d-mic').classList.remove('on')};r.start();$('d-mic').classList.add('on');$('d-q').value='';$('d-q').placeholder='どうぞ、話してください…'}catch(e){}});
+$('sh-dest').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const ds=b.dataset;
+ const pick=k=>k[0]==='r'?dRes[+k.slice(1)]:pref.dests[+k.slice(1)];
+ if(ds.dgo){const p=pick(ds.dgo);if(!p)return;b.textContent='ルート検索中…';navTo({name:p.name,lat:p.lat,lon:p.lon}).then(ok=>{if(ok)$('sh-dest').hidden=true;else b.textContent='ここへ案内'});return}
+ if(ds.dreg){dReg=pick(ds.dreg);renderDest();$('d-reg').scrollIntoView({block:'nearest'});return}
+ if('rok' in ds&&dReg){addFav(dReg,+document.querySelector('[data-rcat]').value,document.querySelector('[data-rname]').value.trim());dReg=null;msg('お気に入りに登録しました');renderDest();return}
+ if('rno' in ds){dReg=null;renderDest();return}
+ if(ds.fcf!=null){fFilter=+ds.fcf;renderDest();return}
+ const f=favs.find(x=>String(x.id)===(ds.fgo||ds.fed||ds.fdel||ds.fsave));
+ if(ds.fgo&&f){b.textContent='ルート検索中…';navTo({name:f.name,lat:f.lat,lon:f.lon}).then(ok=>{if(ok)$('sh-dest').hidden=true;else b.textContent='案内'});return}
+ if(ds.fed&&f){fEdit=fEdit===f.id?null:f.id;renderDest();return}
+ if(ds.fsave&&f){const n=document.querySelector('[data-fname]').value.trim();if(n)f.name=n.slice(0,30);f.cat=+document.querySelector('[data-fcat]').value;fEdit=null;fSave();renderDest();return}
+ if('fclose' in ds){fEdit=null;renderDest();return}
+ if(ds.fdel&&f){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}favs=favs.filter(x=>x!==f);fSave();renderDest();return}
+});
+$('f-here').addEventListener('click',()=>{dReg={name:'地点 '+fmtD(Date.now())+' '+fmtT(Date.now()),lat:st.lat,lon:st.lon,addr:'登録地点'};renderDest()});
+$('c-save').addEventListener('click',()=>{document.querySelectorAll('[data-cname]').forEach(i=>{const v=i.value.trim();if(v)pref.cats[+i.dataset.cname]=v.slice(0,10)});save();drawFav();renderDest();msg('カテゴリー名を保存しました')});
+$('d-ura').addEventListener('change',()=>{pref.preferUra=$('d-ura').checked;save()});
+$('b-dest').addEventListener('click',()=>{renderDest();$('sh-dest').hidden=false});
+setTimeout(drawFav,800);
+
+
+/* ---------- ページ切り替え（下のメニュー） ---------- */
+const PGS=['nav','map','wx','run','sys'];pref.page=PGS.includes(pref.page)?pref.page:'nav';
+function setPage(p){pref.page=p;save();document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.pg===p));
+ document.querySelectorAll('.pg').forEach(d=>d.classList.toggle('on',d.dataset.p===p));$('segw').style.display=['map','wx','run'].includes(p)?'':'none'}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.pg)));setPage(pref.page);
+$('b-zo2').addEventListener('click',()=>zoomB(-1));$('b-zi2').addEventListener('click',()=>zoomB(1));
+$('b-stop').addEventListener('click',()=>{if(guide)stopGuide('案内を中止しました','案内を中止します');else msg('案内していません')});
+const pB=$('b-past');const setPast=()=>{pB.classList.toggle('on',!!pref.hshow);pB.textContent='過去の走行 '+(pref.hshow?'ON':'OFF')};setPast();
+pB.addEventListener('click',()=>{pref.hshow=!pref.hshow;save();$('h-show').checked=pref.hshow;drawPast();setPast()});
+$('h-show').addEventListener('change',setPast);
+$('b-exp2').addEventListener('click',()=>{rList();$('sh-rt').hidden=false;$('r-exp').scrollIntoView({block:'center'})});
+
+/* ---------- 抜け道の入口を早めに知らせる ---------- */
+let preAt={};
+setInterval(()=>{if(guide||!(st.gps||st.demo)||st.spd<10)return;const me=[st.lat,st.lon],now=Date.now();
+ for(const r of routes){if(!bandOK(r))continue;for(const rev of[false,true]){const k=r.id+(rev?'r':'f'),S=rev?r.pts[r.pts.length-1]:r.pts[0],d=map.distance(me,S);
+  if(d>180&&d<450&&angD(brg(me,S),st.hdg)<45&&now-(preAt[k]||0)>30*60000){preAt[k]=now;say(`この先${sayM(d)}に、抜け道、${r.name}${rev?'の逆向き':''}の入口があります`);msg(`この先 ${fmtM(d)} に抜け道「${r.name}」`);return}}}},3000);
+
+/* ---------- 始点と終点から抜け道を作る（走行履歴から切り出し） ---------- */
+let seP={s:null,e:null};
+function seOpts(cur){const o=[`<option value="">未設定</option>`];if(cur&&cur.here)o.push(`<option value="here" selected>${esc(cur.name)}</option>`);
+ favs.forEach(f=>o.push(`<option value="f${f.id}"${cur&&cur.fid===f.id?' selected':''}>★${esc(f.name)}</option>`));pref.dests.forEach((p,i)=>o.push(`<option value="d${i}">最近：${esc(p.name)}</option>`));return o.join('')}
+function seRender(){$('se-s').innerHTML=seOpts(seP.s);$('se-e').innerHTML=seOpts(seP.e)}
+function sePick(v,cur){if(v==='here')return cur;if(v[0]==='f'){const f=favs.find(x=>String(x.id)===v.slice(1));return f?{name:f.name,lat:f.lat,lon:f.lon,fid:f.id}:null}if(v[0]==='d'){const p=pref.dests[+v.slice(1)];return p?{name:p.name,lat:p.lat,lon:p.lon}:null}return null}
+$('se-s').addEventListener('change',()=>{seP.s=sePick($('se-s').value,seP.s)});$('se-e').addEventListener('change',()=>{seP.e=sePick($('se-e').value,seP.e)});
+$('se-s-here').addEventListener('click',()=>{seP.s={name:'今いる場所 '+fmtT(Date.now()),lat:st.lat,lon:st.lon,here:1};seRender()});
+$('se-e-here').addEventListener('click',()=>{seP.e={name:'今いる場所 '+fmtT(Date.now()),lat:st.lat,lon:st.lon,here:1};seRender()});
+function segFromHistory(S,E){const src=trips.slice().sort((a,b)=>b.end-a.end);
+ for(const t of src){const P=t.pts;let si=-1,sd=80,ei=-1,ed=80;for(let i=0;i<P.length;i++){const a=map.distance(P[i],[S.lat,S.lon]),b=map.distance(P[i],[E.lat,E.lon]);if(a<sd){sd=a;si=i}if(b<ed){ed=b;ei=i}}
+  if(si<0||ei<0||si===ei)continue;const seg=si<ei?P.slice(si,ei+1):P.slice(ei,si+1).reverse();if(seg.length>=5&&lenOf(seg)>200)return{seg,t}}return null}
+$('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('se-st').textContent='始点と終点を選んでね';return}
+ const f=segFromHistory(S,E);if(!f){$('se-st').textContent='履歴に、始点→終点を走った記録が見つかりません。その道を一度走ってから作ってね（走行履歴は60日分）';return}
+ rpend=f.seg;$('r-name').value=`抜け道 ${S.name.replace('今いる場所 ','')}→${E.name.replace('今いる場所 ','')}`.slice(0,30);$('r-save').hidden=false;
+ $('se-st').textContent=`${fmtD(f.t.start)}の走行から ${(lenOf(f.seg)/1000).toFixed(2)}km を切り出しました。名前を付けて保存してね`});
+
+/* ---------- 渋滞（TomTom） ---------- */
+$('tt-key').value=pref.ttKey||'';
+$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。天気ページの「渋滞」で表示できます':'キーを消しました'});
+async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
+ const sm=j.routes&&j.routes[0]&&j.routes[0].summary;return sm?{t:+sm.travelTimeInSeconds,delay:+sm.trafficDelayInSeconds||0}:null}catch(e){return null}}
+
+/* ---------- OneDrive 同期（Microsoft Entra ID ログイン） ---------- */
+let msalApp=null,odAcct=null,odReady=false,odUpT=0;const OD_SCOPES=['Files.ReadWrite','User.Read'],OD_PATH='https://graph.microsoft.com/v1.0/me/drive/root:/Apps/CockpitNav/cockpit-nav.json:/content';
+const loadJs=u=>new Promise((ok,ng)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=ng;document.head.appendChild(s)});
+const odSt=t=>{$('od-st').textContent=t};
+async function odInit(){if(!pref.odClient)return null;if(msalApp)return msalApp;
+ try{if(!window.msal){try{await loadJs('https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.39.0/lib/msal-browser.min.js')}catch(e){await loadJs('https://alcdn.msauth.net/browser/2.39.0/js/msal-browser.min.js')}}
+  msalApp=new msal.PublicClientApplication({auth:{clientId:pref.odClient,authority:'https://login.microsoftonline.com/'+(pref.odTenant||'common'),redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});
+  if(msalApp.initialize)await msalApp.initialize();const r=await msalApp.handleRedirectPromise();odAcct=(r&&r.account)||msalApp.getAllAccounts()[0]||null;
+  odSt(odAcct?'サインイン中：'+odAcct.username:'サインインしていません');return msalApp}catch(e){odSt('ログイン部品を読み込めません');return null}}
+async function odToken(){const a=await odInit();if(!a||!odAcct)throw 0;try{return(await a.acquireTokenSilent({scopes:OD_SCOPES,account:odAcct})).accessToken}catch(e){await a.acquireTokenRedirect({scopes:OD_SCOPES,account:odAcct});throw 0}}
+function buildData(){return{app:'cockpit-nav',ver:2,exported:new Date().toISOString(),device:navigator.platform||'',routes,trips:trips.filter(t=>t.keep),favs,cats:pref.cats,dests:pref.dests}}
+function replaceData(d){if(!d||d.app!=='cockpit-nav')return false;const ok=p=>Array.isArray(p)&&p.length>=2&&p.every(q=>Array.isArray(q)&&isFinite(q[0])&&isFinite(q[1]));
+ if(Array.isArray(d.routes))routes=d.routes.filter(r=>r&&ok(r.pts)).map(r=>({id:+r.id,name:String(r.name||'裏道').slice(0,30),pts:r.pts.map(q=>[+q[0],+q[1]]),dist:+r.dist||lenOf(r.pts),created:+r.created||Date.now(),memo:String(r.memo||'').slice(0,200),bands:Array.isArray(r.bands)?r.bands.filter(b=>BANDS.includes(b)):[],runs:Array.isArray(r.runs)?r.runs.filter(z=>z&&isFinite(z.dur)):[],elev:Array.isArray(r.elev)?r.elev:undefined}));
+ if(Array.isArray(d.favs))favs=d.favs.filter(f=>f&&isFinite(f.lat)&&isFinite(f.lon)).map(f=>({id:+f.id,name:String(f.name||'地点').slice(0,30),lat:+f.lat,lon:+f.lon,cat:Math.max(0,Math.min(9,+f.cat||0)),addr:String(f.addr||'').slice(0,60)}));
+ if(Array.isArray(d.cats)&&d.cats.length===10)pref.cats=d.cats.map((c,i)=>String(c||CDEF[i]).slice(0,10));
+ if(Array.isArray(d.dests))pref.dests=d.dests.filter(p=>p&&isFinite(p.lat)).slice(0,10);
+ for(const t of d.trips||[])if(t&&ok(t.pts)&&!trips.some(x=>x.id===t.id))trips.push({id:+t.id,start:+t.start,end:+t.end,dist:+t.dist||0,keep:true,show:true,pts:t.pts.map(q=>[+q[0],+q[1]])});
+ try{localStorage.setItem(RKEY,JSON.stringify(routes));localStorage.setItem(FKEY,JSON.stringify(favs))}catch(e){}hSave();save();drawPast();drawFav();return true}
+async function odDown(force){try{const tk=await odToken(),r=await fetch(OD_PATH,{headers:{Authorization:'Bearer '+tk}});if(r.status===404){odSt('OneDriveにまだデータがありません（アップロードしてね）');return null}
+ if(!r.ok)throw r.status;const d=await r.json();if(force||!pref.syncAt||d.exported>pref.syncAt){if(replaceData(d)){pref.syncAt=d.exported;save();odSt(`OneDriveから読み込みました（${new Date(d.exported).toLocaleString('ja-JP')}）`);msg('OneDriveのデータを反映しました')}}else odSt('最新です');return d}
+ catch(e){odSt('OneDriveから読み込めません'+(typeof e==='number'?'（'+e+'）':''));return null}}
+async function odUp(){try{const tk=await odToken(),d=buildData(),r=await fetch(OD_PATH,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw r.status;pref.syncAt=d.exported;save();odSt('OneDriveに保存しました（'+fmtT(Date.now())+'）')}
+ catch(e){odSt('OneDriveに保存できません'+(typeof e==='number'?'（'+e+'）':''))}}
+function schedUp(){if(!odReady||!odAcct)return;clearTimeout(odUpT);odUpT=setTimeout(odUp,8000)}
+$('od-client').value=pref.odClient||'';$('od-tenant').value=pref.odTenant||'';
+$('od-save').addEventListener('click',async()=>{pref.odClient=$('od-client').value.trim();pref.odTenant=$('od-tenant').value.trim();save();msalApp=null;odSt(pref.odClient?'保存しました。「サインイン」を押してね':'同期をやめました')});
+$('od-in').addEventListener('click',async()=>{const a=await odInit();if(!a){odSt('先にアプリのクライアントIDを保存してね');return}a.loginRedirect({scopes:OD_SCOPES})});
+$('od-up').addEventListener('click',odUp);$('od-down').addEventListener('click',()=>odDown(true));
+$('od-out').addEventListener('click',async()=>{const a=await odInit();if(a&&odAcct)a.logoutRedirect({account:odAcct})});
+$('b-sync').addEventListener('click',async()=>{if(!pref.odClient){$('sh-set').hidden=false;$('od-client').scrollIntoView({block:'center'});return}await odDown(false);await odUp()});
+(async()=>{if(!pref.odClient)return;await odInit();if(odAcct){await odDown(false);odReady=true}})();
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
