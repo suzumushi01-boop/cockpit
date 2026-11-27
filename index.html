@@ -27,6 +27,7 @@ body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans
 .mono{font-family:'B612 Mono',ui-monospace,monospace}
 #ck{display:grid;position:fixed;inset:0;width:100%;height:100vh;height:100dvh;overflow:hidden;gap:6px;grid-template:"ann ann" auto "pfd nd" minmax(0,1fr) "bar bar" auto/minmax(300px,40%) minmax(0,1fr);
  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 @media (max-aspect-ratio:1/1){#ck{grid-template:"ann" auto "pfd" 40vh "nd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
 .ann{grid-area:ann;display:flex;gap:10px;align-items:center;min-width:0;overflow:hidden}
 .anns{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0}
@@ -189,9 +190,9 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <nav class="bar" aria-label="操作">
   <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button data-wx="tr">渋滞</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
-  <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="tr">渋滞</button><button data-wx="pm">PM2.5</button></div>
+  <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
   <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-mnt">手入れ</button><button id="b-wash">洗車記録</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
  </nav>
@@ -555,7 +556,7 @@ function syncBar(){const c=SV().cfg;
 const upd=()=>{save();applyView(SV());syncBar()};
 $('t-big').addEventListener('click',()=>{sel='big';syncBar()});$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
 document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg;c.hz[b.dataset.hz]=!c.hz[b.dataset.hz];upd()}));
-document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey)msg('渋滞は「設定」でTomTomのキーを入れると使えます');wxTick()}}));
+document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
 $('op').addEventListener('input',()=>{SV().cfg.op=+$('op').value;upd()});
 $('b-rt').addEventListener('click',()=>{const c=SV().cfg;c.rm=(c.rm+1)%3;upd();if(c.rm&&!rainUrls[c.rm])msg('雨雲の予報データを待っています');updRt()});
 $('b-up').addEventListener('click',()=>{const c=SV().cfg;c.hup=!c.hup;upd()});
@@ -587,7 +588,11 @@ function colour(){
 }
 VS.forEach(applyView);colour();setInterval(colour,30000);
 window.addEventListener('orientationchange',()=>{ref=null;relayout()});
-function relayout(){[0,250,700].forEach(t=>setTimeout(()=>{try{window.scrollTo(0,0);document.body.scrollLeft=0;size();VS.forEach(v=>v.m.invalidateSize&&v.m.invalidateSize())}catch(e){}},t))}
+function fixIns(){const big=Math.max(screen.width,screen.height)>=812&&/iPhone/.test(navigator.userAgent)&&isApp();document.documentElement.classList.toggle('fixins',big);if(!big)return;
+ const port=innerHeight>=innerWidth,R=document.documentElement.style; // 画面の向きから余白を決める（回転後に古い値が残るのを避ける）
+ R.setProperty('--pt',port?'50px':'6px');R.setProperty('--pb',port?'26px':'20px');R.setProperty('--pl',port?'6px':'48px');R.setProperty('--pr',port?'6px':'48px')}
+fixIns();
+function relayout(){fixIns();[0,250,700].forEach(t=>setTimeout(()=>{try{window.scrollTo(0,0);document.body.scrollLeft=0;size();VS.forEach(v=>v.m.invalidateSize&&v.m.invalidateSize())}catch(e){}},t))}
 window.addEventListener('resize',relayout);
 if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',relayout);
 $('a-gps').style.cursor='pointer';
