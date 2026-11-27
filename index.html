@@ -134,9 +134,9 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .wc .wlg em{font-style:normal;color:#eef3f6}
 .wc .wcv{position:relative;min-height:0}.wc svg{display:block}.wc .ax{position:absolute;top:0;bottom:0;height:100%;pointer-events:none}.wc .scr{position:absolute;top:0;bottom:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}.wc .scr::-webkit-scrollbar{display:none}
 #wxtab{position:fixed;right:0;top:40%;z-index:640;width:26px;height:96px;border-radius:12px 0 0 12px;border:1px solid var(--c);border-right:0;background:#0b1016e6;color:var(--c);font:700 11px 'B612',sans-serif;padding:0;display:grid;place-items:center;line-height:1.1;writing-mode:vertical-rl;letter-spacing:.1em}
-#dewal{position:absolute;left:50%;top:54px;transform:translateX(-50%);z-index:655;padding:7px 14px;border-radius:18px;font:13px 'B612',sans-serif;white-space:nowrap;box-shadow:0 2px 10px #000a}#dewal small{opacity:.8;font-size:11px}
+#dewal{position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:1400;padding:max(0px,env(safe-area-inset-top)) 12px 1px;border-radius:0 0 10px 10px;border-top:0!important;border-width:1.5px!important;font:700 11px/1.35 'B612',sans-serif;white-space:nowrap;box-shadow:0 2px 8px #000a;max-width:70vw;overflow:hidden;text-overflow:ellipsis}#dewal small{opacity:.75;font-size:10px}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}
-#nd.browse #dewal{top:56px}.tinfo{cursor:pointer}
+.tinfo{cursor:pointer}
 #mic{position:absolute;right:10px;bottom:26px;width:60px;height:60px;border-radius:50%;border:2px solid var(--ln);background:#0b1016dd;color:var(--w);z-index:650;display:grid;place-items:center;cursor:pointer}
 #mic svg{width:28px;height:28px}#mic.listen{border-color:#ff4d4d;box-shadow:0 0 0 4px #ff4d4d55}#mic.wait{border-color:var(--c)}#mic[hidden]{display:none}
 .acm{background:none;border:0}.acm svg{width:34px;height:34px;display:block;overflow:visible}.acm span{position:absolute;left:30px;top:2px;font:700 11px 'B612 Mono',monospace;color:#39d0ff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000}
@@ -201,7 +201,6 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="ndc wx" id="wx"><svg id="wxa" viewBox="-12 -12 24 24"><path d="M0-10L6 2H2V10H-2V2H-6Z" fill="#39d0ff" stroke="#000"/></svg><span id="wxt"></span><br><small id="rt"></small> <small id="fct"></small></div>
   <div id="msg" class="hide"></div>
   <button id="back">◎ 現在地へ戻る</button>
-  <button id="dewal" hidden></button>
   <div id="pin" hidden></div>
   <button id="mic" aria-label="声で操作"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   <div class="sg" id="sg" hidden><span id="sg-t"></span><button class="go" id="sg-go">案内する</button><button id="sg-no">あとで</button></div>
@@ -248,6 +247,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
  <p class="note">声で「船橋駅まで案内」「自宅に帰る」「洗車場へ行きたい」「郵便番号273-0005」「今の場所をお気に入りに登録」と言えます。データ：国土地理院・OpenStreetMap／Nominatim・HeartRails Geo API／zipcloud（郵便番号）・OSRM（ルート）。</p>
 </div></div>
+<button id="dewal" hidden></button>
 <div id="wxg" aria-hidden="true"><header><b>WX TREND</b><span class="sub" id="wxg-sub"></span><button id="wxg-up">更新</button><button id="wxg-x">計器へ ▸</button></header><div class="grid" id="wxg-grid"></div></div>
 <button id="wxtab" aria-label="気象グラフ">‹ 気象</button>
 <div class="sheet" id="sh-set" hidden><div class="shin"><header><b>設定</b><button data-close>閉じる</button></header>
@@ -1725,7 +1725,7 @@ function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringi
 const WXG=$('wxg');let wxgOn=false,dewWarnDay='';
 function wxgOpen(){WXG.classList.add('on');WXG.setAttribute('aria-hidden','false');wxgOn=true;wxgPos=null;fetchTrend();setTimeout(drawWxg,60)}
 function wxgClose(){WXG.classList.remove('on');WXG.setAttribute('aria-hidden','true');wxgOn=false}
-$('wxtab').addEventListener('click',wxgOpen);$('dewal').addEventListener('click',e=>{e.stopPropagation();wxgOpen()});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
+$('wxtab').addEventListener('click',wxgOpen);$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();al.hidden=true;msg('結露アラートを5時間表示しません')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
 {let sw=null;const ok=t=>!(t.closest&&t.closest('#nd,#mwrap,.bar,input,select,textarea,.sheet,#pin'));
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1){sw=null;return}const t=e.touches[0];sw=(wxgOn?!(e.target.closest&&e.target.closest('svg')):ok(e.target))?{x:t.clientX,y:t.clientY,t:Date.now()}:null},{passive:true});
  document.addEventListener('touchend',e=>{if(!sw)return;const t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(Date.now()-sw.t<700&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6){if(dx<0&&!wxgOn)wxgOpen();else if(dx>0&&wxgOn)wxgClose()}sw=null},{passive:true});}
@@ -1794,7 +1794,8 @@ function wxAlerts(){if(!tr)return;const D=tr,c=D.now,nx=(a,h)=>Math.max(0,...a.s
  // 結露アラート：6時間以内に結露（オレンジ以上）
  const k=D.dr.slice(c,c+7).findIndex(r=>r>=2),al=$('dewal');
  if(k<0){al.hidden=true;return}let j=c+k;while(j+1<D.n&&D.dr[j+1]>=2)j++;const top=Math.max(...D.dr.slice(c+k,j+1));
- al.hidden=false;al.className=top===3?'r':'y';al.innerHTML=`<b>⚠ ${top===3?'結露 びっしょり':'結露'}</b> ${k===0?'今':D.times[c+k].slice(11,16)}〜${(e=>(e.slice(0,10)!==D.times[c].slice(0,10)?'翌':'')+e.slice(11,16))(D.times[Math.min(D.n-1,j+1)])} <small>ガラス・カメラ曇り注意 ▸</small>`}
+ const key=top+'@'+D.times[Math.min(D.n-1,j+1)],mu=pref.dewMute;if(mu&&mu.k===key&&Date.now()<mu.until){al.hidden=true;return}al.dataset.k=key;
+ al.hidden=false;al.className=top===3?'r':'y';al.innerHTML=`⚠ ${top===3?'結露 びっしょり':'結露'} ${k===0?'今':D.times[c+k].slice(11,16)}〜${(e=>(e.slice(0,10)!==D.times[c].slice(0,10)?'翌':'')+e.slice(11,16))(D.times[Math.min(D.n-1,j+1)])}`;al.title='ガラス・カメラの曇りに注意。タップで5時間表示しません'}
 setInterval(()=>{if(tr&&tr._raw){const r=tr._raw;tr=prepTr(r);tr._raw=r;wxAlerts();if(wxgOn)drawWxg()}fetchTrend()},5*60000);
 /* 結露がひどくなりそうな夜は、一度だけ声で知らせる */
 function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toISOString().slice(0,10);if(dewWarnDay===k)return;
