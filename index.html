@@ -235,7 +235,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>音の出し方</h3>
  <label class="chk"><input type="radio" name="amode" value="mix">音楽優先：効果音と画面表示（CarPlayの音楽を止めない）</label>
  <label class="chk"><input type="radio" name="amode" value="voice">すべて声で読み上げ（iPhoneの仕組み上、音楽が止まることがあります）</label>
- <div class="bands"><button data-cue="r2">右折の音</button><button data-cue="l2">左折の音</button><button data-cue="up">加速</button><button data-cue="down">減速</button><button data-cue="n5">5</button><button data-cue="n3">3</button><button data-cue="ura">裏道</button><button data-cue="off">コース外</button><button data-cue="arr">到着</button><button data-cue="warn">警告</button></div>
+ <div class="bands"><button data-cue="r2">右折の音</button><button data-cue="l2">左折の音</button><button data-cue="up">加速・スタート</button><button data-cue="down">減速・ストップ</button><button data-cue="ura">裏道</button><button data-cue="off">コース外</button><button data-cue="arr">到着</button><button data-cue="warn">警告</button></div>
  <p class="note">音楽優先では、曲がる案内は右なら右のスピーカー、左なら左から鳴ります（ステレオのとき）。警報・地震と、声で話しかけたときの返事は声で読み上げます。iPhoneの消音スイッチがオンだと効果音は鳴りません。</p>
  <h3>日本語の声（案内・天気など）</h3><div class="rrow"><select id="v-ja" aria-label="日本語の声"></select><button id="v-ja-t">試す</button></div>
  <h3>英語の声（速度コール）</h3><div class="rrow"><select id="v-en" aria-label="英語の声"></select><button id="v-en-t">試す</button></div>
@@ -1182,15 +1182,16 @@ $('ac-save').addEventListener('click',async()=>{const v=$('ac-url').value.trim()
 setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()=>startRec(),1500));
 
 /* ---------- 速度コール（英語・10km/hごと） ---------- */
-pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,lowArm=false,low5=false,low3=false;const spcSaid={};let spcPrev=0;
+pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,mvSt=null,stopN=0,moveN=0,mvSaid=0;const spcSaid={};let spcPrev=0;
 function sayEn(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
 setInterval(()=>{
  if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,band=Math.floor(v/10)*10;
- /* 減速のときだけ 5・3 */
- if(v>=8){lowArm=true;low5=low3=false}
- else if(lowArm){if(!low3&&v<=3){low3=low5=true;lowArm=false;sayEnAuto('3','n3')}else if(!low5&&v<=5){low5=true;sayEnAuto('5','n5')}}
+ /* 止まった・動き出したときのアナウンス（GPSのぶれで何度も言わないよう2秒続いたら） */
+ stopN=v<1.5?stopN+1:0;moveN=v>=4?moveN+1:0;
+ if(mvSt!=='stop'&&stopN>=2){const was=mvSt;mvSt='stop';if(was==='move'&&Date.now()-mvSaid>5000){mvSaid=Date.now();sayAuto('ヴェゼル、ストップ','down')}}
+ else if(mvSt!=='move'&&moveN>=2){const was=mvSt;mvSt='move';if(was==='stop'&&Date.now()-mvSaid>5000){mvSaid=Date.now();sayAuto('ヴェゼル、スタート','up')}}
  if(spcLast==null){spcLast=band;return}
  if(band===spcLast){spcCand=null;return}
  if(band>spcLast&&v<band+1)return;if(band<spcLast&&v>spcLast-1)return; // 境目でのくり返しを防ぐ
