@@ -401,8 +401,8 @@ function setPos(lat,lon){
 (()=>{
  let s='<g id="rg">';
  for(let d=0;d<360;d+=5){const L2=d%10?5:9;s+=`<line x1="0" y1="-82" x2="0" y2="${-82+L2}" stroke="#eef3f6" stroke-width="${d%30?1:1.6}" transform="rotate(${d})"/>`}
- const lab={0:'N',90:'E',180:'S',270:'W'};
- for(let d=0;d<360;d+=30)s+=`<text transform="rotate(${d}) translate(0,-64)" text-anchor="middle" font-family="B612 Mono" font-weight="700" font-size="${lab[d]?11:9}" fill="${d===0?'#39d0ff':'#eef3f6'}" stroke="#000" stroke-width="2.5" paint-order="stroke">${lab[d]||d/10}</text>`;
+ const lab={0:'北',90:'東',180:'南',270:'西'};
+ for(let d=0;d<360;d+=30)s+=`<text transform="rotate(${d}) translate(0,-64)" text-anchor="middle" font-family="${lab[d]?'Hiragino Sans,sans-serif':'B612 Mono'}" font-weight="700" font-size="${lab[d]?13:9}" fill="${d===0?'#ff5a5a':'#eef3f6'}" stroke="#000" stroke-width="2.5" paint-order="stroke">${lab[d]||d/10}</text>`;
  s+='<line id="trkp" x1="0" y1="0" x2="0" y2="-82" stroke="#3be36a" stroke-width="1.4" stroke-dasharray="4 3"/>';
  s+='<g id="gdp" style="display:none"><path d="M0-82L6-70L0-58L-6-70Z" fill="#39d0ff" stroke="#000" stroke-width="1"/><line x1="0" y1="-58" x2="0" y2="-20" stroke="#39d0ff" stroke-width="2.5"/></g>';
  s+='<g id="hdgp"><path d="M-5 -92L5 -92L0 -84Z" fill="#ff4fd8" stroke="#000" stroke-width=".8"/></g></g>';
@@ -443,7 +443,7 @@ function htape(v){
  const pp=4,lo=Math.floor((v-37.5)/5)*5;let s='<rect width="300" height="38" rx="6" fill="#151d26"/>';
  for(let x=lo;x<=v+37.5;x+=5){const X=150+(x-v)*pp,n=((x%360)+360)%360,maj=!(n%10);
   s+=`<line x1="${X}" y1="0" x2="${X}" y2="${maj?10:6}" stroke="#cfd8e0" stroke-width="1.4"/>`;
-  if(maj)s+=`<text x="${X}" y="24" text-anchor="middle" font-size="${n%90?11:13}" fill="${n%90?'#cfd8e0':'#39d0ff'}" font-family="B612 Mono" font-weight="700">${{0:'N',90:'E',180:'S',270:'W'}[n]||pad(n/10,2)}</text>`}
+  if(maj)s+=`<text x="${X}" y="24" text-anchor="middle" font-size="${n%90?11:14}" fill="${n%90?'#cfd8e0':n?'#39d0ff':'#ff5a5a'}" font-family="${n%90?'B612 Mono':'Hiragino Sans,sans-serif'}" font-weight="700">${{0:'北',90:'東',180:'南',270:'西'}[n]||pad(n/10,2)}</text>`}
  s+=`<path d="M150 0L144 -1V0Z"/><rect x="128" y="20" width="44" height="17" rx="3" fill="#000" stroke="#fff"/><text x="150" y="33" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="B612 Mono">${pad(v%360,3)}</text><path d="M150 12L145 2H155Z" fill="#ff4fd8"/>`;
  $('hdgt').innerHTML=s;
 }
