@@ -232,6 +232,9 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>GPS診断</h3>
  <div class="bands"><button id="gps-dbtn">GPSを調べる</button></div>
  <pre id="gps-diag" class="note" style="white-space:pre-wrap;margin:6px 0"></pre>
+ <h3>発進・停止のアナウンス（速度コールON時）</h3>
+ <div class="rrow"><select id="acc-mode" style="min-height:44px;font-size:16px;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px"><option value="off">GPSだけ（約1〜1.5秒遅れ）</option><option value="hi">加速度＋GPS：敏感</option><option value="mid">加速度＋GPS：ふつう</option><option value="lo">加速度＋GPS：鈍感</option></select><span class="note" id="acc-live">揺れ —</span></div>
+ <p class="note">加速度センサーで動き出し・止まった瞬間をつかみ、GPSで確かめます（GPSと合わなければ取り消し）。iPhoneをホルダーにしっかり固定して使ってね。止まっているのに「スタート」と言うなら「鈍感」、反応が遅いなら「敏感」に。</p>
  <h3>音の出し方</h3>
  <label class="chk"><input type="radio" name="amode" value="mix">音楽優先：効果音と画面表示（CarPlayの音楽を止めない）</label>
  <label class="chk"><input type="radio" name="amode" value="voice">すべて声で読み上げ（iPhoneの仕組み上、音楽が止まることがあります）</label>
@@ -472,7 +475,7 @@ function onMot(e){
  if(!ref)ref={r:rr,p:pp};
  st.att=true;let r=(rr-ref.r)/D2R;r=((r+540)%360)-180;const p=(pp-ref.p)/D2R;
  st.roll+=(r-st.roll)*.08;st.pitch+=(p-st.pitch)*.08;
- const l=e.acceleration;if(l&&l.x!=null){const lx=(l.x*c+l.y*s)/9.81,lz=l.z/9.81;st.gx+=(lx-st.gx)*.12;st.gy+=(lz-st.gy)*.12;st.gpk=Math.max(st.gpk,Math.hypot(st.gx,st.gy))}
+ const l=e.acceleration;if(l&&l.x!=null){const lx=(l.x*c+l.y*s)/9.81,lz=l.z/9.81;st.gx+=(lx-st.gx)*.12;st.gy+=(lz-st.gy)*.12;st.gpk=Math.max(st.gpk,Math.hypot(st.gx,st.gy));accTick(Math.hypot(l.x,l.y,l.z))}
 }
 let demoT=null;
 function startDemo(why){
@@ -1186,13 +1189,28 @@ pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,mvSt=null,stopN=0,moveN
 function sayEn(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
+/* ---------- 加速度センサーで発進・停止を早くつかむ ---------- */
+pref.accMode=pref.accMode||'mid';
+const ACC_TH={hi:[0.35,0.10],mid:[0.55,0.12],lo:[0.85,0.15]}; // [発進とみなす揺れ m/s², 止まったとみなす静かさ]
+const acc={f:0,hiAt:0,loAt:0,by:null,at:0,shown:0};
+function accTick(m){if(!isFinite(m))return;acc.f+=(m-acc.f)*0.2;const now=Date.now();
+ if(now-acc.shown>300){acc.shown=now;const e=$('acc-live');if(e&&!$('sh-set').hidden)e.textContent='揺れ '+acc.f.toFixed(2)+' m/s²'}
+ if(!pref.spc||pref.accMode==='off'||!(st.gps||st.demo))return;const[th,still]=ACC_TH[pref.accMode]||ACC_TH.mid;
+ acc.hiAt=acc.f>th?(acc.hiAt||now):0;acc.loAt=acc.f<still?(acc.loAt||now):0;
+ if(mvSt==='stop'&&acc.hiAt&&now-acc.hiAt>=250){mvSt='move';acc.by='move';acc.at=now;stopN=0;if(now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、スタート','up')}}
+ else if(mvSt==='move'&&st.spd<6&&acc.loAt&&now-acc.loAt>=400){mvSt='stop';acc.by='stop';acc.at=now;moveN=0;if(now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、ストップ','down')}}}
+$('acc-mode').value=pref.accMode;$('acc-mode').addEventListener('change',e=>{pref.accMode=e.target.value;save()});
+/* 止まった・動き出したときのアナウンス（0.5秒続いたら。0.25秒ごとに確認） */
+setInterval(()=>{if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,now=Date.now();
+ if(v<1.5){moveN=0;stopN=stopN||now}else if(v>=4){stopN=0;moveN=moveN||now}else{stopN=0;moveN=0}
+ if(acc.by==='move'){if(v>=4)acc.by=null;else if(now-acc.at>4000){mvSt='stop';acc.by=null}return} // 加速度で発進と判断→GPSで確認、4秒動かなければ取り消し（黙って）
+ if(acc.by==='stop'){if(v<1.5||now-acc.at>4000)acc.by=null;else if(moveN&&now-moveN>=1000){mvSt='move';acc.by=null}return}
+ if(mvSt!=='stop'&&stopN&&now-stopN>=500){const was=mvSt;mvSt='stop';if(was==='move'&&now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、ストップ','down')}}
+ else if(mvSt!=='move'&&moveN&&now-moveN>=500){const was=mvSt;mvSt='move';if(was==='stop'&&now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、スタート','up')}}
+},250);
 setInterval(()=>{
  if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,band=Math.floor(v/10)*10;
- /* 止まった・動き出したときのアナウンス（GPSのぶれで何度も言わないよう2秒続いたら） */
- stopN=v<1.5?stopN+1:0;moveN=v>=4?moveN+1:0;
- if(mvSt!=='stop'&&stopN>=2){const was=mvSt;mvSt='stop';if(was==='move'&&Date.now()-mvSaid>5000){mvSaid=Date.now();sayAuto('ヴェゼル、ストップ','down')}}
- else if(mvSt!=='move'&&moveN>=2){const was=mvSt;mvSt='move';if(was==='stop'&&Date.now()-mvSaid>5000){mvSaid=Date.now();sayAuto('ヴェゼル、スタート','up')}}
- if(spcLast==null){spcLast=band;return}
+   if(spcLast==null){spcLast=band;return}
  if(band===spcLast){spcCand=null;return}
  if(band>spcLast&&v<band+1)return;if(band<spcLast&&v>spcLast-1)return; // 境目でのくり返しを防ぐ
  if(band===spcCand)spcN++;else{spcCand=band;spcN=1}
