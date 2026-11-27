@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cockpit">
 <meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Cockpit Nav</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=B612:wght@400;700&family=B612+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -241,7 +244,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <div class="rrow"><input id="od-client" placeholder="アプリのクライアントID（Entra で登録）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="クライアントID"><input id="od-tenant" placeholder="テナント（空欄でOK）" autocomplete="off" style="width:150px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="テナントID"><button id="od-save">保存</button></div>
  <div class="rrow"><button id="od-in">サインイン</button><button id="od-up">OneDriveへ保存</button><button id="od-down">OneDriveから読み込み</button><button id="od-out">サインアウト</button></div>
  <p class="note" id="od-st">未設定</p>
- <p class="note">裏道・お気に入り・カテゴリー名・最近の目的地・★の履歴を OneDrive の「Apps/CockpitNav/cockpit-nav.json」に保存します。サインイン後は、起動時に新しいほうを読み込み、変更すると自動で保存します。パソコンでも同じURLを開いてサインインすれば、同じデータを編集できます。</p>
+ <p class="note">裏道・お気に入り・カテゴリー名・最近の目的地・★の履歴を OneDrive の「Apps/CockpitNav/cockpit-nav.json」に保存します。サインインすると、起動時・アプリに戻ったとき・3分ごとに自動で同期し、変更すると数秒で保存します。iPhoneとパソコンで同時に変えても、両方の変更を合わせます（同じものを両方で変えたときは新しいほう）。パソコンでは同じURLをEdgeやChromeで開いてサインインしてね。</p>
  <h3>渋滞情報（TomTom）</h3>
  <div class="rrow"><input id="tt-key" placeholder="TomTom の API キー" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="TomTom APIキー"><button id="tt-save">保存</button></div>
  <p class="note" id="tt-st">キーを入れると、天気ページの「渋滞」で道路の混雑を色で表示し、目的地ナビの到着時間と裏道の判断に渋滞を反映します（無料枠あり）。</p>
@@ -684,8 +687,8 @@ $('hlist').addEventListener('click',e=>{const b=e.target.closest('button[data-ac
  else if(b.dataset.act==='play'){openFR(t);return}
  else if(b.dataset.act==='gpx'){shareOut('cockpit-nav-'+ymd(t.start)+'-'+fmtT(t.start).replace(':','')+'.gpx',gpxOf([t]),'application/gpx+xml');return}
  else if(b.dataset.act==='route'){if(addRoute(t.pts.slice(),'裏道 '+fmtD(t.start)+' '+fmtT(t.start))){b.textContent='登録済み';msg('裏道に登録しました（裏道ボタンから案内できます）')}return}
- else if(b.dataset.act==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}trips=trips.filter(x=>x!==t);if(t===cur)cur=null}
- hSave();drawPast();hList()});
+ else if(b.dataset.act==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}trips=trips.filter(x=>x!==t);tombAdd('trips',t.id);if(t===cur)cur=null}
+ hSave();drawPast();hList();schedUp()});
 $('h-show').checked=pref.hshow;$('h-show').addEventListener('change',()=>{pref.hshow=$('h-show').checked;save();drawPast()});
 drawPast();
 
@@ -964,7 +967,7 @@ $('rlist').addEventListener('click',e=>{const b=e.target.closest('button[data-ra
  else if(a==='msave'){const n=document.querySelector(`[data-ename="${r.id}"]`),m=document.querySelector(`[data-ememo="${r.id}"]`);if(n&&n.value.trim())r.name=n.value.trim().slice(0,30);if(m)r.memo=m.value.trim().slice(0,200);rSave();editId=null;msg('保存しました')}
  else if(a==='mclose'){editId=null}
  else if(a==='reset'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に消す';return}r.runs=[];rSave()}
- else if(a==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}if(guide&&guide.r.id===r.id)stopGuide();routes=routes.filter(x=>x!==r);rSave()}
+ else if(a==='del'){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}if(guide&&guide.r.id===r.id)stopGuide();routes=routes.filter(x=>x!==r);tombAdd('routes',r.id);rSave()}
  rList()});
 $('b-route').addEventListener('click',()=>{rList();if(typeof seRender==='function')seRender();$('sh-rt').hidden=false});
 
@@ -1310,7 +1313,7 @@ $('sh-dest').addEventListener('click',e=>{const b=e.target.closest('button');if(
  if(ds.fed&&f){fEdit=fEdit===f.id?null:f.id;renderDest();return}
  if(ds.fsave&&f){const n=document.querySelector('[data-fname]').value.trim();if(n)f.name=n.slice(0,30);f.cat=+document.querySelector('[data-fcat]').value;fEdit=null;fSave();renderDest();return}
  if('fclose' in ds){fEdit=null;renderDest();return}
- if(ds.fdel&&f){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}favs=favs.filter(x=>x!==f);fSave();renderDest();return}
+ if(ds.fdel&&f){if(!b.dataset.arm){b.dataset.arm='1';b.textContent='本当に削除';return}favs=favs.filter(x=>x!==f);tombAdd('favs',f.id);fSave();renderDest();return}
 });
 $('f-here').addEventListener('click',()=>{dReg={name:'地点 '+fmtD(Date.now())+' '+fmtT(Date.now()),lat:st.lat,lon:st.lon,addr:'登録地点'};renderDest()});
 $('c-save').addEventListener('click',()=>{document.querySelectorAll('[data-cname]').forEach(i=>{const v=i.value.trim();if(v)pref.cats[+i.dataset.cname]=v.slice(0,10)});save();drawFav();renderDest();msg('カテゴリー名を保存しました')});
@@ -1385,16 +1388,42 @@ function replaceData(d){if(!d||d.app!=='cockpit-nav')return false;const ok=p=>Ar
 async function odDown(force){try{const tk=await odToken(),r=await fetch(OD_PATH,{headers:{Authorization:'Bearer '+tk}});if(r.status===404){odSt('OneDriveにまだデータがありません（アップロードしてね）');return null}
  if(!r.ok)throw r.status;const d=await r.json();if(force||!pref.syncAt||d.exported>pref.syncAt){if(replaceData(d)){pref.syncAt=d.exported;save();odSt(`OneDriveから読み込みました（${new Date(d.exported).toLocaleString('ja-JP')}）`);msg('OneDriveのデータを反映しました')}}else odSt('最新です');return d}
  catch(e){odSt('OneDriveから読み込めません'+(typeof e==='number'?'（'+e+'）':''));return null}}
-async function odUp(){try{const tk=await odToken(),d=buildData(),r=await fetch(OD_PATH,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw r.status;pref.syncAt=d.exported;save();odSt('OneDriveに保存しました（'+fmtT(Date.now())+'）')}
- catch(e){odSt('OneDriveに保存できません'+(typeof e==='number'?'（'+e+'）':''))}}
-function schedUp(){if(!odReady||!odAcct)return;clearTimeout(odUpT);odUpT=setTimeout(odUp,8000)}
+async function odUp(){return odSync(true)}
+/* ---------- 同期：両方の変更を合わせる（同じIDは新しい側、消したものは消す） ---------- */
+function tombAdd(k,id){pref.tomb=pref.tomb||{};(pref.tomb[k]=pref.tomb[k]||{})[String(id)]=Date.now();save()}
+function mergeData(d){const tl=pref.tomb||{},tr=d.tomb||{},T={},cut=Date.now()-150*DAY;
+ for(const k of['routes','favs','wash','trips']){T[k]={};for(const src of[tl[k]||{},tr[k]||{}])for(const id in src)if(src[id]>cut)T[k][id]=Math.max(T[k][id]||0,src[id])}
+ const rNew=Date.parse(d.exported||0)>(pref.chgAt||0),loc=buildData(),out={app:'cockpit-nav',ver:3,exported:new Date().toISOString(),tomb:T};
+ for(const k of['routes','favs','wash','trips']){const M=new Map();const A=(rNew?[loc[k],d[k]]:[d[k],loc[k]]);for(const arr of A)for(const it of arr||[])if(it&&it.id!=null)M.set(String(it.id),it);
+  out[k]=[...M.values()].filter(it=>!T[k][String(it.id)])}
+ for(const k of['cats','dests','mnt','ck'])out[k]=rNew&&d[k]!=null?d[k]:loc[k];return out}
+const sig=d=>JSON.stringify(['routes','favs','wash','trips','cats','dests','mnt','ck'].map(k=>k==='trips'?(d[k]||[]).map(t=>t.id).sort():d[k]));
+let odBusy=false,odAgain=false,odLast=0;
+async function odSync(push){if(!odAcct)return;if(odBusy){odAgain=true;return}odBusy=true;odSt('同期中…');
+ try{const tk=await odToken();let remote=null;const g=await fetch(OD_PATH+'?t='+Date.now(),{headers:{Authorization:'Bearer '+tk},cache:'no-store'});
+  if(g.ok)remote=await g.json();else if(g.status!==404)throw g.status;
+  let data=buildData();data.tomb=pref.tomb||{};
+  if(remote&&remote.app==='cockpit-nav'){const before=sig(buildData());data=mergeData(remote);replaceData(data);trips=trips.filter(t=>!(data.tomb.trips||{})[String(t.id)]);hSave();drawPast();
+   if(sig(buildData())!==before)msg('ほかの端末の変更を取り込みました')}
+  pref.tomb=data.tomb;const needPut=!remote||sig(data)!==sig(remote)||JSON.stringify(data.tomb)!==JSON.stringify(remote.tomb||{});
+  if(needPut){data.exported=new Date().toISOString();const r=await fetch(OD_PATH,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw r.status;pref.syncAt=data.exported}
+  else if(remote)pref.syncAt=remote.exported;
+  pref.chgAt=Math.min(pref.chgAt||0,Date.now());odLast=Date.now();save();odSt('同期済み（'+fmtT(Date.now())+'）'+(odAcct?'・'+odAcct.username:''));setSyncChip(true)}
+ catch(e){odSt('同期できません'+(typeof e==='number'?'（'+e+'）':'')+'。電波のある所で自動で再試行します');setSyncChip(false)}
+ finally{odBusy=false;if(odAgain){odAgain=false;setTimeout(()=>odSync(true),1500)}}}
+window.__odTest=f=>{odToken=f.tk;odAcct=f.acct;odReady=true;return odSync}; // 動作確認用
+function setSyncChip(ok){const b=$('b-sync');if(b){b.classList.toggle('on',!!ok);b.title=ok?'同期済み '+fmtT(Date.now()):'未同期'}}
+function schedUp(){pref.chgAt=Date.now();try{localStorage.setItem('cockpitnav',JSON.stringify(pref))}catch(e){}if(!odReady||!odAcct)return;clearTimeout(odUpT);odUpT=setTimeout(()=>odSync(true),4000)}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&odReady&&odAcct&&Date.now()-odLast>20000)odSync(false)});
+setInterval(()=>{if(document.visibilityState==='visible'&&odReady&&odAcct&&Date.now()-odLast>170000)odSync(false)},30000); // 3分ごとに取り込み
+window.addEventListener('online',()=>{if(odReady&&odAcct)odSync(false)});
 $('od-client').value=pref.odClient||'';$('od-tenant').value=pref.odTenant||'';
 $('od-save').addEventListener('click',async()=>{pref.odClient=$('od-client').value.trim();pref.odTenant=$('od-tenant').value.trim();save();msalApp=null;odSt(pref.odClient?'保存しました。「サインイン」を押してね':'同期をやめました')});
 $('od-in').addEventListener('click',async()=>{const a=await odInit();if(!a){odSt('先にアプリのクライアントIDを保存してね');return}a.loginRedirect({scopes:OD_SCOPES})});
 $('od-up').addEventListener('click',odUp);$('od-down').addEventListener('click',()=>odDown(true));
 $('od-out').addEventListener('click',async()=>{const a=await odInit();if(a&&odAcct)a.logoutRedirect({account:odAcct})});
-$('b-sync').addEventListener('click',async()=>{if(!pref.odClient){$('sh-set').hidden=false;$('od-client').scrollIntoView({block:'center'});return}await odDown(false);await odUp()});
-(async()=>{if(!pref.odClient)return;await odInit();if(odAcct){await odDown(false);odReady=true}})();
+$('b-sync').addEventListener('click',async()=>{if(!pref.odClient){$('sh-set').hidden=false;$('od-client').scrollIntoView({block:'center'});return}if(!odAcct){const a=await odInit();if(a&&!odAcct){a.loginRedirect({scopes:OD_SCOPES});return}}odReady=true;await odSync(true)});
+(async()=>{if(!pref.odClient)return;await odInit();if(odAcct){odReady=true;await odSync(false)}})();
 
 /* ---------- 共通：書き出し（他のアプリへ） ---------- */
 async function shareOut(name,text,mime){
@@ -1551,7 +1580,7 @@ function wRender(){$('w-list').innerHTML=wash.slice().reverse().slice(0,30).map(
  <div class="acts" style="justify-content:flex-start;margin-top:6px"><button data-wdel="${e.id}">削除</button></div></div></div>`).join('')||'<p class="note">まだありません。</p>'}
 $('w-mic').addEventListener('click',()=>{if(wRec&&!wRec._stop)wStop(false);else wStart()});
 $('w-save').addEventListener('click',()=>{wStop(false);wSaveEntry()});
-$('w-list').addEventListener('click',e=>{const b=e.target.closest('[data-wdel]');if(!b)return;if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}wash=wash.filter(x=>String(x.id)!==b.dataset.wdel);wSave();wRender()});
+$('w-list').addEventListener('click',e=>{const b=e.target.closest('[data-wdel]');if(!b)return;if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}tombAdd('wash',b.dataset.wdel);wash=wash.filter(x=>String(x.id)!==b.dataset.wdel);wSave();wRender()});
 const WP=['ボンネット','ルーフ','サイドパネル','サイドガラス','フロントグリル','フロントガラス','フロントバンパー','リア','リアガラス','タイヤ','ホイール','その他'];
 $('w-csv').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.csv','﻿'+['日時','場所','気温','湿度',...WP,'全文'].join(',')+'\n'+wash.map(e=>[ymd(e.at)+' '+fmtT(e.at),e.place,e.temp,e.hum,...WP.map(p=>(e.parts[p]||[]).join(' / ')),e.text].map(csvq).join(',')).join('\n')+'\n','text/csv'));
 $('w-md').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.md','# 洗車記録\n\n'+wash.slice().reverse().map(e=>`## ${ymd(e.at)} ${fmtT(e.at)}${e.place?' '+e.place:''}（${e.temp}℃・${e.hum}%）\n\n| 部位 | 内容 |\n|---|---|\n`+WP.filter(p=>e.parts[p]).map(p=>`| ${p} | ${e.parts[p].join('<br>')} |`).join('\n')).join('\n\n')+'\n','text/markdown'));
@@ -1591,6 +1620,18 @@ $('pin').addEventListener('click',e=>{e.stopPropagation();const b=e.target.close
  else if(b.id==='pin-save'){const f=addFav(pinP,+$('pin-cat').value,$('pin-name').value.trim());try{drawFav()}catch(_){}msg('★「'+f.name+'」を登録しました');say('お気に入りに登録しました');pinClose()}
  else if(b.id==='pin-x')pinClose()});
 function pinClose(){pinP=null;$('pin').hidden=true;if(pinMk){map.removeLayer(pinMk);pinMk=null}brwKick()}
+
+/* ---------- パソコン：マウスで地図を動かす・ホイールで拡大縮小・キー操作 ---------- */
+let mdn=null,whT=0;
+ndEl.addEventListener('mousedown',e=>{if(e.button!==0||skipT(e.target))return;mdn={lx:e.clientX,ly:e.clientY,x:e.clientX,y:e.clientY,mv:false}});
+window.addEventListener('mousemove',e=>{if(!mdn)return;if(!mdn.mv&&Math.hypot(e.clientX-mdn.x,e.clientY-mdn.y)>5){mdn.mv=true;brwOn();ndEl.style.cursor='grabbing'}
+ if(mdn.mv){const[dx,dy]=rotS(e.clientX-mdn.lx,e.clientY-mdn.ly);map.panBy([-dx,-dy],{animate:false});brw.c=map.getCenter();mdn.lx=e.clientX;mdn.ly=e.clientY;brwKick()}});
+window.addEventListener('mouseup',()=>{if(mdn&&mdn.mv)rng();mdn=null;ndEl.style.cursor=''});
+ndEl.addEventListener('wheel',e=>{if(skipT(e.target))return;e.preventDefault();if(Date.now()-whT<200)return;whT=Date.now();const z=Math.max(5,Math.min(18,map.getZoom()+(e.deltaY<0?1:-1)));map.setView(ctrOf('big'),z,{animate:false})},{passive:false});
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea,select'))return;
+ if(e.key==='+'||e.key==='=')map.setView(ctrOf('big'),Math.min(18,map.getZoom()+1),{animate:false});
+ else if(e.key==='-')map.setView(ctrOf('big'),Math.max(5,map.getZoom()-1),{animate:false});
+ else if(e.key==='Escape'){if(pinP)pinClose();else if(brw.on)brwOff();document.querySelectorAll('.sheet:not([hidden])').forEach(x=>x.hidden=true)}});
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
