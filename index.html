@@ -44,10 +44,10 @@ html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .an{font:700 11px 'B612 Mono',monospace;padding:3px 6px;border:1px solid #2a323b;border-radius:3px;color:#56616d;flex:none}
 .an.on{color:var(--g);border-color:var(--g)}
 .an.warn{color:#000;background:var(--a);border-color:var(--a)}
-.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,1.15fr) auto minmax(0,1fr);gap:6px}
+.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,.62fr) auto minmax(0,1.5fr);gap:5px}
 .pfdrow{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;min-height:0}
 .pfdrow svg{width:100%;height:100%;display:block}
-#hdgt{width:100%;height:38px;display:block}
+#hdgt{width:100%;height:30px;display:block}
 .info{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center}
 #gb{width:70px;height:70px}
 .ro{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px}
@@ -118,6 +118,21 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 #pin .acts{display:flex;gap:6px;flex-wrap:wrap}#pin .acts button{flex:1 1 auto;padding:10px 8px;font-size:14px}
 #pin select,#pin input{font-size:16px;padding:6px;border-radius:6px;border:1px solid var(--ln);background:#04070a;color:var(--w)}
 .pinm{font-size:30px;line-height:1;text-shadow:0 0 4px #000}
+#wxg{position:fixed;inset:0;z-index:900;background:radial-gradient(120% 90% at 80% 0%,#0c1a26 0%,#04070a 60%);transform:translateX(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:grid;grid-template-rows:auto minmax(0,1fr);padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
+#wxg.on{transform:none}
+#wxg header{display:flex;align-items:center;gap:10px;padding:2px 2px 8px;font-family:'B612',sans-serif}
+#wxg header b{font-size:15px;letter-spacing:.12em;color:var(--c)}#wxg header .sub{color:#7d8995;font-size:12px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#wxg header button{min-height:36px;padding:0 12px}
+#wxg .grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:8px;min-height:0;overflow:auto}
+@media (max-aspect-ratio:1/1){#wxg .grid{grid-template-columns:1fr;grid-auto-rows:minmax(210px,auto)}}
+.wc{background:linear-gradient(180deg,#0b141dcc,#070c12cc);border:1px solid #1d2a36;border-radius:12px;padding:8px 10px 4px;display:grid;grid-template-rows:auto auto minmax(0,1fr);min-height:150px;box-shadow:inset 0 1px 0 #ffffff08}
+.wc .hd{display:flex;align-items:center;gap:8px;font-family:'B612',sans-serif}.wc .hd b{font-size:13px;letter-spacing:.06em}
+.wc .lv{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid currentColor;font-weight:700}
+.wc .wlg{display:flex;flex-wrap:wrap;gap:4px 12px;font:11px 'B612 Mono',monospace;color:#9aa6b2;margin:3px 0 2px}.wc .wlg i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.wc .wlg em{font-style:normal;color:#eef3f6}
+.wc .wcv{position:relative;min-height:0}.wc svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+#wxtab{position:fixed;right:0;top:46%;z-index:640;width:18px;height:64px;border-radius:10px 0 0 10px;border:1px solid var(--ln);border-right:0;background:#0b1016cc;color:var(--c);font-size:13px;padding:0;display:grid;place-items:center}
 #mic{position:absolute;right:10px;bottom:26px;width:60px;height:60px;border-radius:50%;border:2px solid var(--ln);background:#0b1016dd;color:var(--w);z-index:650;display:grid;place-items:center;cursor:pointer}
 #mic svg{width:28px;height:28px}#mic.listen{border-color:#ff4d4d;box-shadow:0 0 0 4px #ff4d4d55}#mic.wait{border-color:var(--c)}#mic[hidden]{display:none}
 .acm{background:none;border:0}.acm svg{width:34px;height:34px;display:block;overflow:visible}.acm span{position:absolute;left:30px;top:2px;font:700 11px 'B612 Mono',monospace;color:#39d0ff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000}
@@ -190,9 +205,9 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <nav class="bar" aria-label="操作">
   <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button data-wx="tr">渋滞</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
-  <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
+  <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
   <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-mnt">手入れ</button><button id="b-wash">洗車記録</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
  </nav>
@@ -228,6 +243,8 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
  <p class="note">声で「船橋駅まで案内」「自宅に帰る」「洗車場へ行きたい」「郵便番号273-0005」「今の場所をお気に入りに登録」と言えます。データ：国土地理院・OpenStreetMap／Nominatim・HeartRails Geo API／zipcloud（郵便番号）・OSRM（ルート）。</p>
 </div></div>
+<div id="wxg" aria-hidden="true"><header><b>WX TREND 24H</b><span class="sub" id="wxg-sub"></span><button id="wxg-up">更新</button><button id="wxg-x">計器へ ▸</button></header><div class="grid" id="wxg-grid"></div></div>
+<button id="wxtab" aria-label="気象グラフ">‹</button>
 <div class="sheet" id="sh-set" hidden><div class="shin"><header><b>設定</b><button data-close>閉じる</button></header>
  <h3>GPS診断</h3>
  <div class="bands"><button id="gps-dbtn">GPSを調べる</button></div>
@@ -325,7 +342,11 @@ const RM=['今','30分後','60分後'],CMS=['AUTO','昼','夜'];let rainUrls=[nu
 pref.v=pref.v||{};
 const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.hz||{flood:true,dosha:true},wx:Object.assign({wind:true,rain:true,pm:false,ac:false,gm:false,fav:true},pref.wx||{}),rm:0,hup:true,cm:pref.cm||'AUTO'},
  mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false,fav:true},rm:0,hup:false,cm:'AUTO'}};
-const brw={on:false,c:null,t:0};const ctrOf=id=>id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon];
+const brw={on:false,c:null,t:0};const ctrOf=id=>{if(id==='mini'){const f=miniFit();if(f)return f.c}return id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon]};
+/* 案内中は、小地図に「現在地からゴールまでの残りの道」が全部入るよう縮尺を自動で合わせる */
+function miniFit(){try{if(typeof guide==='undefined'||!guide||!guide.P||!V.mini)return null;const v=V.mini,P=guide.P,i0=Math.max(0,guide.prog||0),pts=[[st.lat,st.lon]],stp=Math.max(1,Math.floor((P.length-i0)/80));
+ for(let i=i0;i<P.length;i+=stp)pts.push(P[i]);pts.push(P[P.length-1]);const b=L.latLngBounds(pts),w=v.wrap.clientWidth,h=v.wrap.clientHeight,d=v.el.clientWidth||Math.hypot(w,h);
+ if(!w||!h)return null;const pad=L.point(d-w+28,d-h+28).add(v.cfg.hup?L.point(w*.3,h*.3):L.point(0,0));return{c:b.getCenter(),z:Math.max(5,Math.min(17,v.m.getBoundsZoom(b,false,pad)))}}catch(e){return null}}
 function mkView(id,el,wrap){
  const cfg=Object.assign({},DEF[id],pref.v[id]||{});cfg.hz=Object.assign({},cfg.hz);cfg.wx=Object.assign({fav:true},cfg.wx);pref.v[id]=cfg;
  if(id==='big')cfg.hup=true; // 大地図は起動時いつも進行方向アップ
@@ -335,7 +356,7 @@ function mkView(id,el,wrap){
  v.track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(m);
  v.dots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(m);
  v.ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],html:SHIP})}).addTo(m);
- m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
+ m.on('zoomend',()=>{if(id==='mini'&&miniFit()){rng();return}cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
  return v;
 }
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
@@ -350,7 +371,7 @@ function applyView(v){
  if(c.wx.ac)m.addLayer(v.acL);else m.removeLayer(v.acL);
  if(c.wx.gm)m.addLayer(v.gmL);else m.removeLayer(v.gmL);
  if(c.wx.fav!==false)m.addLayer(v.favL);else m.removeLayer(v.favL);
- {const k=c.wx.tr&&pref.ttKey?pref.ttKey:'';if(k!==v.trK){if(v.trL)m.removeLayer(v.trL);v.trL=k?L.tileLayer(`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${encodeURIComponent(k)}&thickness=8`,{maxZoom:18,opacity:.85,zIndex:8}).addTo(m):null;v.trK=k}}
+ {const k=(v.id==='big'||c.wx.tr)&&pref.ttKey?pref.ttKey:'';if(k!==v.trK){if(v.trL)m.removeLayer(v.trL);v.trL=k?L.tileLayer(`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${encodeURIComponent(k)}&thickness=8`,{maxZoom:18,opacity:.85,zIndex:8}).addTo(m):null;v.trK=k}}
  v.wrap.classList.toggle('mapnight',nightOf(c.cm));
  if(m.getZoom()!==c.z)m.setView(ctrOf(v.id),c.z,{animate:false});
  if(v.id==='big'){const at=document.querySelector('.attr');if(at)at.textContent=BASEDEF[bi].a+' / 気象庁 / ハザードマップポータルサイト'}
@@ -370,7 +391,7 @@ function rng(){const mpp=z=>40075016.686*Math.cos(st.lat*D2R)/(256*2**z);$('n-rn
  const mw=$('mwrap').clientWidth;$('m-rng').textContent=mw?'幅 '+fmtR(mw*mpp(V.mini.m.getZoom())):'';$('m-up').textContent=V.mini.cfg.hup?'進行方向↑':'北↑'}
 let lastPt=null;
 function setPos(lat,lon){
- st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);if(!(v.id==='big'&&brw.on))v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
+ st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);if(v.id==='mini'){const f=miniFit();if(f){if(Math.abs(f.z-v.m.getZoom())>=1||v.m.distance(f.c,v.m.getCenter())>30)v.m.setView(f.c,f.z,{animate:false});continue}}if(!(v.id==='big'&&brw.on))v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
  hAdd(lat,lon);if(typeof rAdd==='function')rAdd(lat,lon);
  if(st.rec&&(!lastPt||map.distance(lastPt,[lat,lon])>4)){lastPt=[lat,lon];
   for(const v of VS){v.track.addLatLng(lastPt);v.dots.addLatLng(lastPt);const p=v.track.getLatLngs();if(p.length>6000){v.track.setLatLngs(p.slice(-5000));v.dots.setLatLngs(p.slice(-5000))}}}
@@ -552,14 +573,14 @@ let sel='big';const SV=()=>V[sel];
 function syncBar(){const c=SV().cfg;
  $('t-big').classList.toggle('on',sel==='big');$('t-mini').classList.toggle('on',sel==='mini');VS.forEach(x=>x.wrap.classList.toggle('sel',x.id===sel));
  document.querySelectorAll('[data-hz]').forEach(b=>b.classList.toggle('on',!!c.hz[b.dataset.hz]));
- document.querySelectorAll('[data-wx]').forEach(b=>b.classList.toggle('on',!!c.wx[b.dataset.wx]));
+ document.querySelectorAll('[data-wx]').forEach(b=>b.classList.toggle('on',!!(b.dataset.wx==='tr'?V.big.cfg:c).wx[b.dataset.wx]));
  $('op').value=c.op;$('b-rt').textContent='雨雲 '+RM[c.rm];$('b-rt').classList.toggle('on',c.rm>0);
  $('b-up').textContent=c.hup?'HDG UP':'NORTH UP';$('b-up').classList.toggle('on',c.hup);
  $('b-base').textContent='地図 '+c.base;$('b-day').textContent='明るさ '+c.cm+(c.cm==='AUTO'?(isNightSun?'（夜）':'（昼）'):'');$('b-day').classList.toggle('on',c.cm!=='AUTO');rng()}
 const upd=()=>{save();applyView(SV());syncBar()};
 $('t-big').addEventListener('click',()=>{sel='big';syncBar()});$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
 document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg;c.hz[b.dataset.hz]=!c.hz[b.dataset.hz];upd()}));
-document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
+document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.wx,c=(k==='tr'?V.big:SV()).cfg;c.wx[k]=!c.wx[k];upd();if(k==='tr')applyView(V.big);if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
 $('op').addEventListener('input',()=>{SV().cfg.op=+$('op').value;upd()});
 $('b-rt').addEventListener('click',()=>{const c=SV().cfg;c.rm=(c.rm+1)%3;upd();if(c.rm&&!rainUrls[c.rm])msg('雨雲の予報データを待っています');updRt()});
 $('b-up').addEventListener('click',()=>{const c=SV().cfg;c.hup=!c.hup;upd()});
@@ -570,6 +591,7 @@ $('b-day').addEventListener('click',()=>{const c=SV().cfg;c.cm=CMS[(CMS.indexOf(
 const SRC=['AUTO','GYRO','GPS'];st.src=pref.src||'AUTO';const sB=$('b-src');sB.textContent='方位 '+st.src;
 sB.addEventListener('click',()=>{st.src=SRC[(SRC.indexOf(st.src)+1)%3];pref.src=st.src;save();sB.textContent='方位 '+st.src});
 $('b-cal').addEventListener('click',()=>{ref=null;st.roll=st.pitch=0;st.gpk=0;msg('姿勢とGをリセット')});
+$('b-cal2').addEventListener('click',()=>{ref=null;st.roll=st.pitch=0;st.gpk=0;msg('水平器をリセットしました（今の傾きを0°に）')});
 const rB=$('b-rec');const setRec=()=>rB.classList.toggle('on',st.rec);setRec();
 rB.addEventListener('click',()=>{st.rec=!st.rec;if(!st.rec)clearTrack();setRec()});
 /* 日の出・日の入（NOAA簡易式） */
@@ -714,17 +736,22 @@ const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const hm=t=>esc(String(t).slice(11,16));
 async function fetchFc(){
  const la=st.lat.toFixed(3),lo=st.lon.toFixed(3);
- const u1=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&minutely_15=precipitation&forecast_minutely_15=8&hourly=precipitation_probability,precipitation,temperature_2m,dew_point_2m,relative_humidity_2m,wind_speed_10m,cloud_cover,is_day&current=temperature_2m,relative_humidity_2m,pressure_msl&forecast_hours=24&wind_speed_unit=ms&timezone=Asia%2FTokyo`;
+ const u1=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&minutely_15=precipitation&forecast_minutely_15=8&hourly=precipitation_probability,precipitation,temperature_2m,dew_point_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,cloud_cover,is_day,visibility,pressure_msl,shortwave_radiation&current=temperature_2m,relative_humidity_2m,pressure_msl&forecast_hours=24&wind_speed_unit=ms&timezone=Asia%2FTokyo`;
  const u2=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${la}&longitude=${lo}&current=pm2_5,pm10,dust,us_aqi&hourly=pm2_5,dust&forecast_hours=24&timezone=Asia%2FTokyo`;
  const [a,b]=await Promise.allSettled([fetch(u1).then(r=>r.json()),fetch(u2).then(r=>r.json())]);
  if(a.status==='fulfilled'&&a.value&&a.value.hourly)fc=a.value;if(b.status==='fulfilled'&&b.value&&b.value.current)aq=b.value;
  if(!fc&&!aq)msg('気象データを取得できません');
  if(fc&&fc.current){const c=fc.current;$('t-pres').textContent=Math.round(c.pressure_msl);$('t-temp').textContent=(+c.temperature_2m).toFixed(1);$('t-hum').textContent=Math.round(c.relative_humidity_2m)}
- fcAt=[st.lat,st.lon];fcTime=Date.now();renderWx();
+ fcAt=[st.lat,st.lon];fcTime=Date.now();renderWx();try{dewWarn();drawWxg()}catch(e){}
 }
-function dewRisk(h,i){const T=+h.temperature_2m[i],D=+h.dew_point_2m[i],RH=+h.relative_humidity_2m[i],W=+h.wind_speed_10m[i],C=+h.cloud_cover[i],day=+h.is_day[i],sp=T-D;
- let s=sp<=1?2:sp<=2.5?1:(sp<=4&&!day&&C<40)?1:0;if(!day&&C<40)s++;if(RH>=95)s++;if(W>=4)s--;return Math.max(0,Math.min(3,s))}
-const DEWC=['#1d2833','#2f6f9a','#e0a020','#e04040'],DEWN=['なし','低','中','高'];
+/* 車のボディ温度の推定：晴れて風の弱い夜は放射冷却で気温より最大5℃ほど冷える。昼は日射で温まる */
+function bodyT(h,i){const T=+h.temperature_2m[i],W=Math.max(0,+h.wind_speed_10m[i]||0),C=Math.min(100,Math.max(0,+h.cloud_cover[i]||0)),
+  sw=h.shortwave_radiation&&isFinite(+h.shortwave_radiation[i])?+h.shortwave_radiation[i]:(+h.is_day[i]?300*(1-0.7*C/100):0);
+ const cool=5*(1-0.85*C/100)/(1+0.45*W)*Math.max(0,1-sw/150),heat=sw/250; // 夜は放射冷却、昼は日射で温まる（朝夕はなめらかに切り替え）
+ return T-cool+heat}
+function dewMargin(h,i){return bodyT(h,i)-(+h.dew_point_2m[i])}
+function dewRisk(h,i){const m=dewMargin(h,i),RH=+h.relative_humidity_2m[i];return m<=-1.5&&RH>=85?3:m<=0?2:m<=1.5?1:0} // 3=びっしょり 2=結露 1=注意
+const DEWC=['#1d2833','#e0c020','#ff8a20','#ff3b3b'],DEWN=['なし','注意','結露','びっしょり'];
 const pmLv=v=>v<15?['少ない','#3be36a']:v<35?['普通','#9be36a']:v<70?['多い','#ffb02e']:['非常に多い','#ff4d4d'];
 const dustLv=v=>v<20?['少ない','#3be36a']:v<50?['やや多い','#9be36a']:v<100?['多い','#ffb02e']:['非常に多い','#ff4d4d'];
 function ticks(arr,every,f){return '<div class="ticks">'+arr.filter((_,i)=>i%every===0).map(f).join('')+'</div>'}
@@ -741,7 +768,7 @@ function renderWx(){
   wxSum.dew=fi>=0;wxSum.dewTxt=fi>=0?(frost?'霜 ':'結露 ')+hm(h.time[fi])+'〜':'結露 24h 低い';
   html+=`<h3>24時間以内の結露の恐れ</h3><div class="big">${fi>=0?`${hm(h.time[fi])}ごろから${frost?'霜・':''}結露の恐れ（${DEWN[r[fi]]}）`:'結露の恐れは低い'}</div>
   <div class="strip">${r.map(v=>`<i style="background:${DEWC[v]}" title="${DEWN[v]}"></i>`).join('')}</div>`+ticks(h.time,6,t=>`<span>${hm(t)}</span>`)+
-  `<p class="note">気温と露点の差・湿度・風・雲量から推定。晴れて風の弱い夜は、車のボディが気温より冷えて早めに濡れます。色：<span style="color:#2f6f9a">■低</span> <span style="color:#e0a020">■中</span> <span style="color:#e04040">■高</span></p>`;
+  `<p class="note">車のボディ温度（気温・雲量・風から推定）が露点を下回ると結露します。色：<span style="color:#e0c020">■注意</span> <span style="color:#ff8a20">■結露</span> <span style="color:#ff3b3b">■びっしょり（カメラ・ガラスが曇る）</span>。スワイプで時系列グラフ。</p>`;
  }
  const sn=soraNear();
  if(sn){const s=sn.s,[pl,pc]=pmLv(s[3]);wxSum.air=s[3]>=35||(aq&&+aq.current.dust>=50);
@@ -896,7 +923,7 @@ function startGuide(r,rev,opt){const P=rev?r.pts.slice().reverse():r.pts,cum=cum
  guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
  if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);sayAuto(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`,'ok')}else sayAuto('新しいルートで案内します','ok')}
  else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);sayAuto(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''),'ok')}guideTick()}
-function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
+function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;try{V.mini.m.setView([st.lat,st.lon],V.mini.cfg.z,{animate:false})}catch(e){}guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
 function guideTick(){
  if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon],now=Date.now();let lo=0,hi=P.length-1;
  if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
@@ -1162,6 +1189,7 @@ function runCmd(t){
  const lay=[['洪水','hz','flood'],['土砂','hz','dosha'],['津波','hz','tsunami'],['高潮','hz','takashio'],['風','wx','wind'],['飛行機','wx','ac'],['ジーマップ','wx','gm'],['Gマップ','wx','gm'],['PM','wx','pm'],['大気','wx','pm']];
  for(const[w,g,k]of lay)if(t.includes(w)&&(off(t)||has('表示','出して','見せて','オン','つけて'))){B()[g][k]=!off(t);apB();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='pm')drawSora();say(w+(off(t)?'を消しました':'を表示します'));return 1}
  if(has('天気','雨は','雨降る','降水')){say(`${wxSum.rainTxt?wxSum.rainTxt.replace('雨 2h なし','2時間以内に雨の予報はありません').replace('〜','から雨'):'予報を取得中です'}。気温${$('t-temp').textContent}度、湿度${$('t-hum').textContent}パーセントです`);return 1}
+ if(has('グラフ','トレンド')){wxgOpen();return say('気象のグラフを表示します'),1}
  if(has('結露','夜露','霜'))return say(wxSum.dewTxt?wxSum.dewTxt.replace('〜','ごろから').replace('24h','24時間の恐れは'):'予報を取得中です'),1;
  if(has('洗車','コーティング')){const h=document.createElement('div');h.innerHTML=washHTML();const c=[...h.querySelectorAll('.chip')].map(x=>x.textContent.replace(/\s+/g,' '));return say(c.length?c.slice(0,3).join('。'):'予報を取得中です'),1}
  if(has('太陽','西日','朝日')){const a=astro(new Date(),st.lat,st.lon).sun;return say(a.alt>0?`太陽は方位${Math.round(a.az)}度、高さ${Math.round(a.alt)}度です`:'今、太陽は沈んでいます'),1}
@@ -1383,7 +1411,7 @@ $('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('s
 
 /* ---------- 渋滞（TomTom） ---------- */
 $('tt-key').value=pref.ttKey||'';
-$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。天気ページの「渋滞」で表示できます':'キーを消しました'});
+$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました'});
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
  const sm=j.routes&&j.routes[0]&&j.routes[0].summary;return sm?{t:+sm.travelTimeInSeconds,delay:+sm.trafficDelayInSeconds||0}:null}catch(e){return null}}
 
@@ -1656,6 +1684,72 @@ document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('i
  if(e.key==='+'||e.key==='=')map.setView(ctrOf('big'),Math.min(18,map.getZoom()+1),{animate:false});
  else if(e.key==='-')map.setView(ctrOf('big'),Math.max(5,map.getZoom()-1),{animate:false});
  else if(e.key==='Escape'){if(pinP)pinClose();else if(brw.on)brwOff();document.querySelectorAll('.sheet:not([hidden])').forEach(x=>x.hidden=true)}});
+
+/* ---------- 小地図をタップすると大地図と入れ替え ---------- */
+function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringify(o)),ta=cp(a),tb=cp(b);
+ for(const k of new Set([...Object.keys(ta),...Object.keys(tb)])){a[k]=tb[k];b[k]=ta[k]}save();
+ VS.forEach(v=>{try{applyView(v);v.m.setView(ctrOf(v.id),v.cfg.z,{animate:false})}catch(e){}});try{syncBar()}catch(e){}rng();msg('大地図と小地図を入れ替えました')}
+{let mt=null;const mw=$('mwrap');
+ mw.addEventListener('pointerdown',e=>{mt={x:e.clientX,y:e.clientY,t:Date.now()}});
+ mw.addEventListener('pointerup',e=>{if(mt&&Date.now()-mt.t<500&&Math.hypot(e.clientX-mt.x,e.clientY-mt.y)<10&&!(e.target.closest&&e.target.closest('button,a')))swapMaps();mt=null});}
+
+/* ---------- 2ページ目：気象の時系列グラフ（左へスワイプ） ---------- */
+const WXG=$('wxg');let wxgOn=false,dewWarnDay='';
+function wxgOpen(){WXG.classList.add('on');WXG.setAttribute('aria-hidden','false');wxgOn=true;if(!fc||Date.now()-fcTime>15*60000)fetchFc().catch(()=>{});setTimeout(drawWxg,60)}
+function wxgClose(){WXG.classList.remove('on');WXG.setAttribute('aria-hidden','true');wxgOn=false}
+$('wxtab').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchFc().then(drawWxg).catch(()=>{})});
+{let sw=null;const ok=t=>!(t.closest&&t.closest('#nd,#mwrap,.bar,input,select,textarea,.sheet,#pin'));
+ document.addEventListener('touchstart',e=>{if(e.touches.length!==1){sw=null;return}const t=e.touches[0];sw=(wxgOn?!(e.target.closest&&e.target.closest('svg')):ok(e.target))?{x:t.clientX,y:t.clientY,t:Date.now()}:null},{passive:true});
+ document.addEventListener('touchend',e=>{if(!sw)return;const t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(Date.now()-sw.t<700&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6){if(dx<0&&!wxgOn)wxgOpen();else if(dx>0&&wxgOn)wxgClose()}sw=null},{passive:true});}
+window.addEventListener('resize',()=>{if(wxgOn)drawWxg()});
+const WLC=['#3be36a','#ffd23a','#ff4d4d'],WLN=['正常','注意','警戒'];
+function wchart(el,o){ // o:{n,times,isDay,lines:[{v,c,w,dash,axis}],bars:[{v,c(i)}],bands:[i=>0|1|2],y:[min,max],y2:[min,max],fmt,fmt2,hlines:[{y,c,axis}],fill:{a,b,c}}
+ const W=Math.max(200,el.clientWidth),H=Math.max(90,el.clientHeight),L=34,R=o.y2?34:8,T=6,B=16,pw=W-L-R,ph=H-T-B,n=o.n,xs=i=>L+pw*(i/(n-1)),
+  ys=(v,ax)=>{const[a,b]=ax===2?o.y2:o.y;return T+ph*(1-(Math.max(a,Math.min(b,v))-a)/(b-a))};let g='';
+ // 夜の帯・注意帯
+ for(let i=0;i<n-1;i++){if(o.isDay&&!+o.isDay[i])g+=`<rect x="${xs(i)}" y="${T}" width="${xs(i+1)-xs(i)+.5}" height="${ph}" fill="#ffffff" opacity=".035"/>`;
+  const lv=o.band?o.band(i):0;if(lv)g+=`<rect x="${xs(i)}" y="${T}" width="${xs(i+1)-xs(i)+.5}" height="${ph}" fill="${WLC[lv]}" opacity="${lv===2?.16:.10}"/>`}
+ // 目盛り
+ for(let k=0;k<=4;k++){const v=o.y[0]+(o.y[1]-o.y[0])*k/4,y=ys(v);g+=`<line x1="${L}" x2="${L+pw}" y1="${y}" y2="${y}" stroke="#ffffff" opacity=".06"/><text x="${L-4}" y="${y+3}" text-anchor="end" fill="#6c7884" font-size="9">${o.fmt(v)}</text>`;
+  if(o.y2){const v2=o.y2[0]+(o.y2[1]-o.y2[0])*k/4;g+=`<text x="${L+pw+4}" y="${y+3}" fill="#6c7884" font-size="9">${o.fmt2(v2)}</text>`}}
+ for(let i=0;i<n;i+=3)g+=`<text x="${xs(i)}" y="${H-3}" text-anchor="middle" fill="#6c7884" font-size="9">${o.times[i].slice(11,13)}</text>`;
+ for(const hl of o.hlines||[]){const y=ys(hl.y,hl.axis);g+=`<line x1="${L}" x2="${L+pw}" y1="${y}" y2="${y}" stroke="${hl.c}" stroke-dasharray="3 4" opacity=".55"/>`}
+ for(const b of o.bars||[]){const bw=Math.max(2,pw/n*.55);b.v.forEach((v,i)=>{if(!(v>0))return;const y=ys(v,b.axis);g+=`<rect x="${xs(i)-bw/2}" y="${y}" width="${bw}" height="${T+ph-y}" rx="1.5" fill="${b.c(i,v)}" opacity=".75"/>`})}
+ if(o.fill){const{a,b,c}=o.fill;let d='';for(let i=0;i<n-1;i++){if(a[i]<=b[i]||a[i+1]<=b[i+1])d+=`M${xs(i)},${ys(a[i])}L${xs(i+1)},${ys(a[i+1])}L${xs(i+1)},${ys(b[i+1])}L${xs(i)},${ys(b[i])}Z`}if(d)g+=`<path d="${d}" fill="${c}" opacity=".35"/>`}
+ for(const l of o.lines){const p=l.v.map((v,i)=>`${i?'L':'M'}${xs(i).toFixed(1)},${ys(v,l.axis).toFixed(1)}`).join('');
+  if(l.glow)g+=`<path d="${p}" fill="none" stroke="${l.c}" stroke-width="${(l.w||2)+4}" opacity=".12" stroke-linejoin="round"/>`;
+  g+=`<path d="${p}" fill="none" stroke="${l.c}" stroke-width="${l.w||2}" ${l.dash?`stroke-dasharray="${l.dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`}
+ // 今の位置
+ const now=new Date(),fr=(now.getMinutes()/60),x0=xs(Math.min(n-1,fr));g+=`<line x1="${x0}" x2="${x0}" y1="${T}" y2="${T+ph}" stroke="#ff4fd8" stroke-width="1.2"/><text x="${x0+3}" y="${T+9}" fill="#ff4fd8" font-size="9">NOW</text>`;
+ el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" font-family="B612 Mono,monospace">${g}</svg>`}
+function drawWxg(){const G=$('wxg-grid');if(!wxgOn)return;if(!fc||!fc.hourly){G.innerHTML='<p class="note">気象データを取得中…</p>';return}
+ const h=fc.hourly,n=Math.min(25,h.time.length),A=k=>(h[k]||[]).slice(0,n).map(Number),times=h.time.slice(0,n),isDay=A('is_day');
+ const T=A('temperature_2m'),D=A('dew_point_2m'),RH=A('relative_humidity_2m'),Wd=A('wind_speed_10m'),Gs=A('wind_gusts_10m'),PP=A('precipitation_probability'),PR=A('precipitation'),VI=A('visibility').map(v=>v/1000),PS=A('pressure_msl');
+ const BT=times.map((_,i)=>bodyT(h,i)),dr=times.map((_,i)=>dewRisk(h,i)),dl=dr.map(r=>r>=2?2:r);
+ const mm=(a,p)=>{const f=a.filter(isFinite);return[Math.floor(Math.min(...f)-p),Math.ceil(Math.max(...f)+p)]};
+ const span=(lv,f)=>{const i=lv.findIndex(f);if(i<0)return'';let j=i;while(j+1<lv.length&&f(lv[j+1]))j++;return hm(times[i])+'〜'+hm(times[Math.min(n-1,j+1)])};
+ const card=(id,title,lv,txt,leg)=>`<div class="wc"><div class="hd"><b>${title}</b><span class="lv" style="color:${WLC[lv]}">${WLN[lv]}</span></div><div class="wlg">${leg}${txt?`<span style="color:${WLC[lv]}">${txt}</span>`:''}</div><div class="wcv" id="${id}"></div></div>`;
+ const chip=(c,name,val)=>`<span><i style="background:${c}"></i>${name} <em>${val}</em></span>`;
+ // 結露
+ const dLv=Math.max(...dl),worst=Math.min(...BT.map((b,i)=>b-D[i])),dTxt=dLv?(Math.max(...dr)===3?'びっしょり ':'結露 ')+span(dr,r=>r>=2)+(dLv?` 最悪 ${worst.toFixed(1)}℃差`:''):(Math.max(...dr)?'注意 '+span(dr,r=>r>=1):'');
+ const pLvA=i=>{const d=i>=3?PS[i]-PS[i-3]:0;return d<=-5?2:d<=-3?1:0};const pLv=Math.max(0,...times.map((_,i)=>pLvA(i)));
+ const hLvA=i=>Math.max(RH[i]>=90?2:RH[i]>=80?1:0,VI[i]<1?2:VI[i]<5?1:0),hLv=Math.max(...times.map((_,i)=>hLvA(i)));
+ const rLvA=i=>Math.max(PP[i]>=80||PR[i]>=5?2:PP[i]>=50||PR[i]>=1?1:0,Gs[i]>=15||Wd[i]>=10?2:Gs[i]>=10||Wd[i]>=7?1:0),rLv=Math.max(...times.map((_,i)=>rLvA(i)));
+ G.innerHTML=card('wc-dew','結露 ・ 気温 / 露点 / ボディ',dLv,dTxt,chip('#ffb02e','気温',T[0].toFixed(1)+'℃')+chip('#39d0ff','露点',D[0].toFixed(1)+'℃')+chip('#eef3f6','ボディ推定',BT[0].toFixed(1)+'℃'))
+  +card('wc-hum','湿度 ・ 視程',hLv,hLv?(RH.some(v=>v>=90)?'湿度90%↑ '+span(RH,v=>v>=90)+' ':'')+(VI.some(v=>v<5)?'視界'+(VI.some(v=>v<1)?'1km未満':'5km未満')+' '+span(VI,v=>v<5):''):'',chip('#5aa8ff','湿度',Math.round(RH[0])+'%')+chip('#3be36a','視程',(VI[0]>=20?'20+':VI[0].toFixed(1))+'km'))
+  +card('wc-rain','雨 ・ 風',rLv,rLv?(PP.some(v=>v>=50)?'雨 '+span(PP,v=>v>=50)+' ':'')+(Gs.some(v=>v>=10)?'突風 '+Math.max(...Gs).toFixed(0)+'m/s':''):'',chip('#2a86e8','降水確率',Math.round(PP[0])+'%')+chip('#c9f06b','風',Wd[0].toFixed(1)+'m/s')+chip('#ff8a20','突風',Gs[0].toFixed(0)+'m/s'))
+  +card('wc-pres','気圧',pLv,pLv?'3時間で'+(pLv===2?'5':'3')+'hPa以上低下':'',chip('#c38bff','気圧',Math.round(PS[0])+'hPa')+chip('#7d8995','24h変化',(PS[n-1]-PS[0]>=0?'+':'')+(PS[n-1]-PS[0]).toFixed(1)));
+ const ty=mm([...T,...D,...BT],1.5);
+ wchart($('wc-dew'),{n,times,isDay,y:ty,fmt:v=>v.toFixed(0)+'°',band:i=>dl[i],fill:{a:BT,b:D,c:'#ff3b3b'},lines:[{v:T,c:'#ffb02e',w:2,glow:1},{v:D,c:'#39d0ff',w:2,glow:1},{v:BT,c:'#eef3f6',w:1.5,dash:'4 3'}]});
+ wchart($('wc-hum'),{n,times,isDay,y:[0,100],y2:[0,20],fmt:v=>v.toFixed(0)+'%',fmt2:v=>v.toFixed(0)+'k',band:hLvA,hlines:[{y:80,c:'#ffd23a'},{y:90,c:'#ff4d4d'}],lines:[{v:RH,c:'#5aa8ff',w:2,glow:1},{v:VI.map(v=>Math.min(20,v)),c:'#3be36a',w:1.6,axis:2}]});
+ const wmax=Math.max(10,Math.ceil(Math.max(...Gs,...Wd)/5)*5);
+ wchart($('wc-rain'),{n,times,isDay,y:[0,100],y2:[0,wmax],fmt:v=>v.toFixed(0)+'%',fmt2:v=>v.toFixed(0),band:rLvA,bars:[{v:PP,c:(i,v)=>v>=80?'#ff4d4d':v>=50?'#ffd23a':'#2a86e8'}],lines:[{v:Wd,c:'#c9f06b',w:2,axis:2,glow:1},{v:Gs,c:'#ff8a20',w:1.3,dash:'3 3',axis:2}]});
+ wchart($('wc-pres'),{n,times,isDay,y:mm(PS,1),fmt:v=>v.toFixed(0),band:pLvA,lines:[{v:PS,c:'#c38bff',w:2,glow:1}]});
+ $('wxg-sub').textContent=(fcTime?'取得 '+fmtT(fcTime):'')+' ・ 白点線＝車のボディ推定温度。露点を下回ると結露（赤）';}
+/* 結露がひどくなりそうな夜は、一度だけ声で知らせる */
+function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toISOString().slice(0,10);if(dewWarnDay===k)return;
+ for(let i=0;i<Math.min(8,h.time.length);i++){if(dewRisk(h,i)===3){dewWarnDay=k;sayAuto(`${hm(h.time[i])}ごろから結露がひどくなる見込みです。ガラスとカメラの曇りに注意してください`,'warn');return}}}
+setInterval(()=>{dewWarn();if(wxgOn)drawWxg()},60000);
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
