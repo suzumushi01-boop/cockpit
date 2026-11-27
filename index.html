@@ -44,10 +44,10 @@ html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .an{font:700 11px 'B612 Mono',monospace;padding:3px 6px;border:1px solid #2a323b;border-radius:3px;color:#56616d;flex:none}
 .an.on{color:var(--g);border-color:var(--g)}
 .an.warn{color:#000;background:var(--a);border-color:var(--a)}
-.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,1.15fr) auto minmax(0,1fr);gap:6px}
+.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,.62fr) auto minmax(0,1.5fr);gap:5px}
 .pfdrow{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;min-height:0}
 .pfdrow svg{width:100%;height:100%;display:block}
-#hdgt{width:100%;height:38px;display:block}
+#hdgt{width:100%;height:30px;display:block}
 .info{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center}
 #gb{width:70px;height:70px}
 .ro{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px}
@@ -325,7 +325,11 @@ const RM=['今','30分後','60分後'],CMS=['AUTO','昼','夜'];let rainUrls=[nu
 pref.v=pref.v||{};
 const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.hz||{flood:true,dosha:true},wx:Object.assign({wind:true,rain:true,pm:false,ac:false,gm:false,fav:true},pref.wx||{}),rm:0,hup:true,cm:pref.cm||'AUTO'},
  mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false,fav:true},rm:0,hup:false,cm:'AUTO'}};
-const brw={on:false,c:null,t:0};const ctrOf=id=>id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon];
+const brw={on:false,c:null,t:0};const ctrOf=id=>{if(id==='mini'){const f=miniFit();if(f)return f.c}return id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon]};
+/* 案内中は、小地図に「現在地からゴールまでの残りの道」が全部入るよう縮尺を自動で合わせる */
+function miniFit(){try{if(typeof guide==='undefined'||!guide||!guide.P||!V.mini)return null;const v=V.mini,P=guide.P,i0=Math.max(0,guide.prog||0),pts=[[st.lat,st.lon]],stp=Math.max(1,Math.floor((P.length-i0)/80));
+ for(let i=i0;i<P.length;i+=stp)pts.push(P[i]);pts.push(P[P.length-1]);const b=L.latLngBounds(pts),w=v.wrap.clientWidth,h=v.wrap.clientHeight,d=v.el.clientWidth||Math.hypot(w,h);
+ if(!w||!h)return null;const pad=L.point(d-w+28,d-h+28).add(v.cfg.hup?L.point(w*.3,h*.3):L.point(0,0));return{c:b.getCenter(),z:Math.max(5,Math.min(17,v.m.getBoundsZoom(b,false,pad)))}}catch(e){return null}}
 function mkView(id,el,wrap){
  const cfg=Object.assign({},DEF[id],pref.v[id]||{});cfg.hz=Object.assign({},cfg.hz);cfg.wx=Object.assign({fav:true},cfg.wx);pref.v[id]=cfg;
  if(id==='big')cfg.hup=true; // 大地図は起動時いつも進行方向アップ
@@ -335,7 +339,7 @@ function mkView(id,el,wrap){
  v.track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(m);
  v.dots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(m);
  v.ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],html:SHIP})}).addTo(m);
- m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
+ m.on('zoomend',()=>{if(id==='mini'&&miniFit()){rng();return}cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
  return v;
 }
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
@@ -370,7 +374,7 @@ function rng(){const mpp=z=>40075016.686*Math.cos(st.lat*D2R)/(256*2**z);$('n-rn
  const mw=$('mwrap').clientWidth;$('m-rng').textContent=mw?'幅 '+fmtR(mw*mpp(V.mini.m.getZoom())):'';$('m-up').textContent=V.mini.cfg.hup?'進行方向↑':'北↑'}
 let lastPt=null;
 function setPos(lat,lon){
- st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);if(!(v.id==='big'&&brw.on))v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
+ st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);if(v.id==='mini'){const f=miniFit();if(f){if(Math.abs(f.z-v.m.getZoom())>=1||v.m.distance(f.c,v.m.getCenter())>30)v.m.setView(f.c,f.z,{animate:false});continue}}if(!(v.id==='big'&&brw.on))v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
  hAdd(lat,lon);if(typeof rAdd==='function')rAdd(lat,lon);
  if(st.rec&&(!lastPt||map.distance(lastPt,[lat,lon])>4)){lastPt=[lat,lon];
   for(const v of VS){v.track.addLatLng(lastPt);v.dots.addLatLng(lastPt);const p=v.track.getLatLngs();if(p.length>6000){v.track.setLatLngs(p.slice(-5000));v.dots.setLatLngs(p.slice(-5000))}}}
@@ -552,14 +556,14 @@ let sel='big';const SV=()=>V[sel];
 function syncBar(){const c=SV().cfg;
  $('t-big').classList.toggle('on',sel==='big');$('t-mini').classList.toggle('on',sel==='mini');VS.forEach(x=>x.wrap.classList.toggle('sel',x.id===sel));
  document.querySelectorAll('[data-hz]').forEach(b=>b.classList.toggle('on',!!c.hz[b.dataset.hz]));
- document.querySelectorAll('[data-wx]').forEach(b=>b.classList.toggle('on',!!c.wx[b.dataset.wx]));
+ document.querySelectorAll('[data-wx]').forEach(b=>b.classList.toggle('on',!!(b.dataset.wx==='tr'?V.big.cfg:c).wx[b.dataset.wx]));
  $('op').value=c.op;$('b-rt').textContent='雨雲 '+RM[c.rm];$('b-rt').classList.toggle('on',c.rm>0);
  $('b-up').textContent=c.hup?'HDG UP':'NORTH UP';$('b-up').classList.toggle('on',c.hup);
  $('b-base').textContent='地図 '+c.base;$('b-day').textContent='明るさ '+c.cm+(c.cm==='AUTO'?(isNightSun?'（夜）':'（昼）'):'');$('b-day').classList.toggle('on',c.cm!=='AUTO');rng()}
 const upd=()=>{save();applyView(SV());syncBar()};
 $('t-big').addEventListener('click',()=>{sel='big';syncBar()});$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
 document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg;c.hz[b.dataset.hz]=!c.hz[b.dataset.hz];upd()}));
-document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg,k=b.dataset.wx;c.wx[k]=!c.wx[k];upd();if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
+document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.wx,c=(k==='tr'?V.big:SV()).cfg;c.wx[k]=!c.wx[k];upd();if(k==='tr')applyView(V.big);if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
 $('op').addEventListener('input',()=>{SV().cfg.op=+$('op').value;upd()});
 $('b-rt').addEventListener('click',()=>{const c=SV().cfg;c.rm=(c.rm+1)%3;upd();if(c.rm&&!rainUrls[c.rm])msg('雨雲の予報データを待っています');updRt()});
 $('b-up').addEventListener('click',()=>{const c=SV().cfg;c.hup=!c.hup;upd()});
@@ -896,7 +900,7 @@ function startGuide(r,rev,opt){const P=rev?r.pts.slice().reverse():r.pts,cum=cum
  guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
  if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);sayAuto(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`,'ok')}else sayAuto('新しいルートで案内します','ok')}
  else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);sayAuto(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''),'ok')}guideTick()}
-function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
+function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;try{V.mini.m.setView([st.lat,st.lon],V.mini.cfg.z,{animate:false})}catch(e){}guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
 function guideTick(){
  if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon],now=Date.now();let lo=0,hi=P.length-1;
  if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
@@ -1383,7 +1387,7 @@ $('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('s
 
 /* ---------- 渋滞（TomTom） ---------- */
 $('tt-key').value=pref.ttKey||'';
-$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。天気ページの「渋滞」で表示できます':'キーを消しました'});
+$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。ナビのページの「渋滞」で大地図に表示できます':'キーを消しました'});
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
  const sm=j.routes&&j.routes[0]&&j.routes[0].summary;return sm?{t:+sm.travelTimeInSeconds,delay:+sm.trafficDelayInSeconds||0}:null}catch(e){return null}}
 
@@ -1656,6 +1660,14 @@ document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('i
  if(e.key==='+'||e.key==='=')map.setView(ctrOf('big'),Math.min(18,map.getZoom()+1),{animate:false});
  else if(e.key==='-')map.setView(ctrOf('big'),Math.max(5,map.getZoom()-1),{animate:false});
  else if(e.key==='Escape'){if(pinP)pinClose();else if(brw.on)brwOff();document.querySelectorAll('.sheet:not([hidden])').forEach(x=>x.hidden=true)}});
+
+/* ---------- 小地図をタップすると大地図と入れ替え ---------- */
+function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringify(o)),ta=cp(a),tb=cp(b);
+ for(const k of new Set([...Object.keys(ta),...Object.keys(tb)])){a[k]=tb[k];b[k]=ta[k]}save();
+ VS.forEach(v=>{try{applyView(v);v.m.setView(ctrOf(v.id),v.cfg.z,{animate:false})}catch(e){}});try{syncBar()}catch(e){}rng();msg('大地図と小地図を入れ替えました')}
+{let mt=null;const mw=$('mwrap');
+ mw.addEventListener('pointerdown',e=>{mt={x:e.clientX,y:e.clientY,t:Date.now()}});
+ mw.addEventListener('pointerup',e=>{if(mt&&Date.now()-mt.t<500&&Math.hypot(e.clientX-mt.x,e.clientY-mt.y)<10&&!(e.target.closest&&e.target.closest('button,a')))swapMaps();mt=null});}
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
