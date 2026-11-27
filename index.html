@@ -1197,16 +1197,16 @@ function accTick(m){if(!isFinite(m))return;acc.f+=(m-acc.f)*0.2;const now=Date.n
  if(now-acc.shown>300){acc.shown=now;const e=$('acc-live');if(e&&!$('sh-set').hidden)e.textContent='揺れ '+acc.f.toFixed(2)+' m/s²'}
  if(!pref.spc||pref.accMode==='off'||!(st.gps||st.demo))return;const[th,still]=ACC_TH[pref.accMode]||ACC_TH.mid;
  acc.hiAt=acc.f>th?(acc.hiAt||now):0;acc.loAt=acc.f<still?(acc.loAt||now):0;
- if(mvSt==='stop'&&acc.hiAt&&now-acc.hiAt>=250){mvSt='move';acc.by='move';acc.at=now;stopN=0;if(now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、スタート','up')}}
- else if(mvSt==='move'&&st.spd<6&&acc.loAt&&now-acc.loAt>=400){mvSt='stop';acc.by='stop';acc.at=now;moveN=0;if(now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、ストップ','down')}}}
+ if(mvSt==='stop'&&acc.hiAt&&now-acc.hiAt>=250){mvSt='move';acc.by='move';acc.at=now;stopN=0;if(now-mvSaid>5000){mvSaid=now;sayEnAuto('Vezel, start','up')}}
+ else if(mvSt==='move'&&st.spd<6&&acc.loAt&&now-acc.loAt>=400){mvSt='stop';acc.by='stop';acc.at=now;moveN=0;if(now-mvSaid>5000){mvSaid=now;sayEnAuto('Vezel, stop','down')}}}
 $('acc-mode').value=pref.accMode;$('acc-mode').addEventListener('change',e=>{pref.accMode=e.target.value;save()});
 /* 止まった・動き出したときのアナウンス（0.5秒続いたら。0.25秒ごとに確認） */
 setInterval(()=>{if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,now=Date.now();
  if(v<1.5){moveN=0;stopN=stopN||now}else if(v>=4){stopN=0;moveN=moveN||now}else{stopN=0;moveN=0}
  if(acc.by==='move'){if(v>=4)acc.by=null;else if(now-acc.at>4000){mvSt='stop';acc.by=null}return} // 加速度で発進と判断→GPSで確認、4秒動かなければ取り消し（黙って）
  if(acc.by==='stop'){if(v<1.5||now-acc.at>4000)acc.by=null;else if(moveN&&now-moveN>=1000){mvSt='move';acc.by=null}return}
- if(mvSt!=='stop'&&stopN&&now-stopN>=500){const was=mvSt;mvSt='stop';if(was==='move'&&now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、ストップ','down')}}
- else if(mvSt!=='move'&&moveN&&now-moveN>=500){const was=mvSt;mvSt='move';if(was==='stop'&&now-mvSaid>5000){mvSaid=now;sayAuto('ヴェゼル、スタート','up')}}
+ if(mvSt!=='stop'&&stopN&&now-stopN>=500){const was=mvSt;mvSt='stop';if(was==='move'&&now-mvSaid>5000){mvSaid=now;sayEnAuto('Vezel, stop','down')}}
+ else if(mvSt!=='move'&&moveN&&now-moveN>=500){const was=mvSt;mvSt='move';if(was==='stop'&&now-mvSaid>5000){mvSaid=now;sayEnAuto('Vezel, start','up')}}
 },250);
 setInterval(()=>{
  if(!pref.spc||!(st.gps||st.demo))return;const v=st.spd,band=Math.floor(v/10)*10;
