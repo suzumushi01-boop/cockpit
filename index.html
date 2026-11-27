@@ -106,6 +106,14 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 .medit{grid-column:1/-1;display:grid;gap:8px;padding:8px 0}.medit textarea{width:100%;min-height:64px;font:16px 'B612',sans-serif;background:#000;color:var(--w);border:1px solid var(--ln);border-radius:8px;padding:8px}
 .bands{display:flex;gap:6px;flex-wrap:wrap}.stat{font:12px 'B612 Mono',monospace;color:#cfd8e0}.stat b{color:var(--g)}.memo{font-size:12px;color:#ffd27a}
 .gd small{font-size:11px;color:#ffd27a;font-weight:400}
+#nd.browse #rose{opacity:.12}
+#back{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:660;display:none;padding:8px 16px;border-radius:20px;border:2px solid var(--c);background:#0b1016ee;color:var(--c);font:700 14px 'B612',sans-serif}
+#nd.browse #back{display:block}
+#pin{position:absolute;left:8px;right:8px;bottom:8px;z-index:700;background:#0b1016f2;border:1px solid var(--c);border-radius:12px;padding:10px 12px;font-size:14px}
+#pin .pt{font-weight:700;font-size:15px;margin-bottom:2px}#pin .pd{color:#9aa6b2;font-size:12px;margin-bottom:8px}
+#pin .acts{display:flex;gap:6px;flex-wrap:wrap}#pin .acts button{flex:1 1 auto;padding:10px 8px;font-size:14px}
+#pin select,#pin input{font-size:16px;padding:6px;border-radius:6px;border:1px solid var(--ln);background:#04070a;color:var(--w)}
+.pinm{font-size:30px;line-height:1;text-shadow:0 0 4px #000}
 #mic{position:absolute;right:10px;bottom:26px;width:60px;height:60px;border-radius:50%;border:2px solid var(--ln);background:#0b1016dd;color:var(--w);z-index:650;display:grid;place-items:center;cursor:pointer}
 #mic svg{width:28px;height:28px}#mic.listen{border-color:#ff4d4d;box-shadow:0 0 0 4px #ff4d4d55}#mic.wait{border-color:var(--c)}#mic[hidden]{display:none}
 .acm{background:none;border:0}.acm svg{width:34px;height:34px;display:block;overflow:visible}.acm span{position:absolute;left:30px;top:2px;font:700 11px 'B612 Mono',monospace;color:#39d0ff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000}
@@ -169,6 +177,8 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="gd" id="gd" hidden></div>
   <div class="ndc wx" id="wx"><svg id="wxa" viewBox="-12 -12 24 24"><path d="M0-10L6 2H2V10H-2V2H-6Z" fill="#39d0ff" stroke="#000"/></svg><span id="wxt"></span><br><small id="rt"></small> <small id="fct"></small></div>
   <div id="msg" class="hide"></div>
+  <button id="back">◎ 現在地へ戻る</button>
+  <div id="pin" hidden></div>
   <button id="mic" aria-label="声で操作"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   <div class="sg" id="sg" hidden><span id="sg-t"></span><button class="go" id="sg-go">案内する</button><button id="sg-no">あとで</button></div>
   <div class="attr">国土地理院 / ハザードマップポータルサイト</div>
@@ -308,6 +318,7 @@ const RM=['今','30分後','60分後'],CMS=['AUTO','昼','夜'];let rainUrls=[nu
 pref.v=pref.v||{};
 const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.hz||{flood:true,dosha:true},wx:Object.assign({wind:true,rain:true,pm:false,ac:false,gm:false,fav:true},pref.wx||{}),rm:0,hup:true,cm:pref.cm||'AUTO'},
  mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false,fav:true},rm:0,hup:false,cm:'AUTO'}};
+const brw={on:false,c:null,t:0};const ctrOf=id=>id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon];
 function mkView(id,el,wrap){
  const cfg=Object.assign({},DEF[id],pref.v[id]||{});cfg.hz=Object.assign({},cfg.hz);cfg.wx=Object.assign({fav:true},cfg.wx);pref.v[id]=cfg;
  if(id==='big')cfg.hup=true; // 大地図は起動時いつも進行方向アップ
@@ -317,7 +328,7 @@ function mkView(id,el,wrap){
  v.track=L.polyline([],{color:'#ff4fd8',weight:4,opacity:.9,interactive:false}).addTo(m);
  v.dots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(m);
  v.ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],html:SHIP})}).addTo(m);
- m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView([st.lat,st.lon],cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
+ m.on('zoomend',()=>{cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
  return v;
 }
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
@@ -334,14 +345,14 @@ function applyView(v){
  if(c.wx.fav!==false)m.addLayer(v.favL);else m.removeLayer(v.favL);
  {const k=c.wx.tr&&pref.ttKey?pref.ttKey:'';if(k!==v.trK){if(v.trL)m.removeLayer(v.trL);v.trL=k?L.tileLayer(`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${encodeURIComponent(k)}&thickness=8`,{maxZoom:18,opacity:.85,zIndex:8}).addTo(m):null;v.trK=k}}
  v.wrap.classList.toggle('mapnight',nightOf(c.cm));
- if(m.getZoom()!==c.z)m.setView([st.lat,st.lon],c.z,{animate:false});
+ if(m.getZoom()!==c.z)m.setView(ctrOf(v.id),c.z,{animate:false});
  if(v.id==='big'){const at=document.querySelector('.attr');if(at)at.textContent=BASEDEF[bi].a+' / 気象庁 / ハザードマップポータルサイト'}
 }
 const V={big:mkView('big','map','nd'),mini:mkView('mini','mmap','mwrap')},VS=[V.big,V.mini],map=V.big.m;
 const clearTrack=()=>{for(const v of VS){v.track.setLatLngs([]);v.dots.setLatLngs([])}lastPt=null};
 let roseR=100;
 function sizeV(v){const w=v.wrap.clientWidth,h=v.wrap.clientHeight;if(!w||!h)return;const d=Math.ceil(Math.hypot(w,h));
- v.el.style.width=v.el.style.height=d+'px';v.m.invalidateSize(false);v.m.setView([st.lat,st.lon],v.m.getZoom(),{animate:false})}
+ v.el.style.width=v.el.style.height=d+'px';v.m.invalidateSize(false);v.m.setView(ctrOf(v.id),v.m.getZoom(),{animate:false})}
 function size(){
  VS.forEach(sizeV);const nd=$('nd'),w=nd.clientWidth,h=nd.clientHeight;
  const r=Math.min(w,h)*0.92;$('rose').style.width=$('rose').style.height=r+'px';roseR=r/2*0.82;rng();
@@ -352,7 +363,7 @@ function rng(){const mpp=z=>40075016.686*Math.cos(st.lat*D2R)/(256*2**z);$('n-rn
  const mw=$('mwrap').clientWidth;$('m-rng').textContent=mw?'幅 '+fmtR(mw*mpp(V.mini.m.getZoom())):'';$('m-up').textContent=V.mini.cfg.hup?'進行方向↑':'北↑'}
 let lastPt=null;
 function setPos(lat,lon){
- st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
+ st.lat=lat;st.lon=lon;for(const v of VS){v.ship.setLatLng([lat,lon]);if(!(v.id==='big'&&brw.on))v.m.setView([lat,lon],v.m.getZoom(),{animate:false})}
  hAdd(lat,lon);if(typeof rAdd==='function')rAdd(lat,lon);
  if(st.rec&&(!lastPt||map.distance(lastPt,[lat,lon])>4)){lastPt=[lat,lon];
   for(const v of VS){v.track.addLatLng(lastPt);v.dots.addLatLng(lastPt);const p=v.track.getLatLngs();if(p.length>6000){v.track.setLatLngs(p.slice(-5000));v.dots.setLatLngs(p.slice(-5000))}}}
@@ -1546,6 +1557,40 @@ $('w-csv').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.no
 $('w-md').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.md','# 洗車記録\n\n'+wash.slice().reverse().map(e=>`## ${ymd(e.at)} ${fmtT(e.at)}${e.place?' '+e.place:''}（${e.temp}℃・${e.hum}%）\n\n| 部位 | 内容 |\n|---|---|\n`+WP.filter(p=>e.parts[p]).map(p=>`| ${p} | ${e.parts[p].join('<br>')} |`).join('\n')).join('\n\n')+'\n','text/markdown'));
 $('w-json').addEventListener('click',()=>shareOut('cockpit-nav-wash-'+ymd(Date.now())+'.json',JSON.stringify(wash,null,1),'application/json'));
 $('b-wash').addEventListener('click',()=>{wRender();$('sh-wash').hidden=false});
+
+/* ---------- 大地図を指で動かす・長押しで地点メニュー ---------- */
+const ndEl=$('nd');let tch=null,lpT=0,pinMk=null,pinP=null,brwT=0;
+const rotS=(x,y)=>{const a=(V.big.cfg.hup?st.hdg:0)*D2R,c=Math.cos(a),s=Math.sin(a);return[c*x-s*y,s*x+c*y]}; // 画面の動き → 回転前の地図の動き
+function brwOn(){if(!brw.on){brw.on=true;brw.c=map.getCenter();ndEl.classList.add('browse')}brwKick()}
+function brwKick(){clearTimeout(brwT);brwT=setTimeout(()=>{if(!pinP)brwOff()},30000)} // 30秒さわらなければ現在地に戻る
+function brwOff(){brw.on=false;brw.c=null;ndEl.classList.remove('browse');clearTimeout(brwT);map.setView([st.lat,st.lon],map.getZoom(),{animate:false});rng()}
+$('back').addEventListener('click',e=>{e.stopPropagation();pinClose();brwOff()});
+function ptLL(cx,cy){const r=ndEl.getBoundingClientRect(),[x,y]=rotS(cx-r.left-r.width/2,cy-r.top-r.height/2),d=V.big.el.clientWidth;return map.containerPointToLatLng([d/2+x,d/2+y])}
+const skipT=t=>t.closest&&t.closest('button,#pin,.gd,.lg,input,select');
+ndEl.addEventListener('touchstart',e=>{if(skipT(e.target))return;if(e.touches.length!==1){tch=null;clearTimeout(lpT);return}
+ const t=e.touches[0];tch={x:t.clientX,y:t.clientY,lx:t.clientX,ly:t.clientY,mv:false};clearTimeout(lpT);
+ lpT=setTimeout(()=>{if(tch&&!tch.mv){const ll=ptLL(tch.x,tch.y);tch=null;try{navigator.vibrate&&navigator.vibrate(30)}catch(_){}pinOpen(ll)}},600)},{passive:true});
+ndEl.addEventListener('touchmove',e=>{if(!tch||e.touches.length!==1){clearTimeout(lpT);return}const t=e.touches[0];
+ if(!tch.mv&&Math.hypot(t.clientX-tch.x,t.clientY-tch.y)>10){tch.mv=true;clearTimeout(lpT);brwOn()}
+ if(tch.mv){const[dx,dy]=rotS(t.clientX-tch.lx,t.clientY-tch.ly);map.panBy([-dx,-dy],{animate:false});brw.c=map.getCenter();tch.lx=t.clientX;tch.ly=t.clientY;brwKick();e.preventDefault()}},{passive:false});
+ndEl.addEventListener('touchend',()=>{clearTimeout(lpT);if(tch&&tch.mv)rng();tch=null},{passive:true});
+ndEl.addEventListener('contextmenu',e=>{if(skipT(e.target))return;e.preventDefault();pinOpen(ptLL(e.clientX,e.clientY))}); // パソコンでは右クリック
+async function pinOpen(ll){brwOn();pinP={name:'選んだ地点',lat:ll.lat,lon:ll.lng,addr:''};
+ if(pinMk)map.removeLayer(pinMk);pinMk=L.marker(ll,{interactive:false,icon:L.divIcon({className:'',iconSize:[30,30],iconAnchor:[15,28],html:'<div class="pinm">📍</div>'})}).addTo(map);
+ pinRender();
+ try{const r=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&accept-language=ja&lat=${ll.lat.toFixed(6)}&lon=${ll.lng.toFixed(6)}`)).json();
+  if(pinP&&r){const a=r.address||{},nm=r.name||[a.road,a.house_number].filter(Boolean).join(' ');
+   pinP.addr=[a.province||a.state,a.city||a.town||a.village,a.suburb||a.quarter||a.neighbourhood].filter(Boolean).join('');pinP.name=(nm||pinP.addr||'選んだ地点').slice(0,30);pinRender()}}catch(e){}}
+function pinRender(reg){const p=pinP;if(!p){$('pin').hidden=true;return}const d=map.distance([st.lat,st.lon],[p.lat,p.lon]);
+ $('pin').innerHTML=`<div class="pt">${esc(p.name)}</div><div class="pd">${esc(p.addr||'')} ・ 現在地から${fmtM(d)}</div>`+(reg?
+  `<div class="acts" style="margin-bottom:6px"><select id="pin-cat">${pref.cats.map((c,i)=>`<option value="${i}">${esc(c)}</option>`).join('')}</select><input id="pin-name" value="${esc(p.name)}" maxlength="30" style="flex:1 1 120px"></div><div class="acts"><button id="pin-save" class="on">登録する</button><button id="pin-back">戻る</button></div>`:
+  `<div class="acts"><button id="pin-go" class="on">ここへ案内</button><button id="pin-fav">★お気に入り</button><button id="pin-x">閉じる</button></div>`);$('pin').hidden=false}
+$('pin').addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('button');if(!b||!pinP)return;
+ if(b.id==='pin-go'){const p=pinP;b.textContent='ルート検索中…';navTo({name:p.name,lat:p.lat,lon:p.lon}).then(ok=>{if(ok){pinClose();brwOff()}else b.textContent='ここへ案内'})}
+ else if(b.id==='pin-fav')pinRender(true);else if(b.id==='pin-back')pinRender();
+ else if(b.id==='pin-save'){const f=addFav(pinP,+$('pin-cat').value,$('pin-name').value.trim());try{drawFav()}catch(_){}msg('★「'+f.name+'」を登録しました');say('お気に入りに登録しました');pinClose()}
+ else if(b.id==='pin-x')pinClose()});
+function pinClose(){pinP=null;$('pin').hidden=true;if(pinMk){map.removeLayer(pinMk);pinMk=null}brwKick()}
 
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
