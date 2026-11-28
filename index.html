@@ -28,7 +28,7 @@ body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans
 #ck{display:grid;position:fixed;inset:0;width:100%;height:100vh;height:100dvh;overflow:hidden;gap:6px;grid-template:"ann ann" auto "pfd nd" minmax(0,1fr) "bar bar" auto/minmax(300px,40%) minmax(0,1fr);
  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
 html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
-@media (max-aspect-ratio:1/1){#ck{grid-template:"ann" auto "pfd" 40vh "nd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
+@media (max-aspect-ratio:1/1){#ck{grid-template:"ann" auto "nd" minmax(0,1.25fr) "pfd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
 .ann{grid-area:ann;display:flex;gap:10px;align-items:center;min-width:0;overflow:hidden}
 .anns{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0}
 .tinfo{flex:none;display:flex;gap:10px;align-items:baseline;font:700 14px 'B612 Mono',monospace;white-space:nowrap}.tinfo small{font:400 11px 'B612',sans-serif;color:#9aa6b2;margin-right:3px}
@@ -53,7 +53,7 @@ html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #gb{width:70px;height:70px}
 .ro{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px}
 .ro b{color:#7d8995;font-weight:400}.ro span{font-family:'B612 Mono',monospace;color:var(--w);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (max-aspect-ratio:1/1){.mini{display:none}.pfd{grid-template-rows:minmax(0,1fr) auto}}
+@media (max-aspect-ratio:1/1){.pfdrow,#hdgt{display:none}.pfd{grid-template-rows:minmax(0,1fr);padding:4px}} /* 縦向きはジャイロを隠して地図を上下に */
 .nd{grid-area:nd;position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--ln);background:#04070a;
  background-image:linear-gradient(#0e1922 1px,transparent 1px),linear-gradient(90deg,#0e1922 1px,transparent 1px);background-size:44px 44px}
 .mapw:not(.mapnight){background-color:#cfd7de}
@@ -141,6 +141,11 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
 #trchip{position:absolute;right:10px;top:118px;z-index:650;padding:3px 9px;border-radius:10px;border:1px solid #ffd23a;background:#2b2408e6;color:#ffd23a;font:700 11px 'B612',sans-serif}
+.wfleg{display:flex;align-items:center;gap:8px;font:11px 'B612 Mono',monospace;color:#9aa6b2;margin:4px 0 8px}.wfleg i{flex:1;height:8px;border-radius:4px}
+#wft{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:645;width:min(46%,340px);background:#0b1016d9;border:1px solid var(--ln);border-radius:10px;padding:4px 10px 2px;font:700 12px 'B612',sans-serif;color:#ffb02e;text-align:center}
+#wft input{width:100%;accent-color:#ffb02e;margin:2px 0 0}#wft .wfts{display:flex;justify-content:space-between;font:10px 'B612 Mono',monospace;color:#9aa6b2}
+#trn{position:absolute;left:10px;top:120px;z-index:646;min-width:200px;max-width:46%;background:#0b1016e6;border:1px solid #3be36a;border-radius:10px;padding:6px 10px;font:13px/1.35 'B612',sans-serif;color:#eef3f6;cursor:pointer}
+#trn b{color:#3be36a;font-size:12px;letter-spacing:.08em}#trn .ts{font:700 30px 'B612 Mono',monospace;color:#fff}#trn .dl{color:#ff6b6b}#trn .ok{color:#9aa6b2;font-size:12px}
 #mic{position:absolute;right:10px;bottom:26px;width:60px;height:60px;border-radius:50%;border:2px solid var(--ln);background:#0b1016dd;color:var(--w);z-index:650;display:grid;place-items:center;cursor:pointer}
 #mic svg{width:28px;height:28px}#mic.listen{border-color:#ff4d4d;box-shadow:0 0 0 4px #ff4d4d55}#mic.wait{border-color:var(--c)}#mic[hidden]{display:none}
 .acm{background:none;border:0}.acm svg{width:34px;height:34px;display:block;overflow:visible}.acm span{position:absolute;left:30px;top:2px;font:700 11px 'B612 Mono',monospace;color:#39d0ff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000}
@@ -206,6 +211,8 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div id="msg" class="hide"></div>
   <button id="back">◎ 現在地へ戻る</button>
   <button id="trchip" hidden></button>
+  <div id="wft" hidden><span id="wft-l">風 現在</span><input type="range" id="wft-r" min="0" max="72" step="1" value="0" aria-label="風の予報の時刻"><div class="wfts"><span>現在</span><span>24</span><span>48</span><span>72h</span></div></div>
+  <div id="trn" hidden></div>
   <div id="pin" hidden></div>
   <button id="mic" aria-label="声で操作"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   <div class="sg" id="sg" hidden><span id="sg-t"></span><button class="go" id="sg-go">案内する</button><button id="sg-no">あとで</button></div>
@@ -214,7 +221,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <nav class="bar" aria-label="操作">
   <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
@@ -246,7 +253,11 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <div class="bands" id="poi-row"><button data-poi="コンビニ">コンビニ</button><button data-poi="トイレ">トイレ</button><button data-poi="ガソリン">ガソリン</button><button data-poi="充電">充電</button><button data-poi="駐車場">駐車場</button><button data-poi="道の駅">道の駅</button><button data-poi="洗車場">洗車場</button></div>
  <div id="d-res"></div><div id="d-reg"></div>
  <label class="chk"><input type="checkbox" id="d-ura">登録した裏道が使えるときは裏道経由で案内（通常より早いか、1分以内の差のとき）</label>
- <h3>駐車</h3><div class="rrow"><span id="park-st" class="note">駐車位置なし</span><label class="note">タイマー<select id="park-lim" aria-label="駐車タイマー"><option value="0">なし</option><option value="30">30分</option><option value="60">60分</option><option value="90">90分</option><option value="120">2時間</option><option value="180">3時間</option></select></label></div>
+ <h3>電車モード</h3>
+ <label class="chk"><input type="checkbox" id="tr-on">電車モード（車の読み上げを止め、速度・最高速度・距離と遅延情報を表示）</label>
+ <div class="rrow"><input id="tr-lines" placeholder="よく乗る路線（例：総武線, 京成本線, 東西線）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font-size:16px;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px"></div>
+ <p class="note">遅延情報は「鉄道遅延情報のjson」（鉄道comの情報）を約3分ごとに取得。路線を登録すると、その路線だけ表示します。</p>
+ <h3>駐車</h3><div class="rrow"><span id="park-st" class="note">駐車位置なし</span><button id="park-clr">駐車を解除</button><label class="note">タイマー<select id="park-lim" aria-label="駐車タイマー"><option value="0">なし</option><option value="30">30分</option><option value="60">60分</option><option value="90">90分</option><option value="120">2時間</option><option value="180">3時間</option></select></label></div>
  <h3>お気に入り地点</h3><div class="bands" id="f-chips"></div><div id="f-list"></div><div class="rrow"><button id="f-here">今いる場所を登録</button></div>
  <h3>最近の目的地</h3><div id="d-recent"></div>
  <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
@@ -263,6 +274,10 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>発進・停止のアナウンス（速度コールON時）</h3>
  <div class="rrow"><select id="acc-mode" style="min-height:44px;font-size:16px;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px"><option value="off">GPSだけ（約1〜1.5秒遅れ）</option><option value="hi">加速度＋GPS：敏感</option><option value="mid">加速度＋GPS：ふつう</option><option value="lo">加速度＋GPS：鈍感</option></select><span class="note" id="acc-live">揺れ —</span></div>
  <p class="note">加速度センサーで動き出し・止まった瞬間をつかみ、GPSで確かめます（GPSと合わなければ取り消し）。iPhoneをホルダーにしっかり固定して使ってね。止まっているのに「スタート」と言うなら「鈍感」、反応が遅いなら「敏感」に。</p>
+ <h3>風の表示</h3>
+ <label class="chk"><input type="checkbox" id="wf-on">風を「流れ」で表示（アメダスの実測から面に広げ、粒子を流す。オフで観測点の矢印）</label>
+ <div class="rrow"><span class="note" style="margin:0">色の濃さ</span><input type="range" id="wf-a" min="0" max="0.7" step="0.05" style="flex:1"></div>
+ <div class="wfleg"><span>風速 m/s</span><i style="background:linear-gradient(90deg,rgb(40,110,220),rgb(60,170,230) 8%,rgb(60,190,140) 16%,rgb(120,200,60) 24%,rgb(230,200,40) 32%,rgb(240,140,40) 44%,rgb(225,60,40) 56%,rgb(180,30,90) 72%,rgb(120,40,170))"></i><span>0 · 4 · 8 · 14 · 25</span></div>
  <h3>音の出し方</h3>
  <label class="chk"><input type="radio" name="amode" value="mix">音楽優先：効果音と画面表示（CarPlayの音楽を止めない）</label>
  <label class="chk"><input type="radio" name="amode" value="voice">すべて声で読み上げ（iPhoneの仕組み上、音楽が止まることがあります）</label>
@@ -426,7 +441,7 @@ function applyView(v){
   if(u){const nz=v.rainNZ,lay=L.tileLayer(u,{minNativeZoom:4,maxNativeZoom:nz,maxZoom:18,opacity:.7,zIndex:10});let ok=0,ng=0;
    lay.on('tileload',()=>{ok++});lay.on('tileerror',()=>{ng++;if(ng>=4&&ok===0&&nz>6){v.rainNZ=nz-2;pref.rainNZ=v.rainNZ;save();setTimeout(()=>applyView(v),50)}}); // その縮尺の雨雲画像がなければ、粗い画像に切り替える
    v.rainL=lay.addTo(m)}v.rainU=u;v.rainNZu=v.rainNZ}
- if(c.wx.wind)m.addLayer(v.wxL);else m.removeLayer(v.wxL);
+ const flow=pref.windFlow!==false;if(c.wx.wind&&!flow)m.addLayer(v.wxL);else m.removeLayer(v.wxL);{const on=c.wx.wind&&flow;setTimeout(()=>wfSet(v,on),0)}
  if(c.wx.pm)m.addLayer(v.soraL);else m.removeLayer(v.soraL);
  if(c.wx.ac)m.addLayer(v.acL);else m.removeLayer(v.acL);
  if(c.wx.gm)m.addLayer(v.gmL);else m.removeLayer(v.gmL);
@@ -696,6 +711,55 @@ let wxData=null,wxAt=null,wxZ=null,wxTime=0,wxBusy=false,rainTime=0,rainBusy=fal
 let sora=null,soraTime=0;
 const anyWx=k=>VS.some(v=>v.cfg.wx[k]);
 const spdCol=v=>v<5?'#39d0ff':v<10?'#ffb02e':'#ff4d4d';
+/* ---------- 風の流れ（アメダスの実測を面に広げ、粒子を流す） ---------- */
+const WFS=[[0,[40,110,220]],[2,[60,170,230]],[4,[60,190,140]],[6,[120,200,60]],[8,[230,200,40]],[11,[240,140,40]],[14,[225,60,40]],[18,[180,30,90]],[25,[120,40,170]]];
+function wfRGB(v){for(let i=1;i<WFS.length;i++)if(v<=WFS[i][0]){const[a,ca]=WFS[i-1],[b,cb]=WFS[i],t=(v-a)/(b-a);return ca.map((x,k)=>Math.round(x+(cb[k]-x)*t))}return WFS[WFS.length-1][1]}
+let wfT=0,wfFc=null,wfFcBusy=false;
+async function wfFetch(){if(wfFcBusy)return;const bs=VS.map(v=>v.m.getBounds());let b=bs[0];bs.forEach(x=>b=b.extend(x));b=b.pad(.25);
+ if(wfFc&&Date.now()-wfFc.at<20*60000&&wfFc.b.contains(b))return;wfFcBusy=true;
+ try{const N=8,M=6,la=[],lo=[];for(let j=0;j<M;j++)for(let i=0;i<N;i++){la.push((b.getSouth()+(b.getNorth()-b.getSouth())*j/(M-1)).toFixed(3));lo.push((b.getWest()+(b.getEast()-b.getWest())*i/(N-1)).toFixed(3))}
+  const r=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la.join(',')}&longitude=${lo.join(',')}&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=73&wind_speed_unit=ms&timezone=Asia%2FTokyo`)).json();
+  const arr=Array.isArray(r)?r:[r];if(!arr[0]||!arr[0].hourly)throw 0;wfFc={at:Date.now(),b,pts:arr.map((p,k)=>({la:+la[k],lo:+lo[k],h:p.hourly})),time:arr[0].hourly.time};
+  VS.forEach(v=>{if(v.wf&&v.wf.on)wfBuild(v)});wfLabel()}catch(e){msg('風の予報を取得できません')}finally{wfFcBusy=false}}
+function wfFcStations(){if(!wfFc)return[];const nowS=new Date(Date.now()+9*3600e3).toISOString().slice(0,13);let i0=wfFc.time.findIndex(t=>t.slice(0,13)===nowS);if(i0<0)i0=0;const k=Math.min(wfFc.time.length-1,i0+wfT);
+ return wfFc.pts.map(p=>{const sp=+p.h.wind_speed_10m[k],to=((+p.h.wind_direction_10m[k])+180)*D2R;return{la:p.la,lo:p.lo,u:Math.sin(to)*sp,w:Math.cos(to)*sp,sp}})}
+function wfLabel(){const e=$('wft-l');if(!e)return;if(!wfT){e.textContent='風 現在（アメダス実測）';return}const d=new Date(Date.now()+wfT*3600e3);d.setMinutes(0);e.textContent=`風 ${d.getDate()}(${'日月火水木金土'[d.getDay()]}) ${d.getHours()}時（予想 +${wfT}h）`}
+function wfStations(){if(wfT>0)return wfFcStations();const out=[];if(!amObs||!amTab)return out;for(const id in amObs){const o=amObs[id],t=amTab[id];if(!t||!o.wind||!o.windDirection||o.wind[1]!==0)continue;
+ const sp=+o.wind[0],code=+o.windDirection[0],ll=amLL(t);let u=0,w=0;if(code){const to=(code*22.5+180)*D2R;u=Math.sin(to)*sp;w=Math.cos(to)*sp}out.push({la:ll[0],lo:ll[1],u,w,sp})}return out}
+function wfSet(v,on){if(!on){if(v.wf){v.wf.on=false;v.wf.c1.style.display=v.wf.c2.style.display='none'}if(v.id==='big')$('wft').hidden=true;return}
+ if(!v.m.getPane)return;if(!v.wf){const m=v.m,p=m.getPane('windPane')||m.createPane('windPane');p.style.zIndex=350;p.style.pointerEvents='none';
+  const c1=L.DomUtil.create('canvas','',p),c2=L.DomUtil.create('canvas','',p);[c1,c2].forEach(c=>{c.style.position='absolute';c.style.pointerEvents='none'});
+  v.wf={c1,c2,on:true,pts:[],grid:null};m.on('movestart zoomstart',()=>{v.wf.moving=true;c2.getContext('2d').clearRect(0,0,c2.width,c2.height)});
+  m.on('moveend zoomend resize',()=>{v.wf.moving=false;wfBuild(v);if(wfT)wfFetch()})}
+ v.wf.on=true;v.wf.c1.style.display=v.wf.c2.style.display='';wfBuild(v);wfLoop();wfBar()}
+function wfBar(){const on=!!(V.big.wf&&V.big.wf.on);$('wft').hidden=!on;if(on)wfLabel()}
+function wfBuild(v){const f=v.wf;if(!f||!f.on)return;const m=v.m,sz=m.getSize(),W=sz.x,H=sz.y;if(!W||!H)return;
+ const tl=m.containerPointToLayerPoint([0,0]);[f.c1,f.c2].forEach(c=>{c.width=W;c.height=H;c.style.width=W+'px';c.style.height=H+'px';L.DomUtil.setPosition(c,tl)});
+ const S=wfStations();if(!S.length){f.grid=null;return}const st0=20,cols=Math.ceil(W/st0)+1,rows=Math.ceil(H/st0)+1,b=m.getBounds().pad(.6);
+ const near=S.filter(s=>b.contains([s.la,s.lo]));const use=near.length>=4?near:S;const g=new Float32Array(cols*rows*3);
+ const c0=m.getCenter(),kx=Math.cos(c0.lat*D2R);
+ for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const ll=m.containerPointToLatLng([i*st0,j*st0]);let su=0,sw=0,ss=0,sk=0,best=[];
+  for(const s of use){const dx=(s.lo-ll.lng)*kx,dy=s.la-ll.lat,d2=dx*dx+dy*dy+1e-6;if(best.length<8||d2<best[7][0]){best.push([d2,s]);best.sort((a,b)=>a[0]-b[0]);if(best.length>8)best.pop()}}
+  for(const[d2,s]of best){const k=1/d2;su+=s.u*k;sw+=s.w*k;ss+=s.sp*k;sk+=k}const o=(j*cols+i)*3;g[o]=su/sk;g[o+1]=sw/sk;g[o+2]=ss/sk}
+ f.grid={g,cols,rows,st:st0,W,H};
+ // 色の面：小さく描いてなめらかに拡大
+ const off=document.createElement('canvas');off.width=cols;off.height=rows;const oc=off.getContext('2d'),id=oc.createImageData(cols,rows);
+ for(let k=0;k<cols*rows;k++){const[r,gg,bb]=wfRGB(g[k*3+2]);id.data[k*4]=r;id.data[k*4+1]=gg;id.data[k*4+2]=bb;id.data[k*4+3]=255}oc.putImageData(id,0,0);
+ const x1=f.c1.getContext('2d');x1.clearRect(0,0,W,H);x1.globalAlpha=pref.windFieldA??.38;x1.imageSmoothingEnabled=true;x1.drawImage(off,0,0,cols*st0,rows*st0);
+ const n=Math.min(1600,Math.round(W*H/520));f.pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,a:Math.random()*80|0}));
+ f.c2.getContext('2d').clearRect(0,0,W,H)}
+function wfAt(gr,x,y){const fx=x/gr.st,fy=y/gr.st,i=Math.floor(fx),j=Math.floor(fy);if(i<0||j<0||i>=gr.cols-1||j>=gr.rows-1)return null;
+ const tx=fx-i,ty=fy-j,o=(a,b)=>(b*gr.cols+a)*3,g=gr.g,l=(k)=>{const a=g[o(i,j)+k]*(1-tx)+g[o(i+1,j)+k]*tx,b=g[o(i,j+1)+k]*(1-tx)+g[o(i+1,j+1)+k]*tx;return a*(1-ty)+b*ty};return[l(0),l(1),l(2)]}
+let wfRaf=0,wfLast=0;
+function wfLoop(){if(wfRaf)return;const step=t=>{wfRaf=0;const act=VS.filter(v=>v.wf&&v.wf.on&&v.wf.grid&&!v.wf.moving);if(!act.length||document.hidden)return;
+  wfRaf=requestAnimationFrame(step);if(t-wfLast<33)return;wfLast=t;
+  for(const v of act){const f=v.wf,gr=f.grid,x=f.c2.getContext('2d'),z=v.m.getZoom(),k=.10*Math.pow(1.25,Math.min(6,Math.max(-4,z-10))); // 縮尺に合わせて粒子の速さを変える
+   x.globalCompositeOperation='destination-in';x.fillStyle='rgba(0,0,0,.93)';x.fillRect(0,0,gr.W,gr.H);x.globalCompositeOperation='source-over';x.lineWidth=1.6;x.lineCap='round';
+   for(const p of f.pts){const w=wfAt(gr,p.x,p.y);if(!w||p.a++>90){p.x=Math.random()*gr.W;p.y=Math.random()*gr.H;p.a=0;continue}
+    const nx=p.x+w[0]*k*4,ny=p.y-w[1]*k*4;x.strokeStyle=w[2]<6?'rgba(255,255,255,.75)':w[2]<12?'rgba(255,248,220,.85)':'rgba(255,235,235,.95)';
+    x.beginPath();x.moveTo(p.x,p.y);x.lineTo(nx,ny);x.stroke();p.x=nx;p.y=ny}}};
+ wfRaf=requestAnimationFrame(step)}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)wfLoop()});
 /* 風：気象庁アメダス（実測） */
 const JMA='https://www.jma.go.jp/bosai/';let amTab=null,amObs=null,amTime='';
 const amLL=t=>[t.lat[0]+t.lat[1]/60,t.lon[0]+t.lon[1]/60];
@@ -710,6 +774,7 @@ function drawAm(){
    `<svg viewBox="-23 -23 46 46" style="transform:rotate(${(dir+180)%360}deg)"><path d="M0-19L9-4H3.5V17H-3.5V-4H-9Z" fill="${spdCol(v)}" stroke="#000" stroke-width="2" stroke-linejoin="round" opacity=".9"/></svg>`;
   VS.forEach((w,i)=>{if(dist<=R[i])w.wxL.addLayer(L.marker(ll,{interactive:false,icon:L.divIcon({className:'warr',iconSize:[46,46],iconAnchor:[23,23],html})}))})}
  wxData=best;wxAt=[st.lat,st.lon];wxZ=VS.map(v=>v.m.getZoom()).join();
+ VS.forEach(v=>{if(v.wf&&v.wf.on&&(!v.wf.at||v.wf.at!==amTime)){v.wf.at=amTime;wfBuild(v);wfLoop()}})
 }
 async function fetchWind(){
  try{
@@ -890,7 +955,7 @@ function cue(k){const C=actxOn(),seq=CUES[k];if(!C||!seq||!pref.voice)return;aSe
   g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(type==='square'?0.08:0.22,t0+dt+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dt+dur);
   let n=o;if(C.createStereoPanner&&pan){const p=C.createStereoPanner();p.pan.value=pan;o.connect(g);g.connect(p);p.connect(C.destination)}else{o.connect(g);g.connect(C.destination)}o.start(t0+dt);o.stop(t0+dt+dur+0.05)}}
 function sayAuto(t,k){if(pref.amode==='voice')say(t);else{cue(k||'info');if(t)msg(t)}}
-function sayEnAuto(t,k){if(pref.amode==='voice')sayEn(t);else cue(k)}
+function sayEnAuto(t,k){if(pref.train)return;if(pref.amode==='voice')sayEn(t);else cue(k)} // 電車モードでは車用の読み上げをしない
 function flashSpd(c){const e=$('n-gs');e.style.color=c;setTimeout(()=>{e.style.color=''},1500)}
 
 function say(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
@@ -1240,6 +1305,7 @@ function runCmd(t){
  if(has('同期')){$('b-sync').click();return say('OneDriveと同期します'),1}
  if(has('過去の走行','走行履歴')){pref.hshow=!off(t);save();drawPast();setPast();return say('過去の走行を'+(pref.hshow?'表示します':'消しました')),1}
  if(has('洗車記録','洗車の記録')){wRender();$('sh-wash').hidden=false;setTimeout(wStart,300);return 1}
+ if(has('駐車解除','駐車を解除','駐車消して','駐車を消')){if(!pref.park)return say('駐車位置は記録されていません'),1;parkClear();return say('駐車を解除しました'),1}
  if(has('駐車')&&!has('駐車場')){$('b-park').click();return 1}
  if(has('車に戻','車まで','車へ','車の場所')){if(!pref.park)return say('駐車位置が記録されていません'),1;carGo=true;return say('車まで案内します'),1}
  if(has('チェックリスト'))return openCk(),1;
@@ -1270,6 +1336,9 @@ function runCmd(t){
  if(has('渋滞だけ','赤だけ'))return setTrLv(2),say('渋滞だけ表示します'),1;
  if(has('混雑だけ'))return setTrLv(1),say('混雑だけ表示します'),1;
  if(has('渋滞全部','全部表示'))return setTrLv(0),say('渋滞をすべて表示します'),1;
+ if(has('電車モード','電車に乗')){setTrain(true);return say('電車モードにします'),1}
+ if(has('車モード','電車終了','電車降り')){setTrain(false);return say('電車モードを終了します'),1}
+ if(has('遅延')){fetchDelay();return say('遅延情報を更新します'),1}
  if(has('アラート')){pref.dewMute=null;save();wxAlerts();return say($('dewal').hidden?'今は結露のアラートはありません':'結露のアラートを表示します'),1}
  if(has('グラフ','トレンド')){wxgOpen();return say('気象のグラフを表示します'),1}
  if(has('結露','夜露','霜'))return say(wxSum.dewTxt?wxSum.dewTxt.replace('〜','ごろから').replace('24h','24時間の恐れは'):'予報を取得中です'),1;
@@ -1497,6 +1566,8 @@ $('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();s
 function setTrLv(n){pref.trLv=n;save();$('tr-lv').value=n;$('b-trlv').textContent='渋滞 '+TRLV[n];VS.forEach(applyView)}
 $('tr-lv').value=pref.trLv|0;$('b-trlv').textContent='渋滞 '+TRLV[pref.trLv|0];$('tr-lv').addEventListener('change',e=>setTrLv(+e.target.value));
 $('b-trlv').addEventListener('click',()=>{const n=((pref.trLv|0)+1)%3;setTrLv(n);msg('渋滞の表示：'+['全部（緑・黄・赤）','混雑だけ（黄・赤）','渋滞だけ（赤）'][n])});
+$('wf-on').checked=pref.windFlow!==false;$('wf-on').addEventListener('change',e=>{pref.windFlow=e.target.checked;save();VS.forEach(applyView);if(!e.target.checked)drawAm()});
+$('wf-a').value=pref.windFieldA??.38;$('wf-a').addEventListener('input',e=>{pref.windFieldA=+e.target.value;save();VS.forEach(v=>wfBuild(v))});
 $('here-key').value=pref.hereKey||'';$('here-save').addEventListener('click',()=>{pref.hereKey=$('here-key').value.trim();save();trOk={};VS.forEach(applyView);msg(pref.hereKey?'HEREのキーを保存しました':'HEREのキーを消しました')});
 {const T=pref.trSrc=pref.trSrc||{tf:1,ti:1,hf:1};[['tr-tf','tf'],['tr-ti','ti'],['tr-hf','hf']].forEach(([id,k])=>{const c=$(id);c.checked=!!T[k];c.addEventListener('change',()=>{T[k]=c.checked?1:0;save();trOk={};VS.forEach(applyView)})})}
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
@@ -1651,6 +1722,11 @@ setInterval(()=>{const p=pref.park;$('park-st').textContent=p?`駐車：${fmtT(p
  if(carGo&&p&&!guide){const me=[st.lat,st.lon],d=map.distance(me,[p.lat,p.lon]),b=brg(me,[p.lat,p.lon]);
   $('gd').hidden=false;$('gd').classList.remove('off');$('gd').innerHTML=`駐車位置<br><b>車まで ${fmtM(d)}</b><br>${fmtT(p.at)}から${Math.floor((Date.now()-p.at)/60000)}分`;$('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
   if(d<15){carGo=false;$('gd').hidden=true;$('gdp').style.display='none';sayAuto('車に着きました','arr')}}},2000);
+function parkClear(why){if(!pref.park)return;pref.park=null;save();drawPark();carGo=false;if(!guide){$('gd').hidden=true;$('gdp').style.display='none'}msg(why||'駐車位置を消しました')}
+$('park-clr').addEventListener('click',()=>{parkClear();say('駐車を解除しました')});
+/* 車で走り出したら自動で消す：駐車位置から200m以上離れ、時速15km以上が20秒続いたら */
+{let mvT=0;setInterval(()=>{const p=pref.park;if(!p||!(st.gps||st.demo)){mvT=0;return}const d=map.distance([st.lat,st.lon],[p.lat,p.lon]);
+ if(st.spd>=15&&d>200){mvT+=2;if(mvT>=20&&Date.now()-p.at>3*60000){parkClear('走り出したので駐車位置を消しました');mvT=0}}else mvT=0},2000)}
 setTimeout(drawPark,900);
 
 /* ---------- 着陸チェックリスト ---------- */
@@ -1862,11 +1938,34 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611281339';
+const BUILD='202611282211';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
 setTimeout(verCheck,8000);setInterval(verCheck,10*60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verCheck()});
+/* ---------- 風の予報スライダー ---------- */
+$('wft-r').addEventListener('input',e=>{wfT=+e.target.value;wfLabel();if(wfT&&!wfFc){wfFetch();return}VS.forEach(v=>{if(v.wf&&v.wf.on)wfBuild(v)})});
+$('wft-r').addEventListener('change',()=>{if(wfT)wfFetch()});
+/* ---------- 電車モード：速度と遅延情報 ---------- */
+let dlData=null,dlAt=0,trMax=0,trDist=0,trLast=null;
+async function fetchDelay(){const urls=['https://tetsudo.rti-giken.jp/free/delay.json'];const px=(pref.acProxy||'').replace(/\/+$/,'');if(px)urls.push(px+'/delay');
+ for(const u of urls){try{const r=await fetch(u,{cache:'no-store'});if(!r.ok)continue;const j=await r.json();if(Array.isArray(j)){dlData=j;dlAt=Date.now();trDraw();return}}catch(e){}}
+ dlData=dlData||null;trDraw(true)}
+function myLines(){return (pref.trLines||'').split(/[,、，\s]+/).map(x=>x.trim()).filter(Boolean)}
+function trDraw(err){const e=$('trn');if(!pref.train){e.hidden=true;return}e.hidden=false;const ln=myLines();
+ const dl=(dlData||[]).filter(d=>!ln.length||ln.some(k=>(d.name||'').includes(k)||(d.company||'').includes(k)));
+ const list=dl.slice(0,ln.length?8:5).map(d=>`<div class="dl">⚠ ${esc(d.name)}${d.company?` <small>${esc(d.company)}</small>`:''}</div>`).join('');
+ e.innerHTML=`<b>TRAIN</b> <span class="ts">${Math.round(st.spd||0)}</span><small> km/h ・ 最高 ${Math.round(trMax)} ・ ${(trDist/1000).toFixed(1)}km</small>`+
+  (dlData?(list||`<div class="ok">${ln.length?'登録した路線に遅延なし':'遅延の情報なし'}（${fmtT(dlAt)}）</div>`)+(!ln.length&&dl.length>5?`<div class="ok">ほか${dl.length-5}路線（設定で路線を登録すると絞り込み）</div>`:'')
+   :`<div class="ok">${err?'遅延情報を取得できません':'遅延情報を取得中…'}</div>`)}
+setInterval(()=>{if(!pref.train)return;const s=st.spd||0;if(s>trMax)trMax=s;if(trLast&&st.gps){const d=map.distance(trLast,[st.lat,st.lon]);if(d<500)trDist+=d}trLast=[st.lat,st.lon];trDraw()},1000);
+setInterval(()=>{if(pref.train&&!document.hidden)fetchDelay()},3*60000);
+function setTrain(on){pref.train=on;save();$('b-train').classList.toggle('on',on);$('tr-on').checked=on;if(on){trMax=0;trDist=0;trLast=null;fetchDelay()}trDraw();msg(on?'電車モード：車の読み上げを止めて、速度と遅延情報を表示します':'電車モードを終了しました')}
+$('b-train').addEventListener('click',()=>setTrain(!pref.train));$('tr-on').addEventListener('change',e=>setTrain(e.target.checked));
+$('tr-lines').value=pref.trLines||'';$('tr-lines').addEventListener('change',e=>{pref.trLines=e.target.value;save();trDraw()});
+$('trn').addEventListener('click',e=>{e.stopPropagation();fetchDelay()});
+if(pref.train){$('b-train').classList.add('on');$('tr-on').checked=true;setTimeout(fetchDelay,3000)}
+
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
 }
