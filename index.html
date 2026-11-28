@@ -140,6 +140,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
 #exchip{position:absolute;left:8px;top:calc(50% + 24px);z-index:655;padding:4px 10px;border-radius:12px;border:2px solid #ff4fd8;background:#1a0b18ee;color:#ff8be6;font:700 13px 'B612',sans-serif;cursor:pointer;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#exchip i{display:inline-block;font-style:normal;color:#fff}.exm{font:700 11px 'B612',sans-serif;color:#fff;white-space:nowrap}.exm b{display:inline-block;padding:1px 5px;border-radius:5px;background:#ff4fd8;border:1.5px solid #fff;box-shadow:0 1px 4px #000a}.exm.sub b{background:#6b2a60;opacity:.85}.exm.dst b{background:#0b1016;color:#ffd27a;border-color:#ffd27a}#ex-hubs button.on{color:var(--c);border-color:var(--c)}
+.lgtab{margin:4px 0 8px}.lgtab button.on{color:var(--c);border-color:var(--c)}.lgbar rect{cursor:pointer}.lgbar rect:hover{fill:#7fe3ff}
 #lg-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:4px 0 8px}#lg-cal i{font:10px 'B612',sans-serif;color:#7d8995;text-align:center;font-style:normal}#lg-cal button{min-height:38px;border-radius:8px;border:1px solid #1a222b;background:#04070a;color:#56616c;font:700 13px 'B612 Mono',monospace;padding:0}#lg-cal button.has{color:#eef3f6;border-color:#2d5f73;background:#0c2530}#lg-cal button.sel{border:2px solid var(--c);color:var(--c)}#lg-cal button.td{box-shadow:inset 0 -3px 0 #ffd23a}.lgsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.lgsum div{background:#04070a;border:1px solid var(--ln);border-radius:8px;padding:6px;text-align:center}.lgsum b{display:block;font:700 17px 'B612 Mono',monospace;color:var(--c)}.lgsum small{font-size:10px;color:#9aa6b2}.lgch{width:100%;height:110px;display:block;background:#04070a;border:1px solid var(--ln);border-radius:8px}.lgleg{display:flex;gap:10px;font:11px 'B612',sans-serif;color:#9aa6b2;margin:2px 0 8px}.lgleg i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:3px}.lgh{font:700 10px 'B612 Mono',monospace;color:#fff;background:#0b1016d0;border:1px solid #39d0ff;border-radius:5px;padding:0 3px;white-space:nowrap}
 #lg-hours .bands button.on{color:var(--c);border-color:var(--c)}.lgt{width:100%;border-collapse:collapse;font:12px 'B612 Mono',monospace;margin:6px 0}.lgt th,.lgt td{border-bottom:1px solid var(--ln);padding:4px 3px;text-align:right;white-space:nowrap}.lgt th{color:#9aa6b2;font-weight:400}.lgt td:first-child,.lgt th:first-child{text-align:left}#lgbox{position:absolute;left:50%;bottom:calc(var(--gdh,60px) + 40px);transform:translateX(-50%);z-index:662;background:#0b1016f0;border:1px solid var(--c);border-radius:10px;padding:6px 10px;font:700 12px 'B612',sans-serif;color:var(--w);width:min(92%,420px)}#lgbox input{width:100%;accent-color:#39d0ff}#lgbox .r{display:flex;justify-content:space-between;align-items:center;gap:6px}#lgbox .r button.on{color:#000;background:var(--c)}#lgbox button{min-height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}
 #wkbox{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:663;background:#0b1016f2;border:2px solid #ffd23a;border-radius:12px;padding:6px 10px;font:700 15px 'B612',sans-serif;color:var(--w);width:min(94%,460px);max-height:70%;overflow:auto}#wkbox .r{display:flex;justify-content:space-between;align-items:center;gap:8px}#wkbox small{font-size:11px;color:#9aa6b2}.wkb-b[hidden]{display:none!important}.wkb-b{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}#wkbox button{min-height:34px;padding:0 9px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}#wkb-x{color:#ff8b8b!important}
@@ -247,9 +248,12 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
 <div class="sheet" id="sh-log" hidden><div class="shin"><header><b>履歴照会（走行・天気）</b><button data-close>閉じる</button></header>
  <label class="chk"><input type="checkbox" id="lg-on">走行と天気をOneDriveに日別・時間別で記録する（Apps/CockpitNav/log/年/月/日/時.json）</label>
  <p class="note" id="lg-st"></p>
- <div class="lgcal"><div class="rrow" style="justify-content:space-between"><button id="lg-pm">◀</button><b id="lg-mon"></b><button id="lg-nm">▶</button></div><div id="lg-cal"></div></div>
+ <div class="bands lgtab"><button data-lgt="d" class="on">日ごと</button><button data-lgt="q">3か月ごと</button></div>
+ <div id="lg-q" hidden><div class="rrow" style="justify-content:space-between"><button id="lg-pq">◀</button><b id="lg-qn"></b><button id="lg-nq">▶</button></div><div id="lg-qv"></div>
+ <div class="rrow"><button id="lg-qre">この3か月を記録から作り直す</button><span class="note" id="lg-qst"></span></div></div>
+ <div id="lg-dpage"><div class="lgcal"><div class="rrow" style="justify-content:space-between"><button id="lg-pm">◀</button><b id="lg-mon"></b><button id="lg-nm">▶</button></div><div id="lg-cal"></div></div>
  <div class="rrow"><button id="lg-prev">◀ 前日</button><input type="date" id="lg-d" style="min-height:40px;font:15px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px" aria-label="日付"><button id="lg-next">翌日 ▶</button><button id="lg-load">再読込</button></div>
- <div id="lg-hours"></div><div id="lg-view"></div></div></div>
+ <div id="lg-hours"></div><div id="lg-view"></div></div></div></div>
 <div class="sheet" id="sh-walk" hidden><div class="shin"><header><b>歩き道（駅・地下街）</b><button data-close>閉じる</button></header>
  <p class="note">地下ではGPSが届かないので、歩数とコンパスで歩いた道を記録します。iPhoneを胸の前で画面を上にして持ち、進む方向に向けて歩いてね。曲がり角は自動で見つけて、改札や階段は「目印」ボタンで残せます。次からは同じ場所から歩き出すと、歩数で進み具合を数えて「まもなく右へ」と案内します。ずれたら「目印に着いた」で合わせられます。</p>
  <div class="rrow"><button id="wk-rec" class="on">● ここから記録開始</button></div>
@@ -1676,16 +1680,26 @@ function lgWx(){const c=fc&&fc.current,w=wxData,a=aq&&aq.current;if(!c&&!w)retur
  return{t:Date.now(),la:+st.lat.toFixed(4),lo:+st.lon.toFixed(4),T:c?+(+c.temperature_2m).toFixed(1):null,H:c?Math.round(c.relative_humidity_2m):null,P:c?Math.round(c.pressure_msl):null,
   wd:w&&w.d!=null?Math.round(w.d):null,ws:w?w.v:null,wg:w?w.g:null,wst:w?w.name:'',rain:wxSum.rainTxt||'',dew:wxSum.dewTxt||'',pm:a&&a.pm2_5!=null?Math.round(a.pm2_5):null}}
 function lgTick(){if(!pref.odLog||st.demo)return;const now=Date.now();let ch=false;
- if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt)]);lgLast={t:now,p};ch=true}}
- if(now-lgWxT>600000){const w=lgWx();if(w){lgH(now).wx.push(w);lgWxT=now;ch=true}}
+ if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){if(lgLast){const dd=map.distance(lgLast.p,p),dt=(now-lgLast.t)/1000;if(dt<600&&dd<3000)lgAcc(now,{dist:dd,mov:(dd>20||(st.spd||0)>3)?dt:0,mx:Math.round(st.spd||0)})}lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt)]);lgLast={t:now,p};ch=true}}
+ if(now-lgWxT>600000){const w=lgWx();if(w){lgH(now).wx.push(w);lgWxT=now;ch=true;if(w.T!=null)lgAcc(now,{T:w.T})}}
  if(ch){lgH(now).dirty=true;lgSave()}}
 setInterval(lgTick,10000);
+/* 3か月（1〜3月・4〜6月・7〜9月・10〜12月）ごとの1日まとめ */
+const qOf=d=>d.slice(0,4)+'-Q'+(Math.floor((+d.slice(5,7)-1)/3)+1),qName=q=>{const n=+q.slice(-1);return q.slice(0,4)+'年 '+(n*3-2)+'〜'+(n*3)+'月'};
+let lgQ={};try{lgQ=JSON.parse(localStorage.getItem('lgSum')||'{}')||{}}catch(e){lgQ={}}
+const lgQSave=()=>{try{localStorage.setItem('lgSum',JSON.stringify(lgQ))}catch(e){}};
+function lgAcc(t,a){const d=jst(t).slice(0,10),q=qOf(d),Q=lgQ[q]||(lgQ[q]={days:{},dirty:true}),D=Q.days[d]||(Q.days[d]={dist:0,mov:0,mx:0,ts:0,tn:0,tmin:null,tmax:null});
+ if(a.dist)D.dist=Math.round(D.dist+a.dist);if(a.mov)D.mov=Math.round(D.mov+a.mov);if(a.mx!=null)D.mx=Math.max(D.mx,a.mx);
+ if(a.T!=null){D.ts=+(D.ts+a.T).toFixed(1);D.tn++;D.tmin=D.tmin==null?a.T:Math.min(D.tmin,a.T);D.tmax=D.tmax==null?a.T:Math.max(D.tmax,a.T)}Q.dirty=true;lgQSave()}
+const lgQPath=q=>`/Apps/CockpitNav/log/summary/${q}-${pref.devId}.json`;
+async function lgQUp(tk){for(const q in lgQ){const Q=lgQ[q];if(!Q.dirty)continue;try{const r=await fetch(GR+lgQPath(q)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-sum',ver:1,dev:pref.devId,q,days:Q.days})});if(!r.ok)throw 0;Q.dirty=false}catch(e){break}}lgQSave()}
+
 const lgPath=k=>`/Apps/CockpitNav/log/${k.slice(0,4)}/${k.slice(5,7)}/${k.slice(8,10)}/${k.slice(11,13)}-${pref.devId}.json`;
 const GR='https://graph.microsoft.com/v1.0/me/drive/root:';
 async function lgUp(){if(!pref.odLog||!odAcct)return;const cur=hk(Date.now());let tk;try{tk=await odToken()}catch(e){return}
  for(const k of Object.keys(lgB).sort()){const h=lgB[k];if(!h.dirty){if(k!==cur)delete lgB[k];continue}
   try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:1,dev:pref.devId,hour:k,trk:h.trk,wx:h.wx})});if(!r.ok)throw r.status;h.dirty=false;lgOk=fmtT(Date.now());if(k!==cur)delete lgB[k]}catch(e){break}}
- const old=hk(Date.now()-7*864e5);for(const k of Object.keys(lgB))if(k<old)delete lgB[k];lgSave();lgStat()}
+ const old=hk(Date.now()-7*864e5);for(const k of Object.keys(lgB))if(k<old)delete lgB[k];lgSave();await lgQUp(tk);lgStat()}
 setInterval(lgUp,300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){lgSave();lgUp()}});setTimeout(lgUp,20000);
 function lgStat(){const e=$('lg-st');if(!e)return;const n=Object.values(lgB).filter(h=>h.dirty).length;e.textContent=!odAcct?'OneDriveにサインインすると記録が送られます（設定 → OneDrive）。それまではこのiPhoneに7日分ためておきます':`送信待ち ${n}時間分`+(lgOk?`・最後に送った時刻 ${lgOk}`:'')+'（5分ごとに送信）'}
 /* 照会 */
@@ -1731,6 +1745,43 @@ function lgShow(){const P=lgPts,W=lgWxs,by={};P.forEach(x=>{const h=jst(x[0]*100
  for(const h of Object.keys(by).sort()){const b=by[h],w=b.w[Math.floor(b.w.length/2)]||{},st2=lgStats(b.p);html+=`<tr><td>${+h}時</td><td>${b.p.length>1?fmtM(st2.dist):'--'}</td><td>${b.p.length?st2.mx+'km/h':'--'}</td><td>${f(w.T,'℃')}</td><td>${f(w.H,'%')}</td><td>${f(w.P)}</td><td>${w.ws!=null?wdir(w.wd)+' '+w.ws+'m/s':'--'}</td></tr>`}
  html+='</table>';if(W.length)html+=`<details><summary class="note">天気の記録（10分ごと・${W.length}件）</summary><table class="lgt"><tr><th>時刻</th><th>気温</th><th>湿度</th><th>気圧</th><th>風</th><th>雨</th></tr>`+W.map(w=>`<tr><td>${fmtT(w.t)}</td><td>${f(w.T,'℃')}</td><td>${f(w.H,'%')}</td><td>${f(w.P)}</td><td>${w.ws!=null?wdir(w.wd)+' '+w.ws:'--'}</td><td>${esc(w.rain||'--')}</td></tr>`).join('')+'</table></details>';
  $('lg-view').innerHTML=html;const b=$('lg-map');if(b)b.onclick=lgMap;const gx=$('lg-gpx');if(gx)gx.onclick=lgGpx}
+
+/* 照会：3か月ページ */
+let lgQCur=qOf(jst(Date.now()).slice(0,10)),lgQData={};
+const lgQShift=n=>{let y=+lgQCur.slice(0,4),k=+lgQCur.slice(-1)+n;while(k<1){k+=4;y--}while(k>4){k-=4;y++}lgQCur=y+'-Q'+k;lgQShow()};
+const lgMerge=(A,B)=>{const o={...A};for(const d in B){const x=B[d],y=o[d];if(!y){o[d]={...x};continue}o[d]={dist:y.dist+x.dist,mov:y.mov+x.mov,mx:Math.max(y.mx,x.mx),ts:y.ts+x.ts,tn:y.tn+x.tn,tmin:y.tmin==null?x.tmin:x.tmin==null?y.tmin:Math.min(y.tmin,x.tmin),tmax:y.tmax==null?x.tmax:x.tmax==null?y.tmax:Math.max(y.tmax,x.tmax)}}return o};
+async function lgQLoad(q){let days={},own=false;
+ if(odAcct){try{const tk=await odToken(),r=await fetch(GR+'/Apps/CockpitNav/log/summary:/children?$select=name&$top=200',{headers:{Authorization:'Bearer '+tk}});
+  if(r.ok){for(const f of(await r.json()).value||[]){const m=/^(\d{4}-Q\d)-(\w+)\.json$/.exec(f.name);if(!m||m[1]!==q)continue;if(m[2]===pref.devId&&lgQ[q]){own=true;continue}
+   const g=await fetch(GR+'/Apps/CockpitNav/log/summary/'+f.name+':/content',{headers:{Authorization:'Bearer '+tk}});if(g.ok){const j=await g.json();days=lgMerge(days,j.days||{})}}}}catch(e){msg('OneDriveのまとめを取得できません')}}
+ if(lgQ[q])days=lgMerge(days,lgQ[q].days);return days}
+async function lgQShow(){const q=lgQCur;$('lg-qn').textContent=qName(q);$('lg-qv').innerHTML='<p class="note">読み込み中…</p>';const D=await lgQLoad(q);if(q!==lgQCur)return;lgQData=D;
+ const y=+q.slice(0,4),m0=(+q.slice(-1))*3-3,start=Date.UTC(y,m0,1),end=Date.UTC(y,m0+3,1),N=Math.round((end-start)/864e5),ks=[];for(let i=0;i<N;i++)ks.push(new Date(start+i*864e5).toISOString().slice(0,10));
+ const v=ks.map(k=>D[k]?D[k].dist:0),tot=v.reduce((a,b)=>a+b,0),act=ks.filter(k=>D[k]&&D[k].dist>200),mov=ks.reduce((a,k)=>a+(D[k]?D[k].mov:0),0),mx=Math.max(0,...ks.map(k=>D[k]?D[k].mx:0)),ts=ks.reduce((a,k)=>a+(D[k]?D[k].ts:0),0),tn=ks.reduce((a,k)=>a+(D[k]?D[k].tn:0),0);
+ const best=act.slice().sort((a,b)=>D[b].dist-D[a].dist)[0];
+ let h=`<div class="lgsum"><div><b>${tot?fmtM(tot):'--'}</b><small>合計距離</small></div><div><b>${mov?lgHM(mov):'--'}</b><small>走行時間</small></div><div><b>${act.length}日</b><small>走った日</small></div><div><b>${mx||'--'}</b><small>最高 km/h</small></div><div><b>${act.length?fmtM(tot/act.length):'--'}</b><small>走った日の平均</small></div><div><b>${tn?(ts/tn).toFixed(1)+'℃':'--'}</b><small>平均気温</small></div></div>`;
+ const vm=Math.max(1000,...v),bw=400/N;let g='';
+ for(let i=0;i<N;i++){const k=ks[i];if(k.slice(8)==='01')g+=`<line x1="${(i*bw).toFixed(1)}" x2="${(i*bw).toFixed(1)}" y1="0" y2="104" stroke="#26313d"/><text x="${(i*bw+2).toFixed(1)}" y="110" font-size="8" fill="#9aa6b2">${+k.slice(5,7)}月</text>`;
+  if(v[i]>0){const hh=Math.max(1.5,v[i]/vm*92);g+=`<rect data-qd="${k}" x="${Math.max(0,i*bw-bw).toFixed(1)}" y="0" width="${(bw*3).toFixed(1)}" height="104" fill="transparent"/>`;g+=`<rect data-qd="${k}" x="${(i*bw+0.4).toFixed(1)}" y="${(100-hh).toFixed(1)}" width="${Math.max(1,bw-0.8).toFixed(1)}" height="${hh.toFixed(1)}" fill="${k===best?'#ffd23a':'#39d0ff'}"><title>${k} ${fmtM(v[i])}</title></rect>`}}
+ h+=`<svg class="lgch lgbar" viewBox="0 0 400 112" preserveAspectRatio="none">${g}<text x="398" y="9" font-size="8" fill="#39d0ff" text-anchor="end">${fmtM(vm)}</text></svg><div class="lgleg"><span><i style="background:#39d0ff"></i>1日の距離（タップでその日へ）</span><span><i style="background:#ffd23a"></i>いちばん走った日</span></div>`;
+ h+=`<h3>月ごと</h3><table class="lgt"><tr><th>月</th><th>距離</th><th>走った日</th><th>走行時間</th><th>最高</th><th>平均気温</th></tr>`;
+ for(let mm=0;mm<3;mm++){const mk=new Date(Date.UTC(y,m0+mm,1)).toISOString().slice(0,7),kk=ks.filter(k=>k.startsWith(mk)),di=kk.reduce((a,k)=>a+(D[k]?D[k].dist:0),0),dd=kk.filter(k=>D[k]&&D[k].dist>200).length,mv=kk.reduce((a,k)=>a+(D[k]?D[k].mov:0),0),mxx=Math.max(0,...kk.map(k=>D[k]?D[k].mx:0)),t1=kk.reduce((a,k)=>a+(D[k]?D[k].ts:0),0),t2=kk.reduce((a,k)=>a+(D[k]?D[k].tn:0),0);
+  h+=`<tr><td>${+mk.slice(5)}月</td><td>${di?fmtM(di):'--'}</td><td>${dd}日</td><td>${mv?lgHM(mv):'--'}</td><td>${mxx?mxx+'km/h':'--'}</td><td>${t2?(t1/t2).toFixed(1)+'℃':'--'}</td></tr>`}
+ h+='</table>';if(best)h+=`<p class="note">いちばん走った日：${best.slice(5).replace('-','/')}（${fmtM(D[best].dist)}）</p>`;if(!tot)h+='<p class="note">この3か月の記録はまだありません。</p>';$('lg-qv').innerHTML=h}
+$('lg-qv').addEventListener('click',e=>{const b=e.target.closest('[data-qd]');if(!b)return;lgTab('d');lgDate(b.dataset.qd);lgList()});
+function lgTab(t){document.querySelectorAll('[data-lgt]').forEach(b=>b.classList.toggle('on',b.dataset.lgt===t));$('lg-q').hidden=t!=='q';$('lg-dpage').hidden=t!=='d';if(t==='q')lgQShow()}
+document.querySelectorAll('[data-lgt]').forEach(b=>b.addEventListener('click',()=>lgTab(b.dataset.lgt)));
+$('lg-pq').addEventListener('click',()=>lgQShift(-1));$('lg-nq').addEventListener('click',()=>lgQShift(1));
+/* 作り直し：この3か月の時間ごとのファイルを全部読んで、この端末の1日まとめを作る */
+$('lg-qre').addEventListener('click',async()=>{if(!odAcct){msg('OneDriveにサインインしてね');return}const q=lgQCur,y=+q.slice(0,4),m0=(+q.slice(-1))*3-3,st2=$('lg-qst');let tk;try{tk=await odToken()}catch(e){return}
+ const days={},add=(d,P,W)=>{const D=days[d]||(days[d]={dist:0,mov:0,mx:0,ts:0,tn:0,tmin:null,tmax:null}),S=lgStats(P);D.dist+=Math.round(S.dist);D.mov+=Math.round(S.mov);D.mx=Math.max(D.mx,S.mx);for(const w of W)if(w.T!=null){D.ts+=w.T;D.tn++;D.tmin=D.tmin==null?w.T:Math.min(D.tmin,w.T);D.tmax=D.tmax==null?w.T:Math.max(D.tmax,w.T)}};
+ for(let mm=0;mm<3;mm++){const mk=new Date(Date.UTC(y,m0+mm,1)).toISOString().slice(0,7);st2.textContent=+mk.slice(5)+'月を読み込み中…';
+  try{const r=await fetch(GR+`/Apps/CockpitNav/log/${mk.slice(0,4)}/${mk.slice(5,7)}:/children?$select=name&$top=40`,{headers:{Authorization:'Bearer '+tk}});if(!r.ok)continue;
+   for(const df of(await r.json()).value||[]){if(!/^\d\d$/.test(df.name))continue;const d=mk+'-'+df.name;const r2=await fetch(GR+lgDir(d)+':/children?$select=name&$top=200',{headers:{Authorization:'Bearer '+tk}});if(!r2.ok)continue;
+    for(const f of(await r2.json()).value||[]){if(!f.name.endsWith('-'+pref.devId+'.json'))continue;const g=await fetch(GR+lgDir(d)+'/'+f.name+':/content',{headers:{Authorization:'Bearer '+tk}});if(!g.ok)continue;const j=await g.json();add(d,j.trk||[],j.wx||[])}
+    st2.textContent=d.slice(5).replace('-','/')+' まで集計'}}catch(e){}}
+ lgQ[q]={days,dirty:true};lgQSave();await lgQUp(tk);st2.textContent='作り直しました';lgQShow()});
+
 function lgGpx(){const P=lgPts;if(P.length<2)return;const g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Cockpit Nav" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><name>${esc(lgDay)}</name><trkseg>\n`+P.map(x=>`<trkpt lat="${x[1]}" lon="${x[2]}">${x[5]!=null?`<ele>${x[5]}</ele>`:''}<time>${new Date(x[0]*1000).toISOString()}</time></trkpt>`).join('\n')+`\n</trkseg></trk>\n</gpx>`;shareOut('cockpit-nav-'+lgDay+'.gpx',g,'application/gpx+xml')}
 function lgMap(){lgClear();const R=lgPts,P=R.map(x=>[x[1],x[2]]);if(P.length<2)return;
  const segs=[];let cur=null;for(let i=1;i<R.length;i++){if(R[i][0]-R[i-1][0]>600){cur=null;continue}const c=lgCol(R[i][3]||0);if(!cur||cur.c!==c){cur={c,p:[P[i-1]]};segs.push(cur)}cur.p.push(P[i])}
