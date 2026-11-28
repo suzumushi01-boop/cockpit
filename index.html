@@ -1714,12 +1714,13 @@ function lgAcc(t,a){const d=jst(t).slice(0,10),q=qOf(d),Q=lgQ[q]||(lgQ[q]={days:
 const lgQPath=q=>`/Apps/CockpitNav/log/summary/${q}-${pref.devId}.json`;
 async function lgQUp(tk){for(const q in lgQ){const Q=lgQ[q];if(!Q.dirty)continue;const g=Q.gen||0;try{const r=await fetch(GR+lgQPath(q)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-sum',ver:1,dev:pref.devId,q,days:Q.days})});if(!r.ok)throw 0;if((Q.gen||0)===g)Q.dirty=false}catch(e){break}}lgQSave()}
 
+const lgRow=x=>x.length>=8?x:x.concat([null,null,null].slice(0,8-x.length)); // ver2は必ず8要素（古い6要素の点は 精度・出どころ＝null＝不明）
 const lgPath=k=>`/Apps/CockpitNav/log/${k.slice(0,4)}/${k.slice(5,7)}/${k.slice(8,10)}/${k.slice(11,13)}-${pref.devId}.json`;
 const GR='https://graph.microsoft.com/v1.0/me/drive/root:';
 let lgUpBusy=false;async function lgUp(){if(!pref.odLog||!odAcct||lgUpBusy)return;lgUpBusy=true;try{await lgUp0()}finally{lgUpBusy=false}}
 async function lgUp0(){const cur=hk(Date.now());let tk;try{tk=await odToken()}catch(e){return}
  for(const k of Object.keys(lgB).sort()){const h=lgB[k];if(!h.dirty){if(k!==cur)delete lgB[k];continue}const g=h.gen||0;
-  try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:h.trk,wx:h.wx})});if(!r.ok)throw r.status;lgOk=fmtT(Date.now());if((h.gen||0)===g){h.dirty=false;if(k!==cur)delete lgB[k]}}catch(e){break}}
+  try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:h.trk.map(lgRow),wx:h.wx})});if(!r.ok)throw r.status;lgOk=fmtT(Date.now());if((h.gen||0)===g){h.dirty=false;if(k!==cur)delete lgB[k]}}catch(e){break}}
  const old=hk(Date.now()-7*864e5);for(const k of Object.keys(lgB))if(k<old)delete lgB[k];lgSave();await lgQUp(tk);await pkUp(tk);lgStat()}
 setInterval(lgUp,300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){lgSave();lgUp()}});setTimeout(lgUp,20000);
 function lgStat(){const e=$('lg-st');if(!e)return;const n=Object.values(lgB).filter(h=>h.dirty).length;e.textContent=!odAcct?'OneDriveにサインインすると記録が送られます（設定 → OneDrive）。それまではこのiPhoneに7日分ためておきます':`送信待ち ${n}時間分`+(lgOk?`・最後に送った時刻 ${lgOk}`:'')+'（5分ごとに送信）'}
@@ -1818,7 +1819,7 @@ async function lgImport(day){if(!odAcct){msg('OneDriveにサインインして�
    const L2=lgB[k];if(L2){ex.trk=(ex.trk||[]).concat(L2.trk);ex.wx=(ex.wx||[]).concat(L2.wx)}
    const m=new Map();(ex.trk||[]).forEach(x=>m.set(x[0],x));H[k].forEach(x=>{if(!m.has(x[0]))m.set(x[0],x)});const trk=[...m.values()].sort((a,b)=>a[0]-b[0]);
    const wm=new Map();(ex.wx||[]).forEach(w=>wm.set(w.t,w));const wx=[...wm.values()].sort((a,b)=>a.t-b.t);
-   const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk,wx})});if(!r.ok)throw r.status;
+   const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:trk.map(lgRow),wx})});if(!r.ok)throw r.status;
    if(L2){L2.trk=trk;L2.wx=wx;L2.dirty=false}n++;pts+=H[k].length;qs.add(qOf(k.slice(0,10)))}catch(e){el.textContent='途中で失敗しました（電波を確認してもう一度）';lgSave();return}}
  lgSave();el.textContent=`${n}時間分（${pts}点）を取り込みました。3か月のまとめを更新中…`;for(const q of qs)await lgQRebuild(q);el.textContent=`${n}時間分（${pts}点）を取り込みました`;
  lgCal();if(lgDay)lgList()}
