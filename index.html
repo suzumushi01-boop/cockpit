@@ -1690,7 +1690,7 @@ function lgWx(){const c=fc&&fc.current,w=wxData,a=aq&&aq.current;if(!c&&!w)retur
  return{t:Date.now(),la:+st.lat.toFixed(4),lo:+st.lon.toFixed(4),T:c?+(+c.temperature_2m).toFixed(1):null,H:c?Math.round(c.relative_humidity_2m):null,P:c?Math.round(c.pressure_msl):null,
   wd:w&&w.d!=null?Math.round(w.d):null,ws:w?w.v:null,wg:w?w.g:null,wst:w?w.name:'',rain:wxSum.rainTxt||'',dew:wxSum.dewTxt||'',pm:a&&a.pm2_5!=null?Math.round(a.pm2_5):null}}
 function lgTick(){if(!pref.odLog||st.demo)return;const now=Date.now();let ch=false;
- if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){if(lgLast){const dd=map.distance(lgLast.p,p),dt=(now-lgLast.t)/1000;if(dt<600&&dd<3000)lgAcc(now,{dist:dd,mov:(dd>20||(st.spd||0)>3)?dt:0,mx:Math.round(st.spd||0)})}lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt),st.acc==null?null:Math.round(st.acc),0]);lgLast={t:now,p};ch=true}}
+ if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){if(lgLast){const dd=map.distance(lgLast.p,p),dt=(now-lgLast.t)/1000;if(dt<=600&&dd<3000)lgAcc(now,{dist:dd,mov:(dd>20||(st.spd||0)>3)?dt:0,mx:Math.round(st.spd||0)})}lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt),st.acc==null?null:Math.round(st.acc),0]);lgLast={t:now,p};ch=true}}
  if(now-lgWxT>600000){const w=lgWx();if(w){lgH(now).wx.push(w);lgWxT=now;ch=true;if(w.T!=null)lgAcc(now,{T:w.T})}}
  if(ch){lgH(now).dirty=true;lgSave()}}
 setInterval(lgTick,10000);
@@ -1738,7 +1738,7 @@ async function lgLoad(){const d=lgDay,want=[...lgSel].sort();if(!want.length){$(
  const u=new Map();P.forEach(x=>u.set(x[0],x));lgPts=[...u.values()].sort((a,b)=>a[0]-b[0]);const uw=new Map();W.forEach(x=>uw.set(x.t,x));lgWxs=[...uw.values()].sort((a,b)=>a.t-b.t);lgShow()}
 function lgDist(P){let d=0;for(let i=1;i<P.length;i++){const x=map.distance([P[i-1][1],P[i-1][2]],[P[i][1],P[i][2]]);if(x<3000)d+=x}return d}
 const lgCol=v=>v<20?'#39d0ff':v<40?'#3ddc84':v<60?'#ffd23a':v<80?'#ff9f2e':'#ff4d4d';
-function lgStats(P){let dist=0,mov=0,mx=0;for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],dt=b[0]-a[0],d=map.distance([a[1],a[2]],[b[1],b[2]]);if(d<3000&&dt<600){dist+=d;if(d>20||b[3]>3)mov+=dt}mx=Math.max(mx,b[3]||0)}return{dist,mov,mx,avg:mov>0?dist/mov*3.6:0}}
+function lgStats(P){let dist=0,mov=0,mx=0;for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],dt=b[0]-a[0],d=map.distance([a[1],a[2]],[b[1],b[2]]);if(d<3000&&dt<=600){dist+=d;if(d>20||b[3]>3)mov+=dt}mx=Math.max(mx,b[3]||0)}return{dist,mov,mx,avg:mov>0?dist/mov*3.6:0}}
 const lgHM=sec=>{const m=Math.round(sec/60);return m<60?m+'分':Math.floor(m/60)+'時間'+String(m%60).padStart(2,'0')+'分'};
 function lgChart(P,W){if(P.length<2&&W.length<2)return'';const t0=(P[0]?P[0][0]*1000:W[0].t),t1=Math.max(P.length?P[P.length-1][0]*1000:0,W.length?W[W.length-1].t:0,t0+60000),X=t=>(t-t0)/(t1-t0)*400;
  const vm=Math.max(40,...P.map(x=>x[3]||0)),Ts=W.map(w=>w.T).filter(v=>v!=null),tmin=Ts.length?Math.min(...Ts)-1:0,tmax=Ts.length?Math.max(...Ts)+1:1,Y=v=>100-v/vm*92,YT=v=>100-(v-tmin)/(tmax-tmin)*92;
