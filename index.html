@@ -2338,7 +2338,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611282231';
+const BUILD='202611290330';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
