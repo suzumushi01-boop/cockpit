@@ -137,6 +137,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #dewal{position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:1400;padding:max(0px,env(safe-area-inset-top)) 12px 1px;border-radius:0 0 10px 10px;border-top:0!important;border-width:1.5px!important;font:700 11px/1.35 'B612',sans-serif;white-space:nowrap;box-shadow:0 2px 8px #000a;max-width:70vw;overflow:hidden;text-overflow:ellipsis}#dewal small{opacity:.75;font-size:10px}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
+#trchip{position:absolute;right:10px;top:118px;z-index:650;padding:3px 9px;border-radius:10px;border:1px solid #ffd23a;background:#2b2408e6;color:#ffd23a;font:700 11px 'B612',sans-serif}
 #mic{position:absolute;right:10px;bottom:26px;width:60px;height:60px;border-radius:50%;border:2px solid var(--ln);background:#0b1016dd;color:var(--w);z-index:650;display:grid;place-items:center;cursor:pointer}
 #mic svg{width:28px;height:28px}#mic.listen{border-color:#ff4d4d;box-shadow:0 0 0 4px #ff4d4d55}#mic.wait{border-color:var(--c)}#mic[hidden]{display:none}
 .acm{background:none;border:0}.acm svg{width:34px;height:34px;display:block;overflow:visible}.acm span{position:absolute;left:30px;top:2px;font:700 11px 'B612 Mono',monospace;color:#39d0ff;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000}
@@ -201,6 +202,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="ndc wx" id="wx"><svg id="wxa" viewBox="-12 -12 24 24"><path d="M0-10L6 2H2V10H-2V2H-6Z" fill="#39d0ff" stroke="#000"/></svg><span id="wxt"></span><br><small id="rt"></small> <small id="fct"></small></div>
   <div id="msg" class="hide"></div>
   <button id="back">◎ 現在地へ戻る</button>
+  <button id="trchip" hidden></button>
   <div id="pin" hidden></div>
   <button id="mic" aria-label="声で操作"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   <div class="sg" id="sg" hidden><span id="sg-t"></span><button class="go" id="sg-go">案内する</button><button id="sg-no">あとで</button></div>
@@ -273,7 +275,12 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <p class="note">裏道・お気に入り・カテゴリー名・最近の目的地・★の履歴を OneDrive の「Apps/CockpitNav/cockpit-nav.json」に保存します。サインインすると、起動時・アプリに戻ったとき・3分ごとに自動で同期し、変更すると数秒で保存します。iPhoneとパソコンで同時に変えても、両方の変更を合わせます（同じものを両方で変えたときは新しいほう）。パソコンでは同じURLをEdgeやChromeで開いてサインインしてね。</p>
  <h3>渋滞情報（TomTom）</h3>
  <div class="rrow"><input id="tt-key" placeholder="TomTom の API キー" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="TomTom APIキー"><button id="tt-save">保存</button></div>
- <p class="note" id="tt-st">キーを入れると、天気ページの「渋滞」で道路の混雑を色で表示し、目的地ナビの到着時間と裏道の判断に渋滞を反映します（無料枠あり）。</p>
+ <p class="note" id="tt-st">キーを入れると、大地図に道路の混雑を色で表示し、目的地ナビの到着時間と裏道の判断に渋滞を反映します（無料枠あり）。</p>
+ <label class="chk"><input type="checkbox" id="tr-tf">TomTom 渋滞の流れ（速さを色で）</label>
+ <label class="chk"><input type="checkbox" id="tr-ti">TomTom 事故・工事・通行止め（同じキーで使えます）</label>
+ <div class="rrow"><input id="here-key" placeholder="HERE の API キー（任意）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="HERE APIキー"><button id="here-save">保存</button></div>
+ <label class="chk"><input type="checkbox" id="tr-hf">HERE 渋滞の流れ（2社目。TomTomと重ねて表示）</label>
+ <p class="note">複数の情報を重ねると、片方にしかない渋滞も見落としにくくなります。重ねる順番は下から HERE → TomTom の流れ → 事故・工事。</p>
  <h3>メニュー</h3><label class="chk"><input type="checkbox" id="set-menu">下の操作メニューを表示する（上の MENU ボタンでも切り替え）</label>
 </div></div>
 <div class="sheet" id="sh-out" hidden><div class="shin"><header><b id="out-name">書き出し</b><button data-close>閉じる</button></header><p class="note">共有メニューが使えないときは、ここからコピーして他のアプリに貼り付けてね。</p><textarea id="out-text" readonly style="width:100%;height:50vh;background:#000;color:#9aa6b2;border:1px solid #26313d;border-radius:8px;font:12px monospace"></textarea><div class="rrow"><button id="out-copy" class="on">コピー</button></div></div></div>
@@ -386,6 +393,11 @@ async function vSetBase(v,b){if(!v.vm||v.vfail)return false;if(!b.vs)return fals
  catch(e){vFallback(v);return false}}
 function vFallback(v){v.vfail=true;if(v.vd)v.vd.style.display='none';msg('ベクトル地図を読み込めないので、画像の地図にします');try{applyView(v)}catch(e){}}
 function vSync(v){if(!v.vm||v.vfail)return;const c=v.m.getCenter();try{v.vm.jumpTo({center:[c.lng,c.lat],zoom:v.m.getZoom()-1,bearing:v.cfg.hup?(v.hdgNow||0):0})}catch(e){}}
+/* 渋滞の状態を大地図の隅に小さく出す（キー未設定・キーが使えない） */
+let trOk={};const TRN={tf:'TomTom',ti:'TomTom事故',hf:'HERE'};
+function trSt(k,o){if(trOk[k]===o)return;trOk[k]=o;trChip();if(!o)msg(`渋滞（${TRN[k]}）を読み込めません。キーを確認してね`)}
+function trChip(){const e=$('trchip');if(!e)return;const bad=Object.keys(trOk).filter(k=>trOk[k]===false).map(k=>TRN[k]);
+ const t=!pref.ttKey&&!pref.hereKey?'渋滞：キー未設定':bad.length?'渋滞：'+bad.join('・')+'のキーを確認':'';e.textContent=t;e.hidden=!t}
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
 function applyView(v){
  const c=v.cfg,m=v.m,bi=Math.max(0,BASEDEF.findIndex(b=>b.n===c.base));
@@ -393,13 +405,23 @@ function applyView(v){
  v.bases.forEach((l,i)=>{if(i===bi&&!useV){if(!m.hasLayer(l))m.addLayer(l);l.bringToBack()}else m.removeLayer(l)});
  for(const k in v.hz){if(c.hz[k])m.addLayer(v.hz[k]);else m.removeLayer(v.hz[k]);v.hz[k].eachLayer(l=>l.setOpacity(c.op))}
  const u=c.wx.rain?(rainUrls[c.rm]||rainUrls[0]):null;
- if(u!==v.rainU){if(v.rainL)m.removeLayer(v.rainL);v.rainL=u?L.tileLayer(u,{minNativeZoom:4,maxNativeZoom:10,maxZoom:18,opacity:.7,zIndex:10}).addTo(m):null;v.rainU=u}
+ v.rainNZ=v.rainNZ||pref.rainNZ||10;
+ if(u!==v.rainU||v.rainNZ!==v.rainNZu){if(v.rainL)m.removeLayer(v.rainL);v.rainL=null;
+  if(u){const nz=v.rainNZ,lay=L.tileLayer(u,{minNativeZoom:4,maxNativeZoom:nz,maxZoom:18,opacity:.7,zIndex:10});let ok=0,ng=0;
+   lay.on('tileload',()=>{ok++});lay.on('tileerror',()=>{ng++;if(ng>=4&&ok===0&&nz>6){v.rainNZ=nz-2;pref.rainNZ=v.rainNZ;save();setTimeout(()=>applyView(v),50)}}); // その縮尺の雨雲画像がなければ、粗い画像に切り替える
+   v.rainL=lay.addTo(m)}v.rainU=u;v.rainNZu=v.rainNZ}
  if(c.wx.wind)m.addLayer(v.wxL);else m.removeLayer(v.wxL);
  if(c.wx.pm)m.addLayer(v.soraL);else m.removeLayer(v.soraL);
  if(c.wx.ac)m.addLayer(v.acL);else m.removeLayer(v.acL);
  if(c.wx.gm)m.addLayer(v.gmL);else m.removeLayer(v.gmL);
  if(c.wx.fav!==false)m.addLayer(v.favL);else m.removeLayer(v.favL);
- {const k=(v.id==='big'||c.wx.tr)&&pref.ttKey?pref.ttKey:'';if(k!==v.trK){if(v.trL)m.removeLayer(v.trL);v.trL=k?L.tileLayer(`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${encodeURIComponent(k)}&thickness=8`,{maxZoom:18,opacity:.85,zIndex:8}).addTo(m):null;v.trK=k}}
+ {const on=v.id==='big'||c.wx.tr,T=pref.trSrc||{tf:1,ti:1,hf:1},tk=encodeURIComponent(pref.ttKey||''),hk=encodeURIComponent(pref.hereKey||''),
+   want={hf:on&&T.hf&&hk?`https://traffic.maps.hereapi.com/v3/flow/mc/{z}/{x}/{y}/png?apiKey=${hk}`:'',
+    tf:on&&T.tf&&tk?`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${tk}&thickness=8`:'',
+    ti:on&&T.ti&&tk?`https://api.tomtom.com/traffic/map/4/tile/incidents/s0/{z}/{x}/{y}.png?key=${tk}`:''},ZI={hf:7,tf:8,ti:9};
+  v.trLs=v.trLs||{};for(const k in want){const cur=v.trLs[k];if((cur&&cur.u)===want[k])continue;if(cur)m.removeLayer(cur.l);v.trLs[k]=null;
+   if(want[k]){const l=L.tileLayer(want[k],{maxZoom:18,opacity:k==='ti'?1:.85,zIndex:ZI[k]}).addTo(m);let ok=0,ng=0;l.on('tileload',()=>{ok++;trSt(k,true)});l.on('tileerror',()=>{ng++;if(ng>=4&&!ok)trSt(k,false)});v.trLs[k]={u:want[k],l}}}
+  if(v.id==='big')trChip()}
  v.wrap.classList.toggle('mapnight',nightOf(c.cm));
  if(m.getZoom()!==c.z)m.setView(ctrOf(v.id),c.z,{animate:false});
  if(v.id==='big'){const at=document.querySelector('.attr');if(at)at.textContent=BASEDEF[bi].a+' / 気象庁 / ハザードマップポータルサイト'}
@@ -1138,9 +1160,14 @@ async function fetchAc(){
  acFail++;if(acFail>=3&&Date.now()-acFailMsg>180000){acFailMsg=Date.now();msg(px?'航空機データが一時的に取れません（前回の表示を続けます）':'飛行機を出すには「気象」画面で中継サーバーを設定してね')}
  if(acFail<3)acTime=Date.now()-10000; // 5秒後にもう一度
  return false}
+/* 航空会社の色：ANAグループは濃い青、JALグループは赤、そのほかは黒 */
+function acLine(cs){const c=(cs||'').toUpperCase();if(/^(ANA|AKX|AJX)/.test(c))return{f:'#0a3ca8',t:'#4f86ff'};if(/^(JAL|JTA|JAC|JLJ|RAC)/.test(c))return{f:'#d41c1c',t:'#ff5a5a'};return{f:'#111418',t:'#eef3f6'}}
+function acSvg(f,nr){const st=nr?'#ffb02e':'#ffffff';
+ return `<g stroke="${st}" stroke-width="${nr?1.6:1}" stroke-linejoin="round"><path d="M0-15.5C1.1-15.5 1.6-13.8 1.6-12V-4.2L14.5 2.6V5L1.6 1.8V8.6L5.6 11.6V13.6L0.6 12.4H-0.6L-5.6 13.6V11.6L-1.6 8.6V1.8L-14.5 5V2.6L-1.6-4.2V-12C-1.6-13.8-1.1-15.5 0-15.5Z" fill="${f}"/>`
+  +`<rect x="4.6" y="-1.2" width="2.2" height="4.2" rx="1" fill="${f}"/><rect x="-6.8" y="-1.2" width="2.2" height="4.2" rx="1" fill="${f}"/></g><path d="M-0.9-12.6H0.9" stroke="#9fd8ff" stroke-width="1.4" stroke-linecap="round"/>`}
 function drawAc(){VS.forEach(v=>v.acL.clearLayers());let near=0;const myAlt=st.alt||0;
  for(const a of acList){const d=map.distance([st.lat,st.lon],[a.lat,a.lon]),rel=Math.round(((a.alt||0)-myAlt)/30.48),nr=d<5000&&(a.alt||0)<1500&&a.alt>0;if(nr)near++;
-  const html=`<svg viewBox="-17 -17 34 34" style="transform:rotate(${isFinite(a.trk)?a.trk:0}deg)">${a.alt>0?`<path d="M0-12L4-2L13 3V6L4 3L3 10L6 12V14L0 12.5L-6 14V12L-3 10L-4 3L-13 6V3L-4-2Z" fill="${nr?'#ffb02e':'#39d0ff'}" stroke="#000" stroke-width="1.2"/>`:'<rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#9aa6b2" stroke-width="2" transform="rotate(45)"/>'}</svg><span>${esc(a.cs||'')} ${a.alt>0?(rel>=0?'+':'')+String(rel).padStart(2,'0'):'GND'}</span>`;
+  const al=acLine(a.cs),html=`<svg viewBox="-17 -17 34 34" style="transform:rotate(${isFinite(a.trk)?a.trk:0}deg)">${a.alt>0?acSvg(al.f,nr):'<rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#9aa6b2" stroke-width="2" transform="rotate(45)"/>'}</svg><span style="color:${nr?'#ffb02e':al.t}">${esc(a.cs||'')} ${a.alt>0?(rel>=0?'+':'')+String(rel).padStart(2,'0'):'GND'}</span>`;
   for(const v of VS)if(v.cfg.wx.ac){const sm=v.m.getZoom()<10;v.acL.addLayer(L.marker([a.lat,a.lon],{interactive:false,icon:L.divIcon({className:'acm'+(nr?' near':'')+(sm?' sm':''),iconSize:sm?[18,18]:[34,34],iconAnchor:sm?[9,9]:[17,17],html})}))}}
  $('a-tfc').className='an'+(near?' warn':acList.length&&anyWx('ac')?' on':'');
  if(near&&!drawAc.said){drawAc.said=1;sayAuto('低空を飛ぶ航空機が近くにいます','tfc')}else if(!near)drawAc.said=0}
@@ -1440,7 +1467,9 @@ $('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('s
 
 /* ---------- 渋滞（TomTom） ---------- */
 $('tt-key').value=pref.ttKey||'';
-$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました'});
+$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました';trOk={};trChip()});
+$('here-key').value=pref.hereKey||'';$('here-save').addEventListener('click',()=>{pref.hereKey=$('here-key').value.trim();save();trOk={};VS.forEach(applyView);msg(pref.hereKey?'HEREのキーを保存しました':'HEREのキーを消しました')});
+{const T=pref.trSrc=pref.trSrc||{tf:1,ti:1,hf:1};[['tr-tf','tf'],['tr-ti','ti'],['tr-hf','hf']].forEach(([id,k])=>{const c=$(id);c.checked=!!T[k];c.addEventListener('change',()=>{T[k]=c.checked?1:0;save();trOk={};VS.forEach(applyView)})})}
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
  const sm=j.routes&&j.routes[0]&&j.routes[0].summary;return sm?{t:+sm.travelTimeInSeconds,delay:+sm.trafficDelayInSeconds||0}:null}catch(e){return null}}
 
@@ -1726,7 +1755,7 @@ function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringi
 const WXG=$('wxg');let wxgOn=false,dewWarnDay='';
 function wxgOpen(){WXG.classList.add('on');WXG.setAttribute('aria-hidden','false');wxgOn=true;wxgPos=null;fetchTrend();setTimeout(drawWxg,60)}
 function wxgClose(){WXG.classList.remove('on');WXG.setAttribute('aria-hidden','true');wxgOn=false}
-$('wxtab').addEventListener('click',wxgOpen);$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
+$('wxtab').addEventListener('click',wxgOpen);$('trchip').addEventListener('click',e=>{e.stopPropagation();$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)});$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
 {let sw=null;const ok=t=>!(t.closest&&t.closest('#nd,#mwrap,.bar,input,select,textarea,.sheet,#pin'));
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1){sw=null;return}const t=e.touches[0];sw=(wxgOn?!(e.target.closest&&e.target.closest('svg')):ok(e.target))?{x:t.clientX,y:t.clientY,t:Date.now()}:null},{passive:true});
  document.addEventListener('touchend',e=>{if(!sw)return;const t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(Date.now()-sw.t<700&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6){if(dx<0&&!wxgOn)wxgOpen();else if(dx>0&&wxgOn)wxgClose()}sw=null},{passive:true});}
