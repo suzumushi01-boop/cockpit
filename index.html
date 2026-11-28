@@ -863,11 +863,12 @@ function hAdd(lat,lon){
 }
 setInterval(()=>{if(hDirty)hSave()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&hDirty)hSave()});
-const pastL=L.layerGroup().addTo(map);pref.hshow=pref.hshow!==false;
-function drawPast(){pastL.clearLayers();if(!pref.hshow)return;
+const pastL=L.layerGroup().addTo(map),pastLm=L.layerGroup().addTo(V.mini.m); // 小地図にも過去の走行pref.hshow=pref.hshow!==false;
+function drawPast(){pastL.clearLayers();pastLm.clearLayers();if(!pref.hshow)return;
  for(const t of trips){if(t===cur||t.show===false||t.pts.length<2)continue;
   pastL.addLayer(L.polyline(t.pts,{color:t.keep?'#39d0ff':'#ff9be9',weight:3,opacity:.75,dashArray:'6 8',interactive:false}));
-  pastL.addLayer(L.polyline(t.pts,{color:'#fff',weight:4,opacity:.85,dashArray:'0 20',lineCap:'round',interactive:false}))}}
+  pastL.addLayer(L.polyline(t.pts,{color:'#fff',weight:4,opacity:.85,dashArray:'0 20',lineCap:'round',interactive:false}));
+  pastLm.addLayer(L.polyline(t.pts,{color:t.keep?'#39d0ff':'#ff9be9',weight:2.5,opacity:.85,dashArray:'4 5',interactive:false}))}}
 const WD='日月火水木金土';
 const fmtT=ms=>{const d=new Date(ms);return two(d.getHours())+':'+two(d.getMinutes())};
 const fmtD=ms=>{const d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
