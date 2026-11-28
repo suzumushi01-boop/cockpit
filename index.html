@@ -140,6 +140,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
 #exchip{position:absolute;left:8px;top:calc(50% + 24px);z-index:655;padding:4px 10px;border-radius:12px;border:2px solid #ff4fd8;background:#1a0b18ee;color:#ff8be6;font:700 13px 'B612',sans-serif;cursor:pointer;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#exchip i{display:inline-block;font-style:normal;color:#fff}.exm{font:700 11px 'B612',sans-serif;color:#fff;white-space:nowrap}.exm b{display:inline-block;padding:1px 5px;border-radius:5px;background:#ff4fd8;border:1.5px solid #fff;box-shadow:0 1px 4px #000a}.exm.sub b{background:#6b2a60;opacity:.85}.exm.dst b{background:#0b1016;color:#ffd27a;border-color:#ffd27a}#ex-hubs button.on{color:var(--c);border-color:var(--c)}
+#lg-hours .bands button.on{color:var(--c);border-color:var(--c)}.lgt{width:100%;border-collapse:collapse;font:12px 'B612 Mono',monospace;margin:6px 0}.lgt th,.lgt td{border-bottom:1px solid var(--ln);padding:4px 3px;text-align:right;white-space:nowrap}.lgt th{color:#9aa6b2;font-weight:400}.lgt td:first-child,.lgt th:first-child{text-align:left}#lgbox{position:absolute;left:50%;bottom:calc(var(--gdh,60px) + 40px);transform:translateX(-50%);z-index:662;background:#0b1016f0;border:1px solid var(--c);border-radius:10px;padding:6px 10px;font:700 12px 'B612',sans-serif;color:var(--w);width:min(92%,420px)}#lgbox input{width:100%;accent-color:#39d0ff}#lgbox .r{display:flex;justify-content:space-between;align-items:center;gap:6px}#lgbox button{min-height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}
 #trchip{position:absolute;right:10px;top:118px;z-index:650;padding:3px 9px;border-radius:10px;border:1px solid #ffd23a;background:#2b2408e6;color:#ffd23a;font:700 11px 'B612',sans-serif}
 .wfleg{display:flex;align-items:center;gap:8px;font:11px 'B612 Mono',monospace;color:#9aa6b2;margin:4px 0 8px}.wfleg i{flex:1;height:8px;border-radius:4px}
 #wft{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:645;width:min(46%,340px);background:#0b1016d9;border:1px solid var(--ln);border-radius:10px;padding:4px 10px 2px;font:700 12px 'B612',sans-serif;color:#ffb02e;text-align:center}
@@ -212,6 +213,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <button id="back" aria-label="大地図を現在地へ戻す">◎ 現在地</button>
   <button id="trchip" hidden></button>
   <button id="exchip" hidden></button>
+  <div id="lgbox" hidden><div class="r"><span id="lgb-t"></span><button id="lgb-x">地図から消す</button></div><input type="range" id="lgb-r" min="0" max="0" value="0" aria-label="時刻"><div id="lgb-w" class="note"></div></div>
   <div id="wft" hidden><span id="wft-l">風 現在</span><input type="range" id="wft-r" min="0" max="72" step="1" value="0" aria-label="風の予報の時刻"><div class="wfts"><span>現在</span><span>24</span><span>48</span><span>72h</span></div></div>
   <div id="trn" hidden></div>
   <div id="pin" hidden></div>
@@ -226,7 +228,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-exit">駅の出口</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button><button id="b-vol">音量 100%</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
-  <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
+  <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-log">履歴照会</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
   <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-mnt">手入れ</button><button id="b-wash">洗車記録</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
  </div></nav>
 </div>
@@ -239,6 +241,11 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <div class="rrow"><button id="h-gpx">全部をGPXで書き出し</button><button id="h-csv">全部をCSVで書き出し</button><span class="note">GPXはGoogle Earth・地図アプリ・Strava などで開けます</span></div>
  <p class="note">★で残した記録は消えません。★なしの記録は60日たつと自動で消えます。記録はこのiPhoneの中だけに保存され、デモ走行は記録されません。</p>
  <div id="hlist"></div></div></div>
+<div class="sheet" id="sh-log" hidden><div class="shin"><header><b>履歴照会（走行・天気）</b><button data-close>閉じる</button></header>
+ <label class="chk"><input type="checkbox" id="lg-on">走行と天気をOneDriveに日別・時間別で記録する（Apps/CockpitNav/log/年/月/日/時.json）</label>
+ <p class="note" id="lg-st"></p>
+ <div class="rrow"><button id="lg-prev">◀ 前日</button><input type="date" id="lg-d" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px" aria-label="日付"><button id="lg-next">翌日 ▶</button><button id="lg-load" class="on">呼び出す</button></div>
+ <div id="lg-hours"></div><div id="lg-view"></div></div></div>
 <div class="sheet" id="sh-rt" hidden><div class="shin"><header><b>裏道ガイド</b><button data-close>閉じる</button></header>
  <p class="note">いい道を走るときに「記録開始」→ 走り終えたら「記録終了」で覚えます。走行履歴の「裏道に登録」からも作れます。スタート地点に近づくと自動で案内を提案し、裏道といつもの道の所要時間も自動で記録します。</p>
  <div class="rrow"><button id="r-rec">記録開始</button><span id="r-st" class="note"></span></div>
@@ -1318,6 +1325,7 @@ function runCmd(t){
  const has=(...w)=>w.some(x=>t.includes(x));
  if(has('音量')){const up=has('上げ','あげ','大きく','おおきく'),dn=has('下げ','さげ','小さく','ちいさく');if(up||dn){setVol(vVol()+(up?.2:-.2))}return say('音量'+Math.round(vVol()*100)+'パーセントです'),1}
   if(has('出口')){const N=pref.exNav;if(N&&!off(t)){const d=map.distance([st.lat,st.lon],[N.ex.lat,N.ex.lon]);return say(`${N.ex.lab}まで${sayM(d)}、${exDir(brg([st.lat,st.lon],[N.ex.lat,N.ex.lon]))}の方向です`),1}if(N&&off(t)){pref.exNav=null;save();exDraw();exTick();return say('出口ナビを終了しました'),1}exHubs();$('sh-exit').hidden=false;return say('行きたい場所を入れてください'),1}
+  if(has('履歴照会','履歴を見','記録を見')){$('b-log').click();return say('履歴照会を開きます'),1}
   if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、船橋駅まで案内、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
  if(has('渋滞')){if(off(t)||has('表示','出して','見せて')){B().wx.tr=!off(t);apB();return say(off(t)?'渋滞を消しました':(pref.ttKey?'渋滞を表示します':'渋滞は設定でTomTomのキーを入れると使えます')),1}
   return say(guide&&guide.nav&&guide.nav.delay!=null?(guide.nav.delay>60?`今のルートは渋滞で約${Math.round(guide.nav.delay/60)}分の遅れです`:'今のルートに大きな渋滞はありません'):(pref.ttKey?'目的地ナビ中に、ルートの渋滞をお知らせします':'渋滞は設定でTomTomのキーを入れると使えます')),1}
@@ -1645,6 +1653,66 @@ async function odSync(push){if(!odAcct)return;if(odBusy){odAgain=true;return}odB
  finally{odBusy=false;if(odAgain){odAgain=false;setTimeout(()=>odSync(true),1500)}}}
 window.__odTest=f=>{odToken=f.tk;odAcct=f.acct;odReady=true;return odSync}; // 動作確認用
 function setSyncChip(ok){const b=$('b-sync');if(b){b.classList.toggle('on',!!ok);b.title=ok?'同期済み '+fmtT(Date.now()):'未同期'}}
+/* ---------- 走行と天気の記録（OneDrive に 日別・時間別）と 履歴照会 ---------- */
+if(pref.odLog==null)pref.odLog=true;if(!pref.devId){pref.devId=Math.random().toString(36).slice(2,6);save()}
+const LGK='odLog',jst=t=>new Date(t+9*3600e3).toISOString(),hk=t=>{const x=jst(t);return x.slice(0,10)+'/'+x.slice(11,13)};
+let lgB={};try{lgB=JSON.parse(localStorage.getItem(LGK)||'{}')||{}}catch(e){lgB={}}
+const lgSave=()=>{for(let n=0;n<20;n++){try{localStorage.setItem(LGK,JSON.stringify(lgB));return}catch(e){const k=Object.keys(lgB).sort()[0];if(!k)return;delete lgB[k]}}};
+const lgH=t=>{const k=hk(t);return lgB[k]||(lgB[k]={trk:[],wx:[],dirty:true})};
+let lgLast=null,lgWxT=0,lgOk='';
+function lgWx(){const c=fc&&fc.current,w=wxData,a=aq&&aq.current;if(!c&&!w)return null;
+ return{t:Date.now(),la:+st.lat.toFixed(4),lo:+st.lon.toFixed(4),T:c?+(+c.temperature_2m).toFixed(1):null,H:c?Math.round(c.relative_humidity_2m):null,P:c?Math.round(c.pressure_msl):null,
+  wd:w&&w.d!=null?Math.round(w.d):null,ws:w?w.v:null,wg:w?w.g:null,wst:w?w.name:'',rain:wxSum.rainTxt||'',dew:wxSum.dewTxt||'',pm:a&&a.pm2_5!=null?Math.round(a.pm2_5):null}}
+function lgTick(){if(!pref.odLog||st.demo)return;const now=Date.now();let ch=false;
+ if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt)]);lgLast={t:now,p};ch=true}}
+ if(now-lgWxT>600000){const w=lgWx();if(w){lgH(now).wx.push(w);lgWxT=now;ch=true}}
+ if(ch){lgH(now).dirty=true;lgSave()}}
+setInterval(lgTick,10000);
+const lgPath=k=>`/Apps/CockpitNav/log/${k.slice(0,4)}/${k.slice(5,7)}/${k.slice(8,10)}/${k.slice(11,13)}-${pref.devId}.json`;
+const GR='https://graph.microsoft.com/v1.0/me/drive/root:';
+async function lgUp(){if(!pref.odLog||!odAcct)return;const cur=hk(Date.now());let tk;try{tk=await odToken()}catch(e){return}
+ for(const k of Object.keys(lgB).sort()){const h=lgB[k];if(!h.dirty){if(k!==cur)delete lgB[k];continue}
+  try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:1,dev:pref.devId,hour:k,trk:h.trk,wx:h.wx})});if(!r.ok)throw r.status;h.dirty=false;lgOk=fmtT(Date.now());if(k!==cur)delete lgB[k]}catch(e){break}}
+ const old=hk(Date.now()-7*864e5);for(const k of Object.keys(lgB))if(k<old)delete lgB[k];lgSave();lgStat()}
+setInterval(lgUp,300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){lgSave();lgUp()}});setTimeout(lgUp,20000);
+function lgStat(){const e=$('lg-st');if(!e)return;const n=Object.values(lgB).filter(h=>h.dirty).length;e.textContent=!odAcct?'OneDriveにサインインすると記録が送られます（設定 → OneDrive）。それまではこのiPhoneに7日分ためておきます':`送信待ち ${n}時間分`+(lgOk?`・最後に送った時刻 ${lgOk}`:'')+'（5分ごとに送信）'}
+/* 照会 */
+let lgDay='',lgFiles={},lgSel=new Set(),lgPts=[],lgWxs=[],lgLs=VS.map(v=>L.layerGroup().addTo(v.m)),lgDot=null;
+const lgDate=d=>{$('lg-d').value=d;lgDay=d};
+const lgDir=d=>`/Apps/CockpitNav/log/${d.slice(0,4)}/${d.slice(5,7)}/${d.slice(8,10)}`;
+async function lgList(){const d=$('lg-d').value;if(!d)return;lgDay=d;$('lg-view').innerHTML='';$('lg-hours').innerHTML='<p class="note">読み込み中…</p>';const H={};
+ for(const k in lgB)if(k.slice(0,10)===d&&(lgB[k].trk.length||lgB[k].wx.length))(H[k.slice(11,13)]=H[k.slice(11,13)]||[]).push({loc:k});
+ if(odAcct){try{const tk=await odToken(),r=await fetch(GR+lgDir(d)+':/children?$select=name,size&$top=200',{headers:{Authorization:'Bearer '+tk}});
+  if(r.ok){for(const f of(await r.json()).value||[]){const m=/^(\d\d)-(\w+)\.json$/.exec(f.name);if(m)(H[m[1]]=H[m[1]]||[]).push({od:f.name})}}else if(r.status!==404)throw r.status}catch(e){msg('OneDriveの一覧を取得できません')}}
+ lgFiles=H;lgSel=new Set();const hs=Object.keys(H).sort();
+ $('lg-hours').innerHTML=hs.length?`<h3>${d} の記録（時間を選んでね・複数OK）</h3><div class="bands">${hs.map(h=>`<button data-lh="${h}">${+h}時台</button>`).join('')}<button data-lall>1日まとめて</button></div>`:'<p class="note">この日の記録はありません。</p>'}
+async function lgLoad(){const d=lgDay,want=[...lgSel].sort();if(!want.length){$('lg-view').innerHTML='';return}$('lg-view').innerHTML='<p class="note">呼び出し中…</p>';const P=[],W=[];let tk=null;
+ for(const h of want)for(const f of lgFiles[h]||[]){try{let j;if(f.loc)j=lgB[f.loc];else{tk=tk||await odToken();const r=await fetch(GR+lgDir(d)+'/'+f.od+':/content',{headers:{Authorization:'Bearer '+tk}});if(!r.ok)continue;j=await r.json()}
+  (j.trk||[]).forEach(x=>P.push(x));(j.wx||[]).forEach(x=>W.push(x))}catch(e){}}
+ const u=new Map();P.forEach(x=>u.set(x[0],x));lgPts=[...u.values()].sort((a,b)=>a[0]-b[0]);const uw=new Map();W.forEach(x=>uw.set(x.t,x));lgWxs=[...uw.values()].sort((a,b)=>a.t-b.t);lgShow()}
+function lgDist(P){let d=0;for(let i=1;i<P.length;i++){const x=map.distance([P[i-1][1],P[i-1][2]],[P[i][1],P[i][2]]);if(x<3000)d+=x}return d}
+function lgShow(){const P=lgPts,W=lgWxs,by={};P.forEach(x=>{const h=jst(x[0]*1000).slice(11,13);(by[h]=by[h]||{p:[],w:[]}).p.push(x)});W.forEach(x=>{const h=jst(x.t).slice(11,13);(by[h]=by[h]||{p:[],w:[]}).w.push(x)});
+ const f=(v,u)=>v==null||v===''?'--':v+(u||''),wdir=d=>d==null?'':['北','北東','東','南東','南','南西','西','北西'][Math.round(d/45)%8];
+ let html=`<h3>まとめ</h3><table class="lgt"><tr><th>時</th><th>距離</th><th>最高</th><th>気温</th><th>湿度</th><th>気圧</th><th>風</th></tr>`;
+ for(const h of Object.keys(by).sort()){const b=by[h],w=b.w[Math.floor(b.w.length/2)]||{};html+=`<tr><td>${+h}時</td><td>${b.p.length>1?fmtM(lgDist(b.p)):'--'}</td><td>${b.p.length?Math.max(...b.p.map(x=>x[3]))+'km/h':'--'}</td><td>${f(w.T,'℃')}</td><td>${f(w.H,'%')}</td><td>${f(w.P)}</td><td>${w.ws!=null?wdir(w.wd)+' '+w.ws+'m/s':'--'}</td></tr>`}
+ html+='</table>';if(W.length){html+=`<h3>天気の記録（10分ごと）</h3><table class="lgt"><tr><th>時刻</th><th>気温</th><th>湿度</th><th>気圧</th><th>風</th><th>雨</th></tr>`+W.map(w=>`<tr><td>${fmtT(w.t)}</td><td>${f(w.T,'℃')}</td><td>${f(w.H,'%')}</td><td>${f(w.P)}</td><td>${w.ws!=null?wdir(w.wd)+' '+w.ws:'--'}</td><td>${esc(w.rain||'--')}</td></tr>`).join('')+'</table>'}
+ html+=P.length>1?'<div class="rrow"><button id="lg-map" class="on">地図で再生</button></div>':'<p class="note">走行の記録はありません（天気だけ）。</p>';$('lg-view').innerHTML=html;const b=$('lg-map');if(b)b.onclick=lgMap}
+function lgMap(){lgClear();const P=lgPts.map(x=>[x[1],x[2]]);if(P.length<2)return;lgLs.forEach(g=>g.addLayer(L.polyline(P,{color:'#39d0ff',weight:4,opacity:.9,interactive:false})));
+ lgDot=VS.map((v,i)=>{const m=L.circleMarker(P[0],{radius:7,color:'#fff',weight:2,fillColor:'#39d0ff',fillOpacity:1,interactive:false});lgLs[i].addLayer(m);return m});
+ try{brwOn();const bd=L.latLngBounds(P),z=Math.min(16,map.getBoundsZoom(bd,false,[40,40]));brw.c=bd.getCenter();map.setView(brw.c,z,{animate:false});clearTimeout(brwT)}catch(e){}
+ $('lgb-r').max=P.length-1;$('lgb-r').value=0;lgAt(0);$('lgbox').hidden=false;$('sh-log').hidden=true}
+function lgAt(i){const x=lgPts[i];if(!x)return;const t=x[0]*1000;lgDot&&lgDot.forEach(m=>m.setLatLng([x[1],x[2]]));let w=null;for(const y of lgWxs){if(y.t<=t+300000)w=y;else break}
+ $('lgb-t').textContent=`${lgDay.slice(5).replace('-','/')} ${fmtT(t)}  ${x[3]}km/h`;$('lgb-w').textContent=w?`気温 ${w.T??'--'}℃ 湿度 ${w.H??'--'}% 気圧 ${w.P??'--'}hPa 風 ${w.ws??'--'}m/s ${w.rain||''}`:'天気の記録なし';
+ if(brw.on){brw.c=L.latLng(x[1],x[2]);map.setView(brw.c,map.getZoom(),{animate:false});clearTimeout(brwT)}}
+function lgClear(){lgLs.forEach(g=>g.clearLayers());lgDot=null;$('lgbox').hidden=true}
+$('lgb-r').addEventListener('input',e=>lgAt(+e.target.value));$('lgb-x').addEventListener('click',()=>{lgClear();brwOff()});
+$('b-log').addEventListener('click',()=>{$('lg-on').checked=!!pref.odLog;lgStat();if(!$('lg-d').value)lgDate(jst(Date.now()).slice(0,10));openSh('sh-log');lgList()});
+$('lg-on').addEventListener('change',e=>{pref.odLog=e.target.checked;save();lgStat()});
+const lgShift=n=>{const d=new Date($('lg-d').value+'T12:00:00+09:00');d.setDate(d.getDate()+n);lgDate(jst(d.getTime()).slice(0,10));lgList()};
+$('lg-prev').addEventListener('click',()=>lgShift(-1));$('lg-next').addEventListener('click',()=>lgShift(1));$('lg-load').addEventListener('click',lgList);$('lg-d').addEventListener('change',lgList);
+$('lg-hours').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const hs=Object.keys(lgFiles).sort();
+ if('lall' in b.dataset){lgSel=lgSel.size===hs.length?new Set():new Set(hs)}else{const h=b.dataset.lh;lgSel.has(h)?lgSel.delete(h):lgSel.add(h)}
+ document.querySelectorAll('[data-lh]').forEach(x=>x.classList.toggle('on',lgSel.has(x.dataset.lh)));lgLoad()});
 function schedUp(){pref.chgAt=Date.now();try{localStorage.setItem('cockpitnav',JSON.stringify(pref))}catch(e){}if(!odReady||!odAcct)return;clearTimeout(odUpT);odUpT=setTimeout(()=>odSync(true),4000)}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&odReady&&odAcct&&Date.now()-odLast>20000)odSync(false)});
 setInterval(()=>{if(document.visibilityState==='visible'&&odReady&&odAcct&&Date.now()-odLast>170000)odSync(false)},30000); // 3分ごとに取り込み
