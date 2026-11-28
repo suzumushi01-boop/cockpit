@@ -140,7 +140,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
 #exchip{position:absolute;left:8px;top:calc(50% + 24px);z-index:655;padding:4px 10px;border-radius:12px;border:2px solid #ff4fd8;background:#1a0b18ee;color:#ff8be6;font:700 13px 'B612',sans-serif;cursor:pointer;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#exchip i{display:inline-block;font-style:normal;color:#fff}.exm{font:700 11px 'B612',sans-serif;color:#fff;white-space:nowrap}.exm b{display:inline-block;padding:1px 5px;border-radius:5px;background:#ff4fd8;border:1.5px solid #fff;box-shadow:0 1px 4px #000a}.exm.sub b{background:#6b2a60;opacity:.85}.exm.dst b{background:#0b1016;color:#ffd27a;border-color:#ffd27a}#ex-hubs button.on{color:var(--c);border-color:var(--c)}
-.lgtab{margin:4px 0 8px}.lgtab button.on{color:var(--c);border-color:var(--c)}.lgbar rect{cursor:pointer}.lgbar rect:hover{fill:#7fe3ff}
+.lgrg{border:1px solid #1f4d33;border-radius:10px;padding:6px 10px;margin:6px 0;background:#06140c}.lgrg summary{cursor:pointer;padding:4px 0}#rgchip{position:absolute;left:8px;top:calc(50% + 62px);z-index:654;padding:3px 9px;border-radius:10px;border:1.5px solid #3ddc84;background:#06140cee;color:#3ddc84;font:700 11px 'B612',sans-serif;cursor:pointer}.lgtab{margin:4px 0 8px}.lgtab button.on{color:var(--c);border-color:var(--c)}.lgbar rect{cursor:pointer}.lgbar rect:hover{fill:#7fe3ff}
 #lg-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:4px 0 8px}#lg-cal i{font:10px 'B612',sans-serif;color:#7d8995;text-align:center;font-style:normal}#lg-cal button{min-height:38px;border-radius:8px;border:1px solid #1a222b;background:#04070a;color:#56616c;font:700 13px 'B612 Mono',monospace;padding:0}#lg-cal button.has{color:#eef3f6;border-color:#2d5f73;background:#0c2530}#lg-cal button.sel{border:2px solid var(--c);color:var(--c)}#lg-cal button.td{box-shadow:inset 0 -3px 0 #ffd23a}.lgsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.lgsum div{background:#04070a;border:1px solid var(--ln);border-radius:8px;padding:6px;text-align:center}.lgsum b{display:block;font:700 17px 'B612 Mono',monospace;color:var(--c)}.lgsum small{font-size:10px;color:#9aa6b2}.lgch{width:100%;height:110px;display:block;background:#04070a;border:1px solid var(--ln);border-radius:8px}.lgleg{display:flex;gap:10px;font:11px 'B612',sans-serif;color:#9aa6b2;margin:2px 0 8px}.lgleg i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:3px}.lgh{font:700 10px 'B612 Mono',monospace;color:#fff;background:#0b1016d0;border:1px solid #39d0ff;border-radius:5px;padding:0 3px;white-space:nowrap}
 #lg-hours .bands button.on{color:var(--c);border-color:var(--c)}.lgt{width:100%;border-collapse:collapse;font:12px 'B612 Mono',monospace;margin:6px 0}.lgt th,.lgt td{border-bottom:1px solid var(--ln);padding:4px 3px;text-align:right;white-space:nowrap}.lgt th{color:#9aa6b2;font-weight:400}.lgt td:first-child,.lgt th:first-child{text-align:left}#lgbox{position:absolute;left:50%;bottom:calc(var(--gdh,60px) + 40px);transform:translateX(-50%);z-index:662;background:#0b1016f0;border:1px solid var(--c);border-radius:10px;padding:6px 10px;font:700 12px 'B612',sans-serif;color:var(--w);width:min(92%,420px)}#lgbox input{width:100%;accent-color:#39d0ff}#lgbox .r{display:flex;justify-content:space-between;align-items:center;gap:6px}#lgbox .r button.on{color:#000;background:var(--c)}#lgbox button{min-height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}
 #wkbox{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:663;background:#0b1016f2;border:2px solid #ffd23a;border-radius:12px;padding:6px 10px;font:700 15px 'B612',sans-serif;color:var(--w);width:min(94%,460px);max-height:70%;overflow:auto}#wkbox .r{display:flex;justify-content:space-between;align-items:center;gap:8px}#wkbox small{font-size:11px;color:#9aa6b2}.wkb-b[hidden]{display:none!important}.wkb-b{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}#wkbox button{min-height:34px;padding:0 9px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}#wkb-x{color:#ff8b8b!important}
@@ -216,6 +216,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <button id="back" aria-label="大地図を現在地へ戻す">◎ 現在地</button>
   <button id="trchip" hidden></button>
   <button id="exchip" hidden></button>
+  <button id="rgchip" hidden></button>
   <div id="wkbox" hidden><div class="r"><span id="wkb-t"></span><button id="wkb-x">終了</button></div><div id="wkb-m" class="wkb-b"></div><div id="wkb-adj" class="wkb-b" hidden><button data-wa="-1">◀ 5m戻す</button><button data-wa="0">目印に着いた</button><button data-wa="1">5m進める ▶</button></div></div>
   <div id="lgbox" hidden><div class="r"><span id="lgb-t"></span><span><button id="lgb-p">▶ 再生</button> <button id="lgb-sp">×1</button> <button id="lgb-x">消す</button></span></div><input type="range" id="lgb-r" min="0" max="0" value="0" aria-label="時刻"><div id="lgb-w" class="note"></div></div>
   <div id="wft" hidden><span id="wft-l">風 現在</span><input type="range" id="wft-r" min="0" max="72" step="1" value="0" aria-label="風の予報の時刻"><div class="wfts"><span>現在</span><span>24</span><span>48</span><span>72h</span></div></div>
@@ -248,6 +249,10 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
 <div class="sheet" id="sh-log" hidden><div class="shin"><header><b>履歴照会（走行・天気）</b><button data-close>閉じる</button></header>
  <label class="chk"><input type="checkbox" id="lg-on">走行と天気をOneDriveに日別・時間別で記録する（Apps/CockpitNav/log/年/月/日/時.json）</label>
  <p class="note" id="lg-st"></p>
+ <details class="lgrg" id="lg-rgd"><summary><b style="color:#3ddc84">● 期間を指定して地図に表示（緑）</b></summary>
+ <p class="note">お盆休みなど、選んだ期間に走った道を緑の線で地図に出し続けます（今の走行とは別の色）。同じ道をたどるときに便利。</p>
+ <div class="rrow"><input type="date" id="rg-a" style="min-height:40px;font:15px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px" aria-label="開始日"><span>〜</span><input type="date" id="rg-b" style="min-height:40px;font:15px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px" aria-label="終了日"></div>
+ <div class="rrow"><button id="rg-go" class="on">地図に表示</button><button id="rg-off">消す</button><span class="note" id="rg-st"></span></div></details>
  <div class="bands lgtab"><button data-lgt="d" class="on">日ごと</button><button data-lgt="q">3か月ごと</button></div>
  <div id="lg-q" hidden><div class="rrow" style="justify-content:space-between"><button id="lg-pq">◀</button><b id="lg-qn"></b><button id="lg-nq">▶</button></div><div id="lg-qv"></div>
  <div class="rrow"><button id="lg-qre">この3か月を記録から作り直す</button><span class="note" id="lg-qst"></span></div></div>
@@ -1341,6 +1346,7 @@ function runCmd(t){
  const has=(...w)=>w.some(x=>t.includes(x));
  if(has('音量')){const up=has('上げ','あげ','大きく','おおきく'),dn=has('下げ','さげ','小さく','ちいさく');if(up||dn){setVol(vVol()+(up?.2:-.2))}return say('音量'+Math.round(vVol()*100)+'パーセントです'),1}
   if(has('出口')){const N=pref.exNav;if(N&&!off(t)){const d=map.distance([st.lat,st.lon],[N.ex.lat,N.ex.lon]);return say(`${N.ex.lab}まで${sayM(d)}、${exDir(brg([st.lat,st.lon],[N.ex.lat,N.ex.lon]))}の方向です`),1}if(N&&off(t)){pref.exNav=null;save();exDraw();exTick();return say('出口ナビを終了しました'),1}exHubs();$('sh-exit').hidden=false;return say('行きたい場所を入れてください'),1}
+  if(has('緑')&&off(t)){$('rg-off').click();return say('緑の走行を消しました'),1}
   if(has('履歴照会','履歴を見','記録を見')){$('b-log').click();return say('履歴照会を開きます'),1}
   if(has('目印')&&WK&&WK.mode==='rec'){const m=WKM.find(x=>t.includes(x.replace(/[↑↓]/,'')))||'目印';wkMark(m);return say(m+'を記録しました'),1}
   if(has('歩き道')){$('b-walk').click();return say('歩き道を開きます'),1}
@@ -1805,6 +1811,31 @@ async function lgImport(day){if(!odAcct){msg('OneDriveにサインインして�
  lgCal();if(lgDay)lgList()}
 $('lg-imp').addEventListener('click',()=>lgImport($('lg-d').value));
 $('lg-impall').addEventListener('click',()=>{const b=$('lg-impall');if(!b.dataset.arm){b.dataset.arm=1;b.textContent='もう一度押すと全部取り込みます';setTimeout(()=>{delete b.dataset.arm;b.textContent='走行履歴を全部取り込む'},4000);return}delete b.dataset.arm;b.textContent='走行履歴を全部取り込む';lgImport(null)});
+
+
+/* 期間を指定して過去の走行を緑で表示（OneDriveの記録＋iPhone内の走行履歴） */
+const rgLs=VS.map(v=>L.layerGroup().addTo(v.m));let rg=null;try{rg=JSON.parse(localStorage.getItem('rangeTrk')||'null')}catch(e){rg=null}
+function rgDraw(){rgLs.forEach(g=>g.clearLayers());const c=$('rgchip');if(!rg||!rg.segs||!rg.segs.length){c.hidden=true;return}
+ rgLs.forEach((g,i)=>{for(const sg of rg.segs){if(sg.length<2)continue;g.addLayer(L.polyline(sg,{color:'#04210f',weight:i?5:7,opacity:.55,interactive:false}));g.addLayer(L.polyline(sg,{color:'#3ddc84',weight:i?2.5:4,opacity:.95,interactive:false}))}});
+ c.hidden=false;c.textContent='● '+rg.a.slice(5).replace('-','/')+(rg.b!==rg.a?'〜'+rg.b.slice(5).replace('-','/'):'')+' の走行'}
+function rgSegs(P){P.sort((a,b)=>a[0]-b[0]);const S=[];let cur=null,last=null;
+ for(const x of P){if(!isFinite(x[1]))continue;if(!last||x[0]-last[0]>600||map.distance([last[1],last[2]],[x[1],x[2]])>3000){cur=[];S.push(cur);cur.push([x[1],x[2]]);last=x;continue}
+  if(map.distance([last[1],last[2]],[x[1],x[2]])<20)continue;cur.push([x[1],x[2]]);last=x}return S.filter(s=>s.length>1)}
+async function rgLoad(a,b){const st2=$('rg-st'),days=[];for(let t=Date.parse(a+'T00:00:00Z');t<=Date.parse(b+'T00:00:00Z');t+=864e5)days.push(new Date(t).toISOString().slice(0,10));
+ if(!days.length){st2.textContent='期間を確認してね';return}if(days.length>62){st2.textContent='期間は62日までにしてね';return}
+ const P=[],seen=new Set();const push=x=>{if(!seen.has(x[0])){seen.add(x[0]);P.push(x)}};
+ for(const t of trips){if(!t||!(t.pts||[]).length)continue;const d0=jst(t.start).slice(0,10),d1=jst(t.end).slice(0,10);if(d1<a||d0>b)continue;for(const x of tripPts(t)){const d=jst(x[0]*1000).slice(0,10);if(d>=a&&d<=b)push(x)}}
+ for(const k in lgB){const d=k.slice(0,10);if(d>=a&&d<=b)lgB[k].trk.forEach(push)}
+ if(odAcct){let tk;try{tk=await odToken()}catch(e){tk=null}
+  if(tk)for(const d of days){st2.textContent=`読み込み中… ${d.slice(5).replace('-','/')}`;try{const r=await fetch(GR+lgDir(d)+':/children?$select=name&$top=200',{headers:{Authorization:'Bearer '+tk}});if(!r.ok)continue;
+   const fs=((await r.json()).value||[]).filter(f=>/^\d\d-\w+\.json$/.test(f.name));await Promise.all(fs.map(async f=>{try{const g=await fetch(GR+lgDir(d)+'/'+f.name+':/content',{headers:{Authorization:'Bearer '+tk}});if(g.ok)((await g.json()).trk||[]).forEach(push)}catch(e){}}))}catch(e){}}}
+ const segs=rgSegs(P);if(!segs.length){st2.textContent='この期間の走行は見つかりませんでした'+(odAcct?'':'（OneDriveにサインインすると古い記録も探せます）');return}
+ rg={a,b,segs};try{localStorage.setItem('rangeTrk',JSON.stringify(rg))}catch(e){msg('長すぎて保存できませんでした（表示はします）')}rgDraw();
+ let n=0;segs.forEach(s=>n+=s.length);st2.textContent=`${days.length}日分・${segs.length}本の走行を表示しました`;msg('選んだ期間の走行を緑で表示しました')}
+$('rg-go').addEventListener('click',()=>{let a=$('rg-a').value,b=$('rg-b').value||a;if(!a){$('rg-st').textContent='開始日を選んでね';return}if(b<a)[a,b]=[b,a];rgLoad(a,b)});
+$('rg-off').addEventListener('click',()=>{rg=null;try{localStorage.removeItem('rangeTrk')}catch(e){}rgDraw();$('rg-st').textContent='消しました'});
+$('rgchip').addEventListener('click',()=>{$('b-log').click();$('lg-rgd').open=true});
+if(rg){$('rg-a').value=rg.a;$('rg-b').value=rg.b}rgDraw();
 
 function lgGpx(){const P=lgPts;if(P.length<2)return;const g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Cockpit Nav" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><name>${esc(lgDay)}</name><trkseg>\n`+P.map(x=>`<trkpt lat="${x[1]}" lon="${x[2]}">${x[5]!=null?`<ele>${x[5]}</ele>`:''}<time>${new Date(x[0]*1000).toISOString()}</time></trkpt>`).join('\n')+`\n</trkseg></trk>\n</gpx>`;shareOut('cockpit-nav-'+lgDay+'.gpx',g,'application/gpx+xml')}
 function lgMap(){lgClear();const R=lgPts,P=R.map(x=>[x[1],x[2]]);if(P.length<2)return;
