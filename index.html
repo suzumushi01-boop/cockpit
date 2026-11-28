@@ -1819,7 +1819,7 @@ async function lgImport(day){if(!odAcct){msg('OneDriveにサインインして�
  for(const k of ks){el.textContent=`取り込み中… ${k.replace('/',' ')}時（${n+1}/${ks.length}）`;
   try{let ex={trk:[],wx:[]};const g=await fetch(GR+lgPath(k)+':/content',{headers:{Authorization:'Bearer '+tk}});if(g.ok)ex=await g.json();else if(g.status!==404)throw g.status;
    const L2=lgB[k];if(L2){ex.trk=(ex.trk||[]).concat(L2.trk);ex.wx=(ex.wx||[]).concat(L2.wx)}
-   const m=new Map();(ex.trk||[]).forEach(x=>m.set(x[0],x));H[k].forEach(x=>{if(!m.has(x[0]))m.set(x[0],x)});const trk=[...m.values()].sort((a,b)=>a[0]-b[0]);
+   const m=new Map();(ex.trk||[]).forEach(x=>m.set(x[0],x));H[k].forEach(x=>{if(!m.has(x[0]))m.set(x[0],x)});const all=[...m.values()].sort((a,b)=>a[0]-b[0]),meas=all.filter(x=>x[7]!==1&&x[7]!==2).map(x=>x[0]),near=t=>{let lo=0,hi=meas.length;while(lo<hi){const mid=(lo+hi)>>1;if(meas[mid]<t)lo=mid+1;else hi=mid}return(lo<meas.length&&meas[lo]-t<=60)||(lo>0&&t-meas[lo-1]<=60)};const trk=all.filter(x=>!((x[7]===1||x[7]===2)&&near(x[0]))); // その場で測った点の前後60秒にある取り込みの点は入れない（二重の記録を防ぐ）
    const wm=new Map();(ex.wx||[]).forEach(w=>wm.set(w.t,w));const wx=[...wm.values()].sort((a,b)=>a.t-b.t);
    const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:trk.map(lgRow),wx})});if(!r.ok)throw r.status;
    if(L2){L2.trk=trk;L2.wx=wx;L2.dirty=false}n++;pts+=H[k].length;qs.add(qOf(k.slice(0,10)))}catch(e){el.textContent='途中で失敗しました（電波を確認してもう一度）';lgSave();return}}
@@ -2338,7 +2338,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611290330';
+const BUILD='202611290420';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
