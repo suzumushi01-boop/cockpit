@@ -135,6 +135,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .wc .wcv{position:relative;min-height:0}.wc svg{display:block}.wc .ax{position:absolute;top:0;bottom:0;height:100%;pointer-events:none}.wc .scr{position:absolute;top:0;bottom:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}.wc .scr::-webkit-scrollbar{display:none}
 #wxtab{position:fixed;right:0;top:40%;z-index:640;width:26px;height:96px;border-radius:12px 0 0 12px;border:1px solid var(--c);border-right:0;background:#0b1016e6;color:var(--c);font:700 11px 'B612',sans-serif;padding:0;display:grid;place-items:center;line-height:1.1;writing-mode:vertical-rl;letter-spacing:.1em}
 #dewal{position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:1400;padding:max(0px,env(safe-area-inset-top)) 12px 1px;border-radius:0 0 10px 10px;border-top:0!important;border-width:1.5px!important;font:700 11px/1.35 'B612',sans-serif;white-space:nowrap;box-shadow:0 2px 8px #000a;max-width:70vw;overflow:hidden;text-overflow:ellipsis}#dewal small{opacity:.75;font-size:10px}
+#newver{position:fixed;left:50%;bottom:max(6px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1500;padding:8px 16px;border-radius:18px;border:2px solid #3be36a;background:#0b2014f0;color:#3be36a;font:700 13px 'B612',sans-serif;box-shadow:0 2px 10px #000a}
 #dewal.y{background:#2b2408f0;border:2px solid #ffd23a;color:#ffd23a}#dewal.r{background:#2b0b0bf0;border:2px solid #ff4d4d;color:#ff6b6b;animation:dwp 1.6s ease-in-out infinite}@keyframes dwp{50%{box-shadow:0 0 16px #ff4d4d88}}#dewal.m{animation:none;opacity:.6;padding-left:10px;padding-right:10px;font-size:12px}
 .tinfo{cursor:pointer}
 #trchip{position:absolute;right:10px;top:118px;z-index:650;padding:3px 9px;border-radius:10px;border:1px solid #ffd23a;background:#2b2408e6;color:#ffd23a;font:700 11px 'B612',sans-serif}
@@ -250,6 +251,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <p class="note">声で「船橋駅まで案内」「自宅に帰る」「洗車場へ行きたい」「郵便番号273-0005」「今の場所をお気に入りに登録」と言えます。データ：国土地理院・OpenStreetMap／Nominatim・HeartRails Geo API／zipcloud（郵便番号）・OSRM（ルート）。</p>
 </div></div>
 <button id="dewal" hidden></button>
+<button id="newver" hidden>新しい版があります ・ タップで更新</button>
 <div id="wxg" aria-hidden="true"><header><b>WX TREND</b><span class="sub" id="wxg-sub"></span><button id="wxg-up">更新</button><button id="wxg-x">計器へ ▸</button></header><div class="grid" id="wxg-grid"></div></div>
 <button id="wxtab" aria-label="気象グラフ">‹ 気象</button>
 <div class="sheet" id="sh-set" hidden><div class="shin"><header><b>設定</b><button data-close>閉じる</button></header>
@@ -1850,6 +1852,12 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
  for(let i=0;i<Math.min(8,h.time.length);i++){if(dewRisk(h,i)===3){dewWarnDay=k;sayAuto(`${hm(h.time[i])}ごろから結露がひどくなる見込みです。ガラスとカメラの曇りに注意してください`,'warn');return}}}
 setInterval(()=>{dewWarn()},60000);
 
+/* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
+const BUILD='202611281202';
+async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
+ if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
+$('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
+setTimeout(verCheck,8000);setInterval(verCheck,10*60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verCheck()});
 msg('SYSTEM START を押してください');
 size();requestAnimationFrame(frame);slow();
 }
