@@ -410,7 +410,7 @@ const DEF={big:{z:pref.z||16,op:pref.op||0.55,base:pref.base||'道路',hz:pref.h
  mini:{z:12,op:0.55,base:'淡色',hz:{flood:true,dosha:true},wx:{wind:false,rain:true,pm:false,ac:false,gm:false,fav:true},rm:0,hup:false,cm:'AUTO'}};
 const brw={on:false,c:null,t:0};const ctrOf=id=>{if(id==='mini'){const f=miniFit();if(f)return f.c}return id==='big'&&brw.on&&brw.c?brw.c:[st.lat,st.lon]};
 /* 案内中は、小地図に「現在地からゴールまでの残りの道」が全部入るよう縮尺を自動で合わせる */
-let miniHold=0,miniHT=0;function miniFit(){try{if(Date.now()<miniHold)return null;if(typeof guide==='undefined'||!guide||!guide.P||!V.mini)return null;const v=V.mini,P=guide.P,i0=Math.max(0,guide.prog||0),pts=[[st.lat,st.lon]],stp=Math.max(1,Math.floor((P.length-i0)/80));
+var lgFitV=null;let miniHold=0,miniHT=0;function miniFit(){try{if(lgFitV)return lgFitV;if(Date.now()<miniHold)return null;if(typeof guide==='undefined'||!guide||!guide.P||!V.mini)return null;const v=V.mini,P=guide.P,i0=Math.max(0,guide.prog||0),pts=[[st.lat,st.lon]],stp=Math.max(1,Math.floor((P.length-i0)/80));
  for(let i=i0;i<P.length;i+=stp)pts.push(P[i]);pts.push(P[P.length-1]);const b=L.latLngBounds(pts),w=v.wrap.clientWidth,h=v.wrap.clientHeight,d=v.el.clientWidth||Math.hypot(w,h);
  if(!w||!h)return null;const pad=L.point(d-w+28,d-h+28).add(v.cfg.hup?L.point(w*.3,h*.3):L.point(0,0));return{c:b.getCenter(),z:Math.max(5,Math.min(17,v.m.getBoundsZoom(b,false,pad)))}}catch(e){return null}}
 function mkView(id,el,wrap){
@@ -423,7 +423,7 @@ function mkView(id,el,wrap){
  v.dots=L.polyline([],{color:'#fff',weight:5,opacity:.95,dashArray:'0 16',lineCap:'round',interactive:false}).addTo(m);
  v.ship=L.marker([st.lat,st.lon],{interactive:false,icon:L.divIcon({className:'ship',iconSize:[40,40],iconAnchor:[20,20],html:SHIP})}).addTo(m);
  setTimeout(()=>vInit(v),0);
- m.on('zoomend',()=>{if(id==='mini'&&miniFit()){rng();return}cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
+ m.on('zoomend',()=>{if(id==='mini'&&lgFitV){lgFitV.z=m.getZoom();lgFitV.c=m.getCenter();rng();return}if(id==='mini'&&miniFit()){rng();return}cfg.z=m.getZoom();save();m.setView(ctrOf(id),cfg.z,{animate:false});rng();if(typeof drawAc==='function'&&cfg.wx.ac)drawAc();if(cfg.wx.fav)try{drawFav()}catch(e){}});
  return v;
 }
 
@@ -1811,8 +1811,9 @@ function lgMap(){lgClear();const R=lgPts,P=R.map(x=>[x[1],x[2]]);if(P.length<2)r
  const lab=(ll,h,cls)=>L.marker(ll,{interactive:false,icon:L.divIcon({className:'',iconSize:null,iconAnchor:[-6,8],html:`<span class="lgh"${cls?' style="border-color:'+cls+';color:'+cls+'"':''}>${h}</span>`})});
  lgLs.forEach((g,vi)=>{g.addLayer(L.polyline(P,{color:'#000',weight:7,opacity:.5,interactive:false}));segs.forEach(sg=>g.addLayer(L.polyline(sg.p,{color:sg.c,weight:4.5,opacity:.95,interactive:false})));
   g.addLayer(lab(P[0],'S '+fmtT(R[0][0]*1000),'#3ddc84'));g.addLayer(lab(P[P.length-1],'G '+fmtT(R[R.length-1][0]*1000),'#ff4fd8'));
-  if(vi===0){let ph='';R.forEach((x,i)=>{const h=jst(x[0]*1000).slice(11,13);if(h!==ph&&i>0&&i<R.length-1)g.addLayer(lab(P[i],+h+'時'));ph=h})}});
+  {let ph='';R.forEach((x,i)=>{const h=jst(x[0]*1000).slice(11,13);if(h!==ph&&i>0&&i<R.length-1)g.addLayer(lab(P[i],+h+'時'));ph=h})}});
  lgDot=VS.map((v,i)=>{const m=L.circleMarker(P[0],{radius:7,color:'#fff',weight:2,fillColor:'#39d0ff',fillOpacity:1,interactive:false});lgLs[i].addLayer(m);return m});
+ try{const bd0=L.latLngBounds(P),mv=V.mini;lgFitV={c:bd0.getCenter(),z:Math.min(16,mv.m.getBoundsZoom(bd0,false,[24,24]))};mv.m.setView(lgFitV.c,lgFitV.z,{animate:false});rng()}catch(e){}
  try{brwOn();const bd=L.latLngBounds(P),z=Math.min(16,map.getBoundsZoom(bd,false,[40,40]));brw.c=bd.getCenter();map.setView(brw.c,z,{animate:false});clearTimeout(brwT)}catch(e){}
  $('lgb-r').max=P.length-1;$('lgb-r').value=0;lgAt(0);$('lgbox').hidden=false;$('sh-log').hidden=true}
 function lgAt(i){const x=lgPts[i];if(!x)return;const t=x[0]*1000;lgDot&&lgDot.forEach(m=>m.setLatLng([x[1],x[2]]));let w=null;for(const y of lgWxs){if(y.t<=t+300000)w=y;else break}
@@ -1821,7 +1822,7 @@ function lgAt(i){const x=lgPts[i];if(!x)return;const t=x[0]*1000;lgDot&&lgDot.fo
 let lgPlayT=null,lgSp=1;function lgStop(){clearInterval(lgPlayT);lgPlayT=null;const b=$('lgb-p');b.textContent='▶ 再生';b.classList.remove('on')}
 function lgPlay(){if(lgPlayT){lgStop();return}const r=$('lgb-r');if(+r.value>=+r.max)r.value=0;$('lgb-p').textContent='⏸ 停止';$('lgb-p').classList.add('on');lgPlayT=setInterval(()=>{const v=Math.min(+r.max,+r.value+lgSp);r.value=v;lgAt(v);if(v>=+r.max)lgStop()},200)}
 $('lgb-p').addEventListener('click',lgPlay);$('lgb-sp').addEventListener('click',()=>{lgSp=lgSp===1?3:lgSp===3?10:1;$('lgb-sp').textContent='×'+lgSp});
-function lgClear(){lgStop();lgLs.forEach(g=>g.clearLayers());lgDot=null;$('lgbox').hidden=true}
+function lgClear(){lgStop();lgLs.forEach(g=>g.clearLayers());lgDot=null;$('lgbox').hidden=true;if(lgFitV){lgFitV=null;try{V.mini.m.setView(ctrOf('mini'),V.mini.cfg.z,{animate:false});rng()}catch(e){}}}
 $('lgb-r').addEventListener('input',e=>{lgStop();lgAt(+e.target.value)});$('lgb-x').addEventListener('click',()=>{lgClear();brwOff()});
 $('b-log').addEventListener('click',()=>{$('lg-on').checked=!!pref.odLog;lgStat();if(!$('lg-d').value)lgDate(jst(Date.now()).slice(0,10));else lgCal();openSh('sh-log');lgList()});
 $('lg-on').addEventListener('change',e=>{pref.odLog=e.target.checked;save();lgStat()});
@@ -2124,7 +2125,7 @@ const rotS=(x,y)=>{const a=(V.big.cfg.hup?st.hdg:0)*D2R,c=Math.cos(a),s=Math.sin
 function brwOn(){if(!brw.on){brw.on=true;brw.c=map.getCenter();ndEl.classList.add('browse')}brwKick()}
 function brwKick(){clearTimeout(brwT);brwT=setTimeout(()=>{if(!pinP)brwOff()},30000)} // 30秒さわらなければ現在地に戻る
 function brwOff(){brw.on=false;brw.c=null;ndEl.classList.remove('browse');clearTimeout(brwT);map.setView([st.lat,st.lon],map.getZoom(),{animate:false});rng()}
-$('back').addEventListener('click',e=>{e.stopPropagation();pinClose();brwOff();msg('大地図を現在地に戻しました')});$('mback').addEventListener('click',e=>{e.stopPropagation();const v=V.mini;miniHold=Date.now()+30000;$('mwrap').classList.add('hold');clearTimeout(miniHT);miniHT=setTimeout(()=>{miniHold=0;$('mwrap').classList.remove('hold');setPos(st.lat,st.lon)},30000);v.m.setView([st.lat,st.lon],v.cfg.z||v.m.getZoom(),{animate:false});msg('小地図を現在地に戻しました')});
+$('back').addEventListener('click',e=>{e.stopPropagation();pinClose();brwOff();msg('大地図を現在地に戻しました')});$('mback').addEventListener('click',e=>{e.stopPropagation();lgFitV=null;const v=V.mini;miniHold=Date.now()+30000;$('mwrap').classList.add('hold');clearTimeout(miniHT);miniHT=setTimeout(()=>{miniHold=0;$('mwrap').classList.remove('hold');setPos(st.lat,st.lon)},30000);v.m.setView([st.lat,st.lon],v.cfg.z||v.m.getZoom(),{animate:false});msg('小地図を現在地に戻しました')});
 function ptLL(cx,cy){const r=ndEl.getBoundingClientRect(),[x,y]=rotS(cx-r.left-r.width/2,cy-r.top-r.height/2),d=V.big.el.clientWidth;return map.containerPointToLatLng([d/2+x,d/2+y])}
 const skipT=t=>t.closest&&t.closest('button,#pin,.gd,.lg,input,select');
 ndEl.addEventListener('touchstart',e=>{if(skipT(e.target))return;if(e.touches.length!==1){tch=null;clearTimeout(lpT);return}
