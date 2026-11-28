@@ -45,7 +45,7 @@ html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .an{font:700 11px 'B612 Mono',monospace;padding:3px 6px;border:1px solid #2a323b;border-radius:3px;color:#56616d;flex:none}
 .an.on{color:var(--g);border-color:var(--g)}
 .an.warn{color:#000;background:var(--a);border-color:var(--a)}
-.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,.62fr) auto minmax(0,1.5fr);gap:5px}
+.pfd.rst #hdgt,.pfd.rst #adi{animation:rstf .6s}@keyframes rstf{0%{filter:brightness(2.2) drop-shadow(0 0 8px #39d0ff)}100%{filter:none}}#hdgt,#adi{cursor:pointer}.pfd{grid-area:pfd;background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px;display:grid;grid-template-rows:minmax(0,.62fr) auto minmax(0,1.5fr);gap:5px}
 .pfdrow{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:6px;min-height:0}
 .pfdrow svg{width:100%;height:100%;display:block}
 #hdgt{width:100%;height:30px;display:block}
@@ -535,8 +535,8 @@ function target(){
  if(st.src==='GYRO')return st.cmpRaw;if(st.src==='GPS')return st.trk;
  return (st.trk!=null&&st.spd>8)?st.trk:(st.cmpRaw!=null?st.cmpRaw:st.trk);
 }
-function frame(){
- const t=target();if(t!=null){const d=((t-st.hdg+540)%360)-180;st.hdg=(st.hdg+d*0.12+360)%360}
+let hdgSnap=false;function frame(){
+ const t=target();if(t!=null&&hdgSnap){st.hdg=t;hdgSnap=false}if(t!=null){const d=((t-st.hdg+540)%360)-180;st.hdg=(st.hdg+d*0.12+360)%360}
  const h=st.hdg,mr=V.big.cfg.hup?-h:0;
  for(const v of VS){v.el.style.transform=`translate(-50%,-50%) rotate(${v.cfg.hup?-h:0}deg)`;if(v.vm&&Math.abs((v.hdgNow||0)-h)>0.05){v.hdgNow=h;vSync(v)}const se=v.ship.getElement();if(se)se.firstChild.style.transform=`rotate(${h}deg)`}
  $('rg').setAttribute('transform',`rotate(${mr})`);$('hdgp').setAttribute('transform',`rotate(${h})`);
@@ -672,6 +672,12 @@ $('b-base').addEventListener('click',()=>{const c=SV().cfg,i=BASEDEF.findIndex(b
 $('b-day').addEventListener('click',()=>{const c=SV().cfg;c.cm=CMS[(CMS.indexOf(c.cm)+1)%3];upd()});
 const SRC=['AUTO','GYRO','GPS'];st.src=pref.src||'AUTO';const sB=$('b-src');sB.textContent='方位 '+st.src;
 sB.addEventListener('click',()=>{st.src=SRC[(SRC.indexOf(st.src)+1)%3];pref.src=st.src;save();sB.textContent='方位 '+st.src});
+function cmpReset(){st.cmpRaw=null;st.cmp=false;ref=null;st.roll=st.pitch=0;st.gpk=0;hdgSnap=true;
+ ['deviceorientation','deviceorientationabsolute'].forEach(n=>window.removeEventListener(n,onOri));window.removeEventListener('devicemotion',onMot);
+ const asks=[window.DeviceOrientationEvent,window.DeviceMotionEvent].filter(E=>E&&typeof E.requestPermission==='function').map(E=>E.requestPermission().catch(()=>'denied'));
+ Promise.all(asks).then(()=>{window.addEventListener('deviceorientation',onOri);if('ondeviceorientationabsolute' in window)window.addEventListener('deviceorientationabsolute',onOri);window.addEventListener('devicemotion',onMot)});
+ const f=document.querySelector('.pfd');f.classList.remove('rst');void f.offsetWidth;f.classList.add('rst');msg('コンパスと姿勢をリフレッシュしました');cue('info')}
+['hdgt','adi'].forEach(id=>$(id).addEventListener('click',e=>{e.stopPropagation();cmpReset()}));
 $('b-cal').addEventListener('click',()=>{ref=null;st.roll=st.pitch=0;st.gpk=0;msg('姿勢とGをリセット')});
 $('b-cal2').addEventListener('click',()=>{ref=null;st.roll=st.pitch=0;st.gpk=0;msg('水平器をリセットしました（今の傾きを0°に）')});
 const rB=$('b-rec');const setRec=()=>rB.classList.toggle('on',st.rec);setRec();
