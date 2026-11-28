@@ -28,7 +28,7 @@ body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans
 #ck{display:grid;position:fixed;inset:0;width:100%;height:100vh;height:100dvh;overflow:hidden;gap:6px;grid-template:"ann ann" auto "pfd nd" minmax(0,1fr) "bar bar" auto/minmax(300px,40%) minmax(0,1fr);
  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
 html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
-@media (max-aspect-ratio:1/1){#ck{grid-template:"ann" auto "nd" minmax(0,1.25fr) "pfd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
+@media (max-aspect-ratio:1/1){.bar{flex-wrap:wrap}.bfix{gap:3px}.bfix button{padding:0 5px!important;min-width:0!important;font-size:12px}.bfix{flex:1 1 100%;overflow-x:auto;scrollbar-width:none}.bsc{flex:1 1 100%;border-left:0;padding-left:0}#ck{grid-template:"ann" auto "nd" minmax(0,1.25fr) "pfd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
 .ann{grid-area:ann;display:flex;gap:10px;align-items:center;min-width:0;overflow:hidden}
 .anns{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0}
 .tinfo{flex:none;display:flex;gap:10px;align-items:baseline;font:700 14px 'B612 Mono',monospace;white-space:nowrap}.tinfo small{font:400 11px 'B612',sans-serif;color:#9aa6b2;margin-right:3px}
@@ -71,7 +71,7 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 .lg[hidden]{display:none}
 .lg i{display:inline-block;width:14px;height:10px;margin-right:5px;vertical-align:-1px;border:1px solid #0006}
 .attr{position:absolute;right:6px;bottom:4px;font-size:10px;color:#9aa6b2;text-shadow:0 0 3px #000}
-.bar{grid-area:bar;display:flex;gap:6px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.bar{grid-area:bar;display:flex;gap:6px;overflow:hidden;align-items:center}.bfix{display:flex;gap:6px;flex:none;align-items:center}.bsc{display:flex;gap:6px;flex:1 1 auto;min-width:0;overflow-x:auto;align-items:center;scrollbar-width:none;padding-left:6px;border-left:1px solid var(--ln)}.bfix::-webkit-scrollbar,.bsc::-webkit-scrollbar{display:none}
 .bar button{min-height:44px;min-width:44px;padding:0 12px;background:#121920;color:var(--w);border:1px solid var(--ln);border-radius:8px;font:700 14px 'B612',sans-serif;flex:none;cursor:pointer}
 .bar button.on{border-color:var(--c);color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
 .bar button:focus-visible,#go:focus-visible{outline:2px solid var(--a);outline-offset:2px}
@@ -219,14 +219,15 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="attr">国土地理院 / ハザードマップポータルサイト</div>
  </section>
  <nav class="bar" aria-label="操作">
-  <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
-  <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
+  <div class="bfix"><span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
+  <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span></div>
+  <div class="bsc">
   <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
   <div class="pg" data-p="sys"><button id="b-set">設定</button><button id="b-mnt">手入れ</button><button id="b-wash">洗車記録</button><button id="b-sync">同期</button><button id="b-vc">声で操作 タップ</button><button id="b-src">方位 AUTO</button><button id="b-cal">水平リセット</button><button id="b-exp2">書き出し</button></div>
- </nav>
+ </div></nav>
 </div>
 <div class="sheet" id="sh-wx" hidden><div class="shin"><header><b>気象</b><button data-close>閉じる</button></header><div id="wxbody"><p class="note">データを取得中…（GitHub Pages で開いたときに表示されます）</p></div>
  <h3>航空機データの中継サーバー（Cloudflare Workers）</h3>
@@ -1529,7 +1530,7 @@ setTimeout(drawFav,800);
 /* ---------- ページ切り替え（下のメニュー） ---------- */
 const PGS=['nav','map','wx','run','sys'];pref.page=PGS.includes(pref.page)?pref.page:'nav';
 function setPage(p){pref.page=p;save();document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.pg===p));
- document.querySelectorAll('.pg').forEach(d=>d.classList.toggle('on',d.dataset.p===p));$('segw').style.display=['map','wx','run'].includes(p)?'':'none'}
+ document.querySelectorAll('.pg').forEach(d=>d.classList.toggle('on',d.dataset.p===p));}
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.pg)));setPage(pref.page);
 $('b-zo2').addEventListener('click',()=>zoomB(-1));$('b-zi2').addEventListener('click',()=>zoomB(1));
 $('b-stop').addEventListener('click',()=>{if(guide)stopGuide('案内を中止しました','案内を中止します');else msg('案内していません')});
@@ -1939,7 +1940,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611282221';
+const BUILD='202611282226';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
