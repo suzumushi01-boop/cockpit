@@ -707,7 +707,7 @@ function wfRGB(v){for(let i=1;i<WFS.length;i++)if(v<=WFS[i][0]){const[a,ca]=WFS[
 function wfStations(){const out=[];if(!amObs||!amTab)return out;for(const id in amObs){const o=amObs[id],t=amTab[id];if(!t||!o.wind||!o.windDirection||o.wind[1]!==0)continue;
  const sp=+o.wind[0],code=+o.windDirection[0],ll=amLL(t);let u=0,w=0;if(code){const to=(code*22.5+180)*D2R;u=Math.sin(to)*sp;w=Math.cos(to)*sp}out.push({la:ll[0],lo:ll[1],u,w,sp})}return out}
 function wfSet(v,on){if(!on){if(v.wf){v.wf.on=false;v.wf.c1.style.display=v.wf.c2.style.display='none'}return}
- if(!v.wf){const m=v.m,p=m.getPane('windPane')||m.createPane('windPane');p.style.zIndex=350;p.style.pointerEvents='none';
+ if(!v.m.getPane)return;if(!v.wf){const m=v.m,p=m.getPane('windPane')||m.createPane('windPane');p.style.zIndex=350;p.style.pointerEvents='none';
   const c1=L.DomUtil.create('canvas','',p),c2=L.DomUtil.create('canvas','',p);[c1,c2].forEach(c=>{c.style.position='absolute';c.style.pointerEvents='none'});
   v.wf={c1,c2,on:true,pts:[],grid:null};m.on('movestart zoomstart',()=>{v.wf.moving=true;c2.getContext('2d').clearRect(0,0,c2.width,c2.height)});
   m.on('moveend zoomend resize',()=>{v.wf.moving=false;wfBuild(v)})}
