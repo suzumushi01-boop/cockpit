@@ -395,8 +395,11 @@ function vFallback(v){v.vfail=true;if(v.vd)v.vd.style.display='none';msg('ベク
 function vSync(v){if(!v.vm||v.vfail)return;const c=v.m.getCenter();try{v.vm.jumpTo({center:[c.lng,c.lat],zoom:v.m.getZoom()-1,bearing:v.cfg.hup?(v.hdgNow||0):0})}catch(e){}}
 /* 渋滞の状態を大地図の隅に小さく出す（キー未設定・キーが使えない） */
 let trOk={};const TRN={tf:'TomTom',ti:'TomTom事故',hf:'HERE'};
-function trSt(k,o){if(trOk[k]===o)return;trOk[k]=o;trChip();if(!o)msg(`渋滞（${TRN[k]}）を読み込めません。キーを確認してね`)}
-function trChip(){const e=$('trchip');if(!e)return;const bad=Object.keys(trOk).filter(k=>trOk[k]===false).map(k=>TRN[k]);
+function trSt(k,o){if(trOk[k]===o)return;
+ if(!o&&k!=='hf'&&pref.ttKey&&pref.ttOrbis===undefined){pref.ttOrbis=true;save();trOk={};VS.forEach(applyView);return} // 新しいMyTomTomのキーは新しい窓口（Orbis）で試す
+ if(!o&&k!=='hf'&&pref.ttOrbis===true&&!trOk.tried){trOk.tried=1;pref.ttOrbis=false;save();trOk={tried:1};VS.forEach(applyView);return}
+ trOk[k]=o;trChip();if(!o)msg(`渋滞（${TRN[k]}）を読み込めません。キーを確認してね`)}
+function trChip(){const e=$('trchip');if(!e)return;const bad=Object.keys(trOk).filter(k=>trOk[k]===false).map(k=>TRN[k]);if(Date.now()<(pref.trMuteUntil||0)){e.hidden=true;return}
  const t=!pref.ttKey&&!pref.hereKey?'渋滞：キー未設定':bad.length?'渋滞：'+bad.join('・')+'のキーを確認':'';e.textContent=t;e.hidden=!t}
 const nightOf=cm=>cm==='夜'||(cm==='AUTO'&&isNightSun);
 function applyView(v){
@@ -417,8 +420,8 @@ function applyView(v){
  if(c.wx.fav!==false)m.addLayer(v.favL);else m.removeLayer(v.favL);
  {const on=v.id==='big'||c.wx.tr,T=pref.trSrc||{tf:1,ti:1,hf:1},tk=encodeURIComponent(pref.ttKey||''),hk=encodeURIComponent(pref.hereKey||''),
    want={hf:on&&T.hf&&hk?`https://traffic.maps.hereapi.com/v3/flow/mc/{z}/{x}/{y}/png?apiKey=${hk}`:'',
-    tf:on&&T.tf&&tk?`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${tk}&thickness=8`:'',
-    ti:on&&T.ti&&tk?`https://api.tomtom.com/traffic/map/4/tile/incidents/s0/{z}/{x}/{y}.png?key=${tk}`:''},ZI={hf:7,tf:8,ti:9};
+    tf:on&&T.tf&&tk?(pref.ttOrbis?`https://api.tomtom.com/maps/orbis/traffic/tile/flow/{z}/{x}/{y}.png?apiVersion=1&key=${tk}&style=light`:`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${tk}&thickness=8`):'',
+    ti:on&&T.ti&&tk?(pref.ttOrbis?`https://api.tomtom.com/maps/orbis/traffic/incidents/raster/tile/{z}/{x}/{y}?apiVersion=2&key=${tk}&style=light`:`https://api.tomtom.com/traffic/map/4/tile/incidents/s0/{z}/{x}/{y}.png?key=${tk}`):''},ZI={hf:7,tf:8,ti:9};
   v.trLs=v.trLs||{};for(const k in want){const cur=v.trLs[k];if((cur&&cur.u)===want[k])continue;if(cur)m.removeLayer(cur.l);v.trLs[k]=null;
    if(want[k]){const l=L.tileLayer(want[k],{maxZoom:18,opacity:k==='ti'?1:.85,zIndex:ZI[k]}).addTo(m);let ok=0,ng=0;l.on('tileload',()=>{ok++;trSt(k,true)});l.on('tileerror',()=>{ng++;if(ng>=4&&!ok)trSt(k,false)});v.trLs[k]={u:want[k],l}}}
   if(v.id==='big')trChip()}
@@ -1467,7 +1470,7 @@ $('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('s
 
 /* ---------- 渋滞（TomTom） ---------- */
 $('tt-key').value=pref.ttKey||'';
-$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました';trOk={};trChip()});
+$('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました';delete pref.ttOrbis;pref.trMuteUntil=0;save();trOk={};VS.forEach(applyView);trChip()});
 $('here-key').value=pref.hereKey||'';$('here-save').addEventListener('click',()=>{pref.hereKey=$('here-key').value.trim();save();trOk={};VS.forEach(applyView);msg(pref.hereKey?'HEREのキーを保存しました':'HEREのキーを消しました')});
 {const T=pref.trSrc=pref.trSrc||{tf:1,ti:1,hf:1};[['tr-tf','tf'],['tr-ti','ti'],['tr-hf','hf']].forEach(([id,k])=>{const c=$(id);c.checked=!!T[k];c.addEventListener('change',()=>{T[k]=c.checked?1:0;save();trOk={};VS.forEach(applyView)})})}
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
@@ -1755,7 +1758,7 @@ function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringi
 const WXG=$('wxg');let wxgOn=false,dewWarnDay='';
 function wxgOpen(){WXG.classList.add('on');WXG.setAttribute('aria-hidden','false');wxgOn=true;wxgPos=null;fetchTrend();setTimeout(drawWxg,60)}
 function wxgClose(){WXG.classList.remove('on');WXG.setAttribute('aria-hidden','true');wxgOn=false}
-$('wxtab').addEventListener('click',wxgOpen);$('trchip').addEventListener('click',e=>{e.stopPropagation();$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)});$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
+$('wxtab').addEventListener('click',wxgOpen);$('trchip').addEventListener('click',e=>{e.stopPropagation();pref.trMuteUntil=Date.now()+5*3600e3;save();trChip();msg('渋滞の札を5時間しまいました。キーは「設定」→ TomTom で確認できます')});$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
 {let sw=null;const ok=t=>!(t.closest&&t.closest('#nd,#mwrap,.bar,input,select,textarea,.sheet,#pin'));
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1){sw=null;return}const t=e.touches[0];sw=(wxgOn?!(e.target.closest&&e.target.closest('svg')):ok(e.target))?{x:t.clientX,y:t.clientY,t:Date.now()}:null},{passive:true});
  document.addEventListener('touchend',e=>{if(!sw)return;const t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(Date.now()-sw.t<700&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6){if(dx<0&&!wxgOn)wxgOpen();else if(dx>0&&wxgOn)wxgClose()}sw=null},{passive:true});}
