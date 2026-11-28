@@ -28,12 +28,12 @@ body{margin:0;background:#000;color:var(--w);font:15px/1.4 'B612',system-ui,sans
 #ck{display:grid;position:fixed;inset:0;width:100%;height:100vh;height:100dvh;overflow:hidden;gap:6px;grid-template:"ann ann" auto "pfd nd" minmax(0,1fr) "bar bar" auto/minmax(300px,40%) minmax(0,1fr);
  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
 html.fixins #ck{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
-@media (max-aspect-ratio:1/1){.bar{flex-wrap:wrap}.bfix{gap:3px}.bfix button{padding:0 5px!important;min-width:0!important;font-size:12px}.bfix{flex:1 1 100%;overflow-x:auto;scrollbar-width:none}.bsc{flex:1 1 100%;border-left:0;padding-left:0}#ck{grid-template:"ann" auto "nd" minmax(0,1.25fr) "pfd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
+@media (max-aspect-ratio:1/1){.bar{flex-wrap:wrap}.bfix{gap:3px}.bfix button{padding:0 8px!important;min-width:0!important;font-size:13px}.bfix{flex:1 1 100%;overflow-x:auto;scrollbar-width:none}.bsc{flex:1 1 100%;border-left:0;padding-left:0}#ck{grid-template:"ann" auto "nd" minmax(0,1.25fr) "pfd" minmax(0,1fr) "bar" auto/minmax(0,1fr)}}
 .ann{grid-area:ann;display:flex;gap:10px;align-items:center;min-width:0;overflow:hidden}
 .anns{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0}
 .tinfo{flex:none;display:flex;gap:10px;align-items:baseline;font:700 14px 'B612 Mono',monospace;white-space:nowrap}.tinfo small{font:400 11px 'B612',sans-serif;color:#9aa6b2;margin-right:3px}
 #msg{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);max-width:80%;background:#000c;border:1px solid var(--ln);border-radius:6px;padding:3px 10px;color:var(--c);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;transition:opacity .4s}#msg.hide{opacity:0}
-.mapw{position:relative;overflow:hidden}
+.mapw{position:relative;overflow:hidden}.tgtb{position:absolute;z-index:660;right:6px;bottom:6px;min-height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#0b1016cc;color:#9aa6b2;font:700 12px 'B612',sans-serif;cursor:pointer}#nd>.tgtb{right:80px;bottom:30px}#nd.guiding>.tgtb{bottom:calc(var(--gdh,60px) + 18px)}.mapw.sel>.tgtb{color:var(--c);border-color:var(--c);background:#0b1016ee}#segw{display:none!important}
 .mini{border-radius:8px;border:1px solid var(--ln);background:#04070a}
 #mmap,#map{z-index:1}.vbase{position:absolute!important;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none}.vbase .maplibregl-ctrl-attrib,.vbase .maplibregl-ctrl-logo{display:none}
 #mmap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);touch-action:none}
@@ -198,9 +198,9 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
    <svg id="alt" viewBox="0 0 64 240" preserveAspectRatio="xMidYMid meet"></svg>
   </div>
   <svg id="hdgt" viewBox="0 0 300 38" preserveAspectRatio="xMidYMid meet"></svg>
-  <div class="mapw mini" id="mwrap"><div id="mmap"></div><div class="mlab">小地図 <span id="m-up"></span> <span id="m-rng" style="color:var(--c)"></span></div></div>
+  <div class="mapw mini" id="mwrap"><div id="mmap"></div><div class="mlab">小地図 <span id="m-up"></span> <span id="m-rng" style="color:var(--c)"></span></div><button class="tgtb" data-v="mini" aria-label="小地図を設定対象にする">設定</button></div>
  </section>
- <section class="nd mapw" id="nd" aria-label="ナビゲーションディスプレイ">
+ <section class="nd mapw" id="nd" aria-label="ナビゲーションディスプレイ"><button class="tgtb" data-v="big" aria-label="大地図を設定対象にする">設定</button>
   <div id="map"></div>
   <svg id="rose" viewBox="-100 -100 200 200"></svg>
   <div class="ndc tl"><span id="n-gs" class="gsbig">0</span><small> km/h</small><br><small>海抜</small> <span id="n-alt" class="mid">---</span><small> m</small><span style="display:none"><br><small>制限</small> <span id="n-lim" class="mid">--</span><small> km/h</small></span></div>
@@ -654,14 +654,14 @@ $('go').addEventListener('click',()=>{
 /* 地図ごとの設定（右 大地図／左下 小地図） */
 let sel='big';const SV=()=>V[sel];
 function syncBar(){const c=SV().cfg;
- $('t-big').classList.toggle('on',sel==='big');$('t-mini').classList.toggle('on',sel==='mini');VS.forEach(x=>x.wrap.classList.toggle('sel',x.id===sel));
+ $('t-big').classList.toggle('on',sel==='big');$('t-mini').classList.toggle('on',sel==='mini');VS.forEach(x=>{x.wrap.classList.toggle('sel',x.id===sel);const t=x.wrap.querySelector('.tgtb');if(t)t.textContent=x.id===sel?'◉ 設定中':'設定'});
  document.querySelectorAll('[data-hz]').forEach(b=>b.classList.toggle('on',!!c.hz[b.dataset.hz]));
  document.querySelectorAll('[data-wx]').forEach(b=>b.classList.toggle('on',!!(b.dataset.wx==='tr'?V.big.cfg:c).wx[b.dataset.wx]));
  $('op').value=c.op;$('b-rt').textContent='雨雲 '+RM[c.rm];$('b-rt').classList.toggle('on',c.rm>0);
  $('b-up').textContent=c.hup?'HDG UP':'NORTH UP';$('b-up').classList.toggle('on',c.hup);
  $('b-base').textContent='地図 '+c.base;$('b-day').textContent='明るさ '+c.cm+(c.cm==='AUTO'?(isNightSun?'（夜）':'（昼）'):'');$('b-day').classList.toggle('on',c.cm!=='AUTO');rng()}
 const upd=()=>{save();applyView(SV());syncBar()};
-$('t-big').addEventListener('click',()=>{sel='big';syncBar()});$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
+$('t-big').addEventListener('click',()=>{sel='big';syncBar()});document.querySelectorAll('.tgtb').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();sel=b.dataset.v;syncBar();msg((sel==='big'?'大地図':'小地図')+'を設定中')}));$('t-mini').addEventListener('click',()=>{sel='mini';syncBar()});
 document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{const c=SV().cfg;c.hz[b.dataset.hz]=!c.hz[b.dataset.hz];upd()}));
 document.querySelectorAll('[data-wx]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.wx,c=(k==='tr'?V.big:SV()).cfg;c.wx[k]=!c.wx[k];upd();if(k==='tr')applyView(V.big);if(c.wx[k]){if(k==='wind'){wxAt=null}if(k==='pm')drawSora();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='fav')drawFav();if(k==='tr'&&!pref.ttKey){msg('渋滞を見るには、TomTomのキーを入れてね');$('sh-set').hidden=false;setTimeout(()=>$('tt-key').scrollIntoView({block:'center'}),100)};wxTick()}}));
 $('op').addEventListener('input',()=>{SV().cfg.op=+$('op').value;upd()});
@@ -1940,7 +1940,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611282226';
+const BUILD='202611282231';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
