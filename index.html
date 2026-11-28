@@ -1690,18 +1690,19 @@ function lgWx(){const c=fc&&fc.current,w=wxData,a=aq&&aq.current;if(!c&&!w)retur
  return{t:Date.now(),la:+st.lat.toFixed(4),lo:+st.lon.toFixed(4),T:c?+(+c.temperature_2m).toFixed(1):null,H:c?Math.round(c.relative_humidity_2m):null,P:c?Math.round(c.pressure_msl):null,
   wd:w&&w.d!=null?Math.round(w.d):null,ws:w?w.v:null,wg:w?w.g:null,wst:w?w.name:'',rain:wxSum.rainTxt||'',dew:wxSum.dewTxt||'',pm:a&&a.pm2_5!=null?Math.round(a.pm2_5):null}}
 function lgTick(){if(!pref.odLog||st.demo)return;const now=Date.now();let ch=false;
- if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){if(lgLast){const dd=map.distance(lgLast.p,p),dt=(now-lgLast.t)/1000;if(dt>600&&dd<200&&typeof pkAdd==='function'&&!(pref.park&&Math.abs(pref.park.at-lgLast.t)<900000))pkAdd({id:lgLast.t,start:Math.round(lgLast.t/1000),end:Math.round(now/1000),la:+lgLast.p[0].toFixed(5),lo:+lgLast.p[1].toFixed(5),acc:st.acc==null?null:Math.round(st.acc),dev:pref.devId,how:'auto',endBy:'resume'});if(dt<=600&&dd<3000)lgAcc(now,{dist:dd,mov:(dd>20||(st.spd||0)>3)?dt:0,mx:Math.round(st.spd||0)})}lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt),st.acc==null?null:Math.round(st.acc),0]);lgLast={t:now,p};try{localStorage.setItem('lgLastPt',JSON.stringify(lgLast))}catch(e){}ch=true}}
+ if(st.gps){const p=[st.lat,st.lon];if(!lgLast||now-lgLast.t>60000||map.distance(lgLast.p,p)>15){if(lgLast){const dd=map.distance(lgLast.p,p),dt=(now-lgLast.t)/1000;if(dt>600&&dd<200&&typeof pkAdd==='function'&&!(pref.park&&Math.abs(pref.park.at-lgLast.t)<900000))pkAdd({id:lgLast.t,start:Math.round(lgLast.t/1000),end:Math.round(now/1000),la:+lgLast.p[0].toFixed(5),lo:+lgLast.p[1].toFixed(5),acc:lgLast.acc==null?null:lgLast.acc,dev:pref.devId,how:'auto',endBy:'resume'});if(dt<=600&&dd<3000)lgAcc(now,{dist:dd,mov:(dd>20||(st.spd||0)>3)?dt:0,mx:Math.round(st.spd||0)})}lgH(now).trk.push([Math.round(now/1000),+st.lat.toFixed(5),+st.lon.toFixed(5),Math.round(st.spd||0),Math.round(st.hdg||0),st.alt==null?null:Math.round(st.alt),st.acc==null?null:Math.round(st.acc),0]);lgLast={t:now,p,acc:st.acc==null?null:Math.round(st.acc)};try{localStorage.setItem('lgLastPt',JSON.stringify(lgLast))}catch(e){}ch=true}}
  if(now-lgWxT>600000){const w=lgWx();if(w){lgH(now).wx.push(w);lgWxT=now;ch=true;if(w.T!=null)lgAcc(now,{T:w.T})}}
- if(ch){lgH(now).dirty=true;lgSave()}}
+ if(ch){const h=lgH(now);h.dirty=true;h.gen=(h.gen||0)+1;lgSave()}}
 setInterval(lgTick,10000);
 /* 駐車の記録（OneDrive：log/park/年-月-端末ID.json）。how: button＝駐車ボタン（確定）、auto＝記録が10分以上途切れた（候補） */
 let pkL={};try{pkL=JSON.parse(localStorage.getItem('parkLog')||'{}')||{}}catch(e){pkL={}}
-const pkSave=()=>{const ks=Object.keys(pkL).sort();while(ks.length>3)delete pkL[ks.shift()];try{localStorage.setItem('parkLog',JSON.stringify(pkL))}catch(e){}};
+const pkSave=()=>{const ks=Object.keys(pkL).sort();for(const k of ks.slice(0,-3)){const M=pkL[k];if(!M.dirty&&!M.ev.some(e=>e.end==null))delete pkL[k]}try{localStorage.setItem('parkLog',JSON.stringify(pkL))}catch(e){}};
 const pkMon=sec=>jst(sec*1000).slice(0,7);
 function pkFind(id){for(const m in pkL){const e=pkL[m].ev.find(x=>x.id===id);if(e)return{m,e}}return null}
-function pkAdd(ev){if(st.demo)return;const m=pkMon(ev.start),M=pkL[m]||(pkL[m]={ev:[],dirty:true});M.ev.push(ev);M.ev.sort((a,b)=>a.start-b.start);M.dirty=true;pkSave()}
-function pkEnd(id,sec,by){const f=pkFind(id);if(!f||f.e.end)return;f.e.end=sec;f.e.endBy=by;pkL[f.m].dirty=true;pkSave()}
-async function pkUp(tk){for(const m in pkL){const M=pkL[m];if(!M.dirty)continue;try{const r=await fetch(GR+`/Apps/CockpitNav/log/park/${m}-${pref.devId}.json:/content`,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-park',ver:1,dev:pref.devId,month:m,tz:'Asia/Tokyo',ev:M.ev})});if(!r.ok)throw 0;M.dirty=false}catch(e){break}}pkSave()}
+function pkAdd(ev){if(st.demo)return;const m=pkMon(ev.start),M=pkL[m]||(pkL[m]={ev:[],dirty:true});M.ev.push(ev);M.ev.sort((a,b)=>a.start-b.start);M.dirty=true;M.gen=(M.gen||0)+1;pkSave()}
+function pkEnd(id,sec,by){const f=pkFind(id);if(!f||f.e.end)return;f.e.end=sec;f.e.endBy=by;pkL[f.m].dirty=true;pkL[f.m].gen=(pkL[f.m].gen||0)+1;pkSave()}
+function pkReturn(id){const f=id&&pkFind(id);if(!f||f.e.end||f.e.returnAt)return;f.e.returnAt=Math.round(Date.now()/1000);const M=pkL[f.m];M.dirty=true;M.gen=(M.gen||0)+1;pkSave()}
+async function pkUp(tk){for(const m in pkL){const M=pkL[m];if(!M.dirty)continue;const g=M.gen||0;try{const r=await fetch(GR+`/Apps/CockpitNav/log/park/${m}-${pref.devId}.json:/content`,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-park',ver:1,dev:pref.devId,month:m,tz:'Asia/Tokyo',ev:M.ev})});if(!r.ok)throw 0;if((M.gen||0)===g)M.dirty=false}catch(e){break}}pkSave()}
 
 /* 3か月（1〜3月・4〜6月・7〜9月・10〜12月）ごとの1日まとめ */
 const qOf=d=>d.slice(0,4)+'-Q'+(Math.floor((+d.slice(5,7)-1)/3)+1),qName=q=>{const n=+q.slice(-1);return q.slice(0,4)+'年 '+(n*3-2)+'〜'+(n*3)+'月'};
@@ -1709,15 +1710,16 @@ let lgQ={};try{lgQ=JSON.parse(localStorage.getItem('lgSum')||'{}')||{}}catch(e){
 const lgQSave=()=>{try{localStorage.setItem('lgSum',JSON.stringify(lgQ))}catch(e){}};
 function lgAcc(t,a){const d=jst(t).slice(0,10),q=qOf(d),Q=lgQ[q]||(lgQ[q]={days:{},dirty:true}),D=Q.days[d]||(Q.days[d]={dist:0,mov:0,mx:0,ts:0,tn:0,tmin:null,tmax:null});
  if(a.dist)D.dist=Math.round(D.dist+a.dist);if(a.mov)D.mov=Math.round(D.mov+a.mov);if(a.mx!=null)D.mx=Math.max(D.mx,a.mx);
- if(a.T!=null){D.ts=+(D.ts+a.T).toFixed(1);D.tn++;D.tmin=D.tmin==null?a.T:Math.min(D.tmin,a.T);D.tmax=D.tmax==null?a.T:Math.max(D.tmax,a.T)}Q.dirty=true;lgQSave()}
+ if(a.T!=null){D.ts=+(D.ts+a.T).toFixed(1);D.tn++;D.tmin=D.tmin==null?a.T:Math.min(D.tmin,a.T);D.tmax=D.tmax==null?a.T:Math.max(D.tmax,a.T)}Q.dirty=true;Q.gen=(Q.gen||0)+1;lgQSave()}
 const lgQPath=q=>`/Apps/CockpitNav/log/summary/${q}-${pref.devId}.json`;
-async function lgQUp(tk){for(const q in lgQ){const Q=lgQ[q];if(!Q.dirty)continue;try{const r=await fetch(GR+lgQPath(q)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-sum',ver:1,dev:pref.devId,q,days:Q.days})});if(!r.ok)throw 0;Q.dirty=false}catch(e){break}}lgQSave()}
+async function lgQUp(tk){for(const q in lgQ){const Q=lgQ[q];if(!Q.dirty)continue;const g=Q.gen||0;try{const r=await fetch(GR+lgQPath(q)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-sum',ver:1,dev:pref.devId,q,days:Q.days})});if(!r.ok)throw 0;if((Q.gen||0)===g)Q.dirty=false}catch(e){break}}lgQSave()}
 
 const lgPath=k=>`/Apps/CockpitNav/log/${k.slice(0,4)}/${k.slice(5,7)}/${k.slice(8,10)}/${k.slice(11,13)}-${pref.devId}.json`;
 const GR='https://graph.microsoft.com/v1.0/me/drive/root:';
-async function lgUp(){if(!pref.odLog||!odAcct)return;const cur=hk(Date.now());let tk;try{tk=await odToken()}catch(e){return}
- for(const k of Object.keys(lgB).sort()){const h=lgB[k];if(!h.dirty){if(k!==cur)delete lgB[k];continue}
-  try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:h.trk,wx:h.wx})});if(!r.ok)throw r.status;h.dirty=false;lgOk=fmtT(Date.now());if(k!==cur)delete lgB[k]}catch(e){break}}
+let lgUpBusy=false;async function lgUp(){if(!pref.odLog||!odAcct||lgUpBusy)return;lgUpBusy=true;try{await lgUp0()}finally{lgUpBusy=false}}
+async function lgUp0(){const cur=hk(Date.now());let tk;try{tk=await odToken()}catch(e){return}
+ for(const k of Object.keys(lgB).sort()){const h=lgB[k];if(!h.dirty){if(k!==cur)delete lgB[k];continue}const g=h.gen||0;
+  try{const r=await fetch(GR+lgPath(k)+':/content',{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({app:'cockpit-nav-log',ver:2,dev:pref.devId,hour:k,tz:'Asia/Tokyo',trk:h.trk,wx:h.wx})});if(!r.ok)throw r.status;lgOk=fmtT(Date.now());if((h.gen||0)===g){h.dirty=false;if(k!==cur)delete lgB[k]}}catch(e){break}}
  const old=hk(Date.now()-7*864e5);for(const k of Object.keys(lgB))if(k<old)delete lgB[k];lgSave();await lgQUp(tk);await pkUp(tk);lgStat()}
 setInterval(lgUp,300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){lgSave();lgUp()}});setTimeout(lgUp,20000);
 function lgStat(){const e=$('lg-st');if(!e)return;const n=Object.values(lgB).filter(h=>h.dirty).length;e.textContent=!odAcct?'OneDriveにサインインすると記録が送られます（設定 → OneDrive）。それまではこのiPhoneに7日分ためておきます':`送信待ち ${n}時間分`+(lgOk?`・最後に送った時刻 ${lgOk}`:'')+'（5分ごとに送信）'}
@@ -2102,7 +2104,7 @@ exDraw();
 /* ---------- 駐車位置メモ ---------- */
 let carGo=false,parkM=[];
 function drawPark(){parkM.forEach(([v,m])=>v.m.removeLayer(m));parkM=[];if(!pref.park)return;for(const v of VS)parkM.push([v,L.marker([pref.park.lat,pref.park.lon],{interactive:false,icon:L.divIcon({className:'favm',iconSize:[26,26],iconAnchor:[13,13],html:'<svg viewBox="-13 -13 26 26"><rect x="-11" y="-11" width="22" height="22" rx="5" fill="#2a86e8" stroke="#fff" stroke-width="2"/><text y="6" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">P</text></svg>'})}).addTo(v.m)])}
-$('b-park').addEventListener('click',()=>{if(pref.park&&!$('park-st').dataset.arm){$('park-st').dataset.arm=1}
+$('b-park').addEventListener('click',()=>{if(st.demo||!st.gps){msg('GPSを受信していないので駐車位置を記録できません');say('GPSを受信していません');return}if(st.acc!=null&&st.acc>100)msg('GPSの精度が低いです（約'+Math.round(st.acc)+'m）。駐車位置は記録しました');if(pref.park&&!$('park-st').dataset.arm){$('park-st').dataset.arm=1}
  if(pref.park&&pref.park.at)pkEnd(pref.park.at,Math.round(Date.now()/1000),'replaced');pref.park={lat:st.lat,lon:st.lon,at:Date.now(),limit:0,said:0};save();drawPark();pkAdd({id:pref.park.at,start:Math.round(pref.park.at/1000),end:null,la:+st.lat.toFixed(5),lo:+st.lon.toFixed(5),acc:st.acc==null?null:Math.round(st.acc),dev:pref.devId,how:'button',endBy:null});say('駐車位置を記録しました');msg('駐車位置を記録しました（'+fmtT(Date.now())+'）')});
 $('b-car').addEventListener('click',()=>{if(!pref.park)return msg('駐車位置が記録されていません');carGo=!carGo;if(!carGo){$('gd').hidden=true;$('gdp').style.display='none'}else say('車まで案内します')});
 $('park-lim').addEventListener('change',()=>{if(pref.park){pref.park.limit=+$('park-lim').value||0;pref.park.said=0;save();msg(pref.park.limit?`${pref.park.limit}分後にお知らせします`:'タイマーを解除しました')}});
@@ -2110,11 +2112,11 @@ setInterval(()=>{const p=pref.park;$('park-st').textContent=p?`駐車：${fmtT(p
  if(p&&p.limit){const left=p.limit-(Date.now()-p.at)/60000;if(left<=10&&left>0&&p.said<1){p.said=1;save();sayAuto('駐車時間、残り10分です','warn')}if(left<=0&&p.said<2){p.said=2;save();sayAuto('駐車時間になりました')}}
  if(carGo&&p&&!guide){const me=[st.lat,st.lon],d=map.distance(me,[p.lat,p.lon]),b=brg(me,[p.lat,p.lon]);
   $('gd').hidden=false;$('gd').classList.remove('off');$('gd').innerHTML=`駐車位置<br><b>車まで ${fmtM(d)}</b><br>${fmtT(p.at)}から${Math.floor((Date.now()-p.at)/60000)}分`;$('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
-  if(d<15){carGo=false;$('gd').hidden=true;$('gdp').style.display='none';sayAuto('車に着きました','arr')}}},2000);
+  if(d<15){carGo=false;$('gd').hidden=true;$('gdp').style.display='none';sayAuto('車に着きました','arr');pkReturn(pref.park&&pref.park.at)}}},2000);
 function parkClear(why,by,endMs){if(!pref.park)return;pkEnd(pref.park.at,Math.round((endMs||Date.now())/1000),by||'clear');pref.park=null;save();drawPark();carGo=false;if(!guide){$('gd').hidden=true;$('gdp').style.display='none'}msg(why||'駐車位置を消しました')}
 $('park-clr').addEventListener('click',()=>{parkClear();say('駐車を解除しました')});
 /* 車で走り出したら自動で消す：駐車位置から200m以上離れ、時速15km以上が20秒続いたら */
-{let mvT=0;setInterval(()=>{const p=pref.park;if(!p||!(st.gps||st.demo)){mvT=0;return}const d=map.distance([st.lat,st.lon],[p.lat,p.lon]);
+{let mvT=0;setInterval(()=>{const p=pref.park;if(!p||!st.gps||st.demo){mvT=0;return}const d=map.distance([st.lat,st.lon],[p.lat,p.lon]);
  if(st.spd>=15&&d>200){mvT+=2;if(mvT>=20&&Date.now()-p.at>3*60000){parkClear('走り出したので駐車位置を消しました','drive',Date.now()-20000);mvT=0}}else mvT=0},2000)}
 setTimeout(drawPark,900);
 
