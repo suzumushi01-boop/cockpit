@@ -645,7 +645,7 @@ $('go').addEventListener('click',()=>{
   window.addEventListener('devicemotion',onMot);
  }).finally(()=>{gpsTry=0;startGPS()}); // 許可の確認が重なるとGPSが拒否されることがあるので、順番に聞く
  $('start').hidden=true;wake();size();actxOn();
- if(CAP){if(pref.voice!==false)nSpeak('システム起動','ja-JP',pref.vRate||1.05,true,pref.vJa)}else try{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance('システム起動');u.lang='ja-JP';if(pref.voice!==false)speechSynthesis.speak(u)}}catch(e){} // 音声の許可
+ if(CAP){if(vOn())nSpeak('システム起動','ja-JP',pref.vRate||1.05,true,pref.vJa)}else try{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance('システム起動');u.lang='ja-JP';if(vOn())speechSynthesis.speak(u)}}catch(e){} // 音声の許可
  try{const f=document.documentElement.requestFullscreen;f&&f.call(document.documentElement).catch(()=>{})}catch(e){}
 });
 
@@ -945,7 +945,7 @@ $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').
 
 
 /* ---------- 音声案内（Web Speech API） ---------- */
-pref.voice=pref.voice!==false;let rainSaid=false;
+pref.voice=pref.voice!==false;let rainSaid=false;const PORT=matchMedia('(orientation: portrait)'),vOn=()=>pref.voice&&!PORT.matches; // 縦向きの間は音声を自動でオフ
 const pickV=(name,re)=>{const vs=window.speechSynthesis?speechSynthesis.getVoices():[];return vs.find(v=>v.name===name)||vs.find(v=>re.test(v.lang))};
 /* ---------- 音の出し方（音楽を止めない効果音モード） ---------- */
 pref.amode=pref.amode==='voice'?'voice':'mix';let actx=null;
@@ -957,7 +957,7 @@ const CUES={r1:[[880,0,.12,.8],[1319,.15,.18,.8]],l1:[[880,0,.12,-.8],[1319,.15,
  off:[[220,0,.16,0,'triangle'],[196,.22,.22,0,'triangle']],ok:[[784,0,.12,0],[988,.12,.22,0]],arr:[[523,0,.12,0],[659,.13,.12,0],[784,.26,.12,0],[1047,.39,.35,0]],
  ura:[[880,0,.18,0],[660,.22,.3,0]],up:[[600,0,.16,0,'sine',900]],down:[[900,0,.16,0,'sine',600]],n5:[[1000,0,.07,0],[1000,.14,.07,0]],n3:[[1200,0,.06,0],[1200,.1,.06,0],[1200,.2,.06,0]],
  warn:[[1000,0,.12,0,'square'],[800,.15,.12,0,'square'],[1000,.3,.12,0,'square']],sun:[[1568,0,.08,0],[2093,.1,.15,0]],rain:[[1047,0,.1,0],[880,.12,.1,0],[698,.24,.2,0]],tfc:[[1319,0,.06,0],[1319,.12,.06,0]],info:[[1047,0,.15,0]]};
-function cue(k){const C=actxOn(),seq=CUES[k];if(!C||!seq||!pref.voice)return;aSess('ambient');const t0=C.currentTime+0.02;
+function cue(k){const C=actxOn(),seq=CUES[k];if(!C||!seq||!vOn())return;aSess('ambient');const t0=C.currentTime+0.02;
  for(const[f,dt,dur,pan,type,f2]of seq){const o=C.createOscillator(),g=C.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t0+dt);if(f2)o.frequency.linearRampToValueAtTime(f2,t0+dt+dur);
   g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(type==='square'?0.08:0.22,t0+dt+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dt+dur);
   let n=o;if(C.createStereoPanner&&pan){const p=C.createStereoPanner();p.pan.value=pan;o.connect(g);g.connect(p);p.connect(C.destination)}else{o.connect(g);g.connect(C.destination)}o.start(t0+dt);o.stop(t0+dt+dur+0.05)}}
@@ -965,8 +965,9 @@ function sayAuto(t,k){if(pref.amode==='voice')say(t);else{cue(k||'info');if(t)ms
 function sayEnAuto(t,k){if(pref.train)return;if(pref.amode==='voice')sayEn(t);else cue(k)} // 電車モードでは車用の読み上げをしない
 function flashSpd(c){const e=$('n-gs');e.style.color=c;setTimeout(()=>{e.style.color=''},1500)}
 
-function say(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
-const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',pref.voice);vB.textContent=pref.voice?'音声 ON':'音声 OFF'};setV();
+function say(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
+const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',vOn());vB.textContent=!pref.voice?'音声 OFF':PORT.matches?'音声 OFF（縦）':'音声 ON'};setV();
+const onPort=()=>{setV();if(!pref.voice)return;if(PORT.matches){try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}try{const T=NP('TextToSpeech');T&&T.stop&&T.stop().catch(()=>{})}catch(e){}msg('縦向きなので音声をオフにしました')}else msg('横向きになったので音声を戻しました')};try{PORT.addEventListener('change',onPort)}catch(e){PORT.addListener&&PORT.addListener(onPort)}
 vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.voice)say('音声案内をオンにしました');else if(window.speechSynthesis)speechSynthesis.cancel()});
 
 /* ---------- 裏道ガイド ---------- */
@@ -1372,7 +1373,7 @@ setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()
 
 /* ---------- 速度コール（英語・10km/hごと） ---------- */
 pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,mvSt=null,stopN=0,moveN=0,mvSaid=0;const spcSaid={};let spcPrev=0;
-function sayEn(t){if(!pref.voice||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
+function sayEn(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
 /* ---------- 加速度センサーで発進・停止を早くつかむ ---------- */
