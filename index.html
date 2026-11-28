@@ -221,7 +221,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="bfix"><span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span></div>
   <div class="bsc">
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button><button id="b-vol">音量 100%</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
@@ -287,6 +287,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>日本語の声（案内・天気など）</h3><div class="rrow"><select id="v-ja" aria-label="日本語の声"></select><button id="v-ja-t">試す</button></div>
  <h3>英語の声（速度コール）</h3><div class="rrow"><select id="v-en" aria-label="英語の声"></select><button id="v-en-t">試す</button></div>
  <h3>話す速さ</h3><div class="rrow"><input type="range" id="v-rate" min="0.7" max="1.5" step="0.05" style="flex:1;accent-color:var(--c)" aria-label="話す速さ"><span id="v-rate-v" class="note"></span></div>
+ <h3>音量</h3><div class="rrow"><input type="range" id="v-vol" min="0.1" max="1" step="0.05" style="flex:1;accent-color:var(--c)" aria-label="音量"><span id="v-vol-v" class="note"></span></div><p class="note">iPhone本体の音量より大きくはできないよ。下のメニューの「音量」ボタンを押すと 100→70→40% と切り替わる。声で「音量上げて／下げて」もOK</p>
  <p class="note">声の種類を増やすには：iPhoneの 設定 → アクセシビリティ → 読み上げコンテンツ → 声 → 日本語／英語 で好きな声をダウンロードして、アプリを開き直してね（Siriの声はWebアプリからは使えません）。</p>
  <h3>OneDrive 同期（パソコンからも編集）</h3>
  <div class="rrow"><input id="od-client" placeholder="アプリのクライアントID（Entra で登録）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="クライアントID"><input id="od-tenant" placeholder="テナント（空欄でOK）" autocomplete="off" style="width:150px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="テナントID"><button id="od-save">保存</button></div>
@@ -354,7 +355,7 @@ let nVoices=null,nBriLast=null;
 if(CAP){document.documentElement.classList.add('native');try{NP('TextToSpeech').getSupportedVoices().then(r=>{nVoices=r.voices||[]}).catch(()=>{})}catch(e){}
  if(!pref.amodeN){pref.amode='voice';pref.amodeN=1}} // アプリ版は音楽を小さくして読み上げられるので、声を標準に
 function nSpeak(t,lang,rate,flush,vname){const T=NP('TextToSpeech');if(!T)return false;
- const o={text:t,lang,rate:Math.max(.5,Math.min(2,rate)),pitch:1,volume:1,category:'playback',queueStrategy:flush?0:1};
+ const o={text:t,lang,rate:Math.max(.5,Math.min(2,rate)),pitch:1,volume:vVol(),category:'playback',queueStrategy:flush?0:1};
  if(nVoices&&vname){const i=nVoices.findIndex(v=>v.name===vname);if(i>=0)o.voice=i}
  try{T.speak(o).catch(()=>{})}catch(e){return false}return true}
 function nBright(night){if(!CAP||nBriLast===night)return;const B=NP('ScreenBrightness');if(!B)return;nBriLast=night;try{B.setBrightness({brightness:night?0.65:1}).catch(()=>{})}catch(e){}}
@@ -945,7 +946,7 @@ $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').
 
 
 /* ---------- 音声案内（Web Speech API） ---------- */
-pref.voice=pref.voice!==false;let rainSaid=false;const PORT=matchMedia('(orientation: portrait)'),vOn=()=>pref.voice&&!PORT.matches; // 縦向きの間は音声を自動でオフ
+pref.voice=pref.voice!==false;let rainSaid=false;const vVol=()=>{const x=+pref.vVol;return x>0&&x<=1?x:1},PORT=matchMedia('(orientation: portrait)'),vOn=()=>pref.voice&&!PORT.matches; // 縦向きの間は音声を自動でオフ
 const pickV=(name,re)=>{const vs=window.speechSynthesis?speechSynthesis.getVoices():[];return vs.find(v=>v.name===name)||vs.find(v=>re.test(v.lang))};
 /* ---------- 音の出し方（音楽を止めない効果音モード） ---------- */
 pref.amode=pref.amode==='voice'?'voice':'mix';let actx=null;
@@ -959,13 +960,13 @@ const CUES={r1:[[880,0,.12,.8],[1319,.15,.18,.8]],l1:[[880,0,.12,-.8],[1319,.15,
  warn:[[1000,0,.12,0,'square'],[800,.15,.12,0,'square'],[1000,.3,.12,0,'square']],sun:[[1568,0,.08,0],[2093,.1,.15,0]],rain:[[1047,0,.1,0],[880,.12,.1,0],[698,.24,.2,0]],tfc:[[1319,0,.06,0],[1319,.12,.06,0]],info:[[1047,0,.15,0]]};
 function cue(k){const C=actxOn(),seq=CUES[k];if(!C||!seq||!vOn())return;aSess('ambient');const t0=C.currentTime+0.02;
  for(const[f,dt,dur,pan,type,f2]of seq){const o=C.createOscillator(),g=C.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t0+dt);if(f2)o.frequency.linearRampToValueAtTime(f2,t0+dt+dur);
-  g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime(type==='square'?0.08:0.22,t0+dt+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dt+dur);
+  g.gain.setValueAtTime(0,t0+dt);g.gain.linearRampToValueAtTime((type==='square'?0.08:0.22)*vVol(),t0+dt+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dt+dur);
   let n=o;if(C.createStereoPanner&&pan){const p=C.createStereoPanner();p.pan.value=pan;o.connect(g);g.connect(p);p.connect(C.destination)}else{o.connect(g);g.connect(C.destination)}o.start(t0+dt);o.stop(t0+dt+dur+0.05)}}
 function sayAuto(t,k){if(pref.amode==='voice')say(t);else{cue(k||'info');if(t)msg(t)}}
 function sayEnAuto(t,k){if(pref.train)return;if(pref.amode==='voice')sayEn(t);else cue(k)} // 電車モードでは車用の読み上げをしない
 function flashSpd(c){const e=$('n-gs');e.style.color=c;setTimeout(()=>{e.style.color=''},1500)}
 
-function say(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
+function say(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'ja-JP',pref.vRate||1.05,true,pref.vJa))return;if(!window.speechSynthesis)return;try{aSess('transient');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';const v=pickV(pref.vJa,/^ja/i);if(v)u.voice=v;u.volume=vVol();u.rate=pref.vRate||1.05;u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const vB=$('b-voice');const setV=()=>{vB.classList.toggle('on',vOn());vB.textContent=!pref.voice?'音声 OFF':PORT.matches?'音声 OFF（縦）':'音声 ON'};setV();
 const onPort=()=>{setV();if(!pref.voice)return;if(PORT.matches){try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}try{const T=NP('TextToSpeech');T&&T.stop&&T.stop().catch(()=>{})}catch(e){}msg('縦向きなので音声をオフにしました')}else msg('横向きになったので音声を戻しました')};try{PORT.addEventListener('change',onPort)}catch(e){PORT.addListener&&PORT.addListener(onPort)}
 vB.addEventListener('click',()=>{pref.voice=!pref.voice;save();setV();if(pref.voice)say('音声案内をオンにしました');else if(window.speechSynthesis)speechSynthesis.cancel()});
@@ -1307,7 +1308,8 @@ const B=()=>V.big.cfg,apB=()=>{save();applyView(V.big);syncBar()};
 const off=t=>/消して|けして|オフ|非表示|隠して|やめ|止め|とめ/.test(t);
 function runCmd(t){
  const has=(...w)=>w.some(x=>t.includes(x));
- if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、船橋駅まで案内、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
+ if(has('音量')){const up=has('上げ','あげ','大きく','おおきく'),dn=has('下げ','さげ','小さく','ちいさく');if(up||dn){setVol(vVol()+(up?.2:-.2))}return say('音量'+Math.round(vVol()*100)+'パーセントです'),1}
+  if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、船橋駅まで案内、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
  if(has('渋滞')){if(off(t)||has('表示','出して','見せて')){B().wx.tr=!off(t);apB();return say(off(t)?'渋滞を消しました':(pref.ttKey?'渋滞を表示します':'渋滞は設定でTomTomのキーを入れると使えます')),1}
   return say(guide&&guide.nav&&guide.nav.delay!=null?(guide.nav.delay>60?`今のルートは渋滞で約${Math.round(guide.nav.delay/60)}分の遅れです`:'今のルートに大きな渋滞はありません'):(pref.ttKey?'目的地ナビ中に、ルートの渋滞をお知らせします':'渋滞は設定でTomTomのキーを入れると使えます')),1}
  if(has('同期')){$('b-sync').click();return say('OneDriveと同期します'),1}
@@ -1373,7 +1375,7 @@ setVC();if(pref.vc==='常時')$('go').addEventListener('click',()=>setTimeout(()
 
 /* ---------- 速度コール（英語・10km/hごと） ---------- */
 pref.spc=!!pref.spc;let spcLast=null,spcCand=null,spcN=0,mvSt=null,stopN=0,moveN=0,mvSaid=0;const spcSaid={};let spcPrev=0;
-function sayEn(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
+function sayEn(t){if(!vOn()||!t)return;if(CAP&&nSpeak(t,'en-US',(pref.vRate||1.05)*0.95,false,pref.vEn))return;if(!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=pickV(pref.vEn,/^en(-|_)US/i);if(v)u.voice=v;u.volume=vVol();u.rate=(pref.vRate||1.05)*0.95;aSess('transient');u.onend=u.onerror=()=>aSess('ambient');speechSynthesis.speak(u)}catch(e){}}
 const spB=$('b-spc');const setSp=()=>{spB.textContent='速度コール '+(pref.spc?'ON':'OFF');spB.classList.toggle('on',pref.spc)};setSp();
 spB.addEventListener('click',()=>{pref.spc=!pref.spc;save();setSp();spcLast=null;if(pref.spc)sayEn('Speed callout on')});
 /* ---------- 加速度センサーで発進・停止を早くつかむ ---------- */
@@ -1415,6 +1417,9 @@ $('v-ja-t').addEventListener('click',()=>say('300メートル先、右です'));
 const vr=$('v-rate');vr.value=pref.vRate||1.05;$('v-rate-v').textContent=(+vr.value).toFixed(2)+'倍';
 vr.addEventListener('input',()=>{pref.vRate=+vr.value;$('v-rate-v').textContent=pref.vRate.toFixed(2)+'倍';save()});
 vr.addEventListener('change',()=>say('この速さで話します'));
+const vv=$('v-vol'),volB=$('b-vol'),setVol=x=>{pref.vVol=Math.round(Math.max(.1,Math.min(1,x))*100)/100;save();vv.value=vVol();const t=Math.round(vVol()*100)+'%';$('v-vol-v').textContent=t;volB.textContent='音量 '+t};setVol(vVol());
+vv.addEventListener('input',()=>setVol(+vv.value));vv.addEventListener('change',()=>say('この音量で話します'));
+volB.addEventListener('click',()=>{const x=vVol();setVol(x>0.85?0.7:x>0.55?0.4:1);say('音量'+Math.round(vVol()*100)+'パーセント');msg('音量 '+Math.round(vVol()*100)+'%')});
 function setMenu(show){pref.menu=show;save();document.body.classList.toggle('nomenu',!show);$('set-menu').checked=show;$('b-menu').textContent=show?'MENU ▾':'MENU ▴'}
 setMenu(pref.menu!==false);
 document.querySelectorAll('[name=amode]').forEach(r=>{r.checked=r.value===pref.amode;r.addEventListener('change',()=>{pref.amode=r.value;save();msg(r.value==='mix'?'音楽優先にしました':'すべて声で読み上げます')})});
