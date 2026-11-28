@@ -277,6 +277,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>風の表示</h3>
  <label class="chk"><input type="checkbox" id="wf-on">風を「流れ」で表示（アメダスの実測から面に広げ、粒子を流す。オフで観測点の矢印）</label>
  <div class="rrow"><span class="note" style="margin:0">色の濃さ</span><input type="range" id="wf-a" min="0" max="0.7" step="0.05" style="flex:1"></div>
+ <div class="rrow"><span class="note" style="margin:0">線の濃さ</span><input type="range" id="wf-l" min="0.1" max="1" step="0.05" style="flex:1"></div>
  <div class="wfleg"><span>風速 m/s</span><i style="background:linear-gradient(90deg,rgb(40,110,220),rgb(60,170,230) 8%,rgb(60,190,140) 16%,rgb(120,200,60) 24%,rgb(230,200,40) 32%,rgb(240,140,40) 44%,rgb(225,60,40) 56%,rgb(180,30,90) 72%,rgb(120,40,170))"></i><span>0 · 4 · 8 · 14 · 25</span></div>
  <h3>音の出し方</h3>
  <label class="chk"><input type="radio" name="amode" value="mix">音楽優先：効果音と画面表示（CarPlayの音楽を止めない）</label>
@@ -745,8 +746,8 @@ function wfBuild(v){const f=v.wf;if(!f||!f.on)return;const m=v.m,sz=m.getSize(),
  // 色の面：小さく描いてなめらかに拡大
  const off=document.createElement('canvas');off.width=cols;off.height=rows;const oc=off.getContext('2d'),id=oc.createImageData(cols,rows);
  for(let k=0;k<cols*rows;k++){const[r,gg,bb]=wfRGB(g[k*3+2]);id.data[k*4]=r;id.data[k*4+1]=gg;id.data[k*4+2]=bb;id.data[k*4+3]=255}oc.putImageData(id,0,0);
- const x1=f.c1.getContext('2d');x1.clearRect(0,0,W,H);x1.globalAlpha=pref.windFieldA??.38;x1.imageSmoothingEnabled=true;x1.drawImage(off,0,0,cols*st0,rows*st0);
- const n=Math.min(1600,Math.round(W*H/520));f.pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,a:Math.random()*80|0}));
+ const x1=f.c1.getContext('2d');x1.clearRect(0,0,W,H);x1.globalAlpha=pref.windFA??.15;x1.imageSmoothingEnabled=true;x1.drawImage(off,0,0,cols*st0,rows*st0);
+ const n=Math.min(700,Math.round(W*H/1500));f.pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,a:Math.random()*80|0}));
  f.c2.getContext('2d').clearRect(0,0,W,H)}
 function wfAt(gr,x,y){const fx=x/gr.st,fy=y/gr.st,i=Math.floor(fx),j=Math.floor(fy);if(i<0||j<0||i>=gr.cols-1||j>=gr.rows-1)return null;
  const tx=fx-i,ty=fy-j,o=(a,b)=>(b*gr.cols+a)*3,g=gr.g,l=(k)=>{const a=g[o(i,j)+k]*(1-tx)+g[o(i+1,j)+k]*tx,b=g[o(i,j+1)+k]*(1-tx)+g[o(i+1,j+1)+k]*tx;return a*(1-ty)+b*ty};return[l(0),l(1),l(2)]}
@@ -754,7 +755,7 @@ let wfRaf=0,wfLast=0;
 function wfLoop(){if(wfRaf)return;const step=t=>{wfRaf=0;const act=VS.filter(v=>v.wf&&v.wf.on&&v.wf.grid&&!v.wf.moving);if(!act.length||document.hidden)return;
   wfRaf=requestAnimationFrame(step);if(t-wfLast<33)return;wfLast=t;
   for(const v of act){const f=v.wf,gr=f.grid,x=f.c2.getContext('2d'),z=v.m.getZoom(),k=.10*Math.pow(1.25,Math.min(6,Math.max(-4,z-10))); // 縮尺に合わせて粒子の速さを変える
-   x.globalCompositeOperation='destination-in';x.fillStyle='rgba(0,0,0,.93)';x.fillRect(0,0,gr.W,gr.H);x.globalCompositeOperation='source-over';x.lineWidth=1.6;x.lineCap='round';
+   x.globalCompositeOperation='destination-in';x.fillStyle='rgba(0,0,0,.88)';x.fillRect(0,0,gr.W,gr.H);x.globalCompositeOperation='source-over';x.lineWidth=1;x.globalAlpha=pref.windLA??.4;x.lineCap='round';
    for(const p of f.pts){const w=wfAt(gr,p.x,p.y);if(!w||p.a++>90){p.x=Math.random()*gr.W;p.y=Math.random()*gr.H;p.a=0;continue}
     const nx=p.x+w[0]*k*4,ny=p.y-w[1]*k*4;x.strokeStyle=w[2]<6?'rgba(255,255,255,.75)':w[2]<12?'rgba(255,248,220,.85)':'rgba(255,235,235,.95)';
     x.beginPath();x.moveTo(p.x,p.y);x.lineTo(nx,ny);x.stroke();p.x=nx;p.y=ny}}};
@@ -1567,7 +1568,7 @@ function setTrLv(n){pref.trLv=n;save();$('tr-lv').value=n;$('b-trlv').textConten
 $('tr-lv').value=pref.trLv|0;$('b-trlv').textContent='渋滞 '+TRLV[pref.trLv|0];$('tr-lv').addEventListener('change',e=>setTrLv(+e.target.value));
 $('b-trlv').addEventListener('click',()=>{const n=((pref.trLv|0)+1)%3;setTrLv(n);msg('渋滞の表示：'+['全部（緑・黄・赤）','混雑だけ（黄・赤）','渋滞だけ（赤）'][n])});
 $('wf-on').checked=pref.windFlow!==false;$('wf-on').addEventListener('change',e=>{pref.windFlow=e.target.checked;save();VS.forEach(applyView);if(!e.target.checked)drawAm()});
-$('wf-a').value=pref.windFieldA??.38;$('wf-a').addEventListener('input',e=>{pref.windFieldA=+e.target.value;save();VS.forEach(v=>wfBuild(v))});
+$('wf-a').value=pref.windFA??.15;$('wf-a').addEventListener('input',e=>{pref.windFA=+e.target.value;save();VS.forEach(v=>wfBuild(v))});$('wf-l').value=pref.windLA??.4;$('wf-l').addEventListener('input',e=>{pref.windLA=+e.target.value;save()});
 $('here-key').value=pref.hereKey||'';$('here-save').addEventListener('click',()=>{pref.hereKey=$('here-key').value.trim();save();trOk={};VS.forEach(applyView);msg(pref.hereKey?'HEREのキーを保存しました':'HEREのキーを消しました')});
 {const T=pref.trSrc=pref.trSrc||{tf:1,ti:1,hf:1};[['tr-tf','tf'],['tr-ti','ti'],['tr-hf','hf']].forEach(([id,k])=>{const c=$(id);c.checked=!!T[k];c.addEventListener('change',()=>{T[k]=c.checked?1:0;save();trOk={};VS.forEach(applyView)})})}
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
@@ -1938,7 +1939,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611282211';
+const BUILD='202611282221';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
