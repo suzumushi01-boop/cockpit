@@ -327,6 +327,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <h3>OneDrive 同期（パソコンからも編集）</h3>
  <div class="rrow"><input id="od-client" placeholder="アプリのクライアントID（Entra で登録）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="クライアントID"><input id="od-tenant" placeholder="テナント（空欄でOK）" autocomplete="off" style="width:150px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="テナントID"><button id="od-save">保存</button></div>
  <div class="rrow"><button id="od-in">サインイン</button><button id="od-up">OneDriveへ保存</button><button id="od-down">OneDriveから読み込み</button><button id="od-out">サインアウト</button></div>
+ <label class="chk"><input type="checkbox" id="od-auto">起動時に自動でサインインする（サインインしていないときだけ、Microsoftの画面に1回移動します）</label>
  <p class="note" id="od-st">未設定</p>
  <p class="note">裏道・お気に入り・カテゴリー名・最近の目的地・★の履歴を OneDrive の「Apps/CockpitNav/cockpit-nav.json」に保存します。サインインすると、起動時・アプリに戻ったとき・3分ごとに自動で同期し、変更すると数秒で保存します。iPhoneとパソコンで同時に変えても、両方の変更を合わせます（同じものを両方で変えたときは新しいほう）。パソコンでは同じURLをEdgeやChromeで開いてサインインしてね。</p>
  <h3>渋滞情報（TomTom）</h3>
@@ -1637,7 +1638,8 @@ async function odInit(){if(!pref.odClient)return null;if(msalApp)return msalApp;
   msalApp=new msal.PublicClientApplication({auth:{clientId:pref.odClient,authority:'https://login.microsoftonline.com/'+(pref.odTenant||'common'),redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});
   if(msalApp.initialize)await msalApp.initialize();const r=await msalApp.handleRedirectPromise();odAcct=(r&&r.account)||msalApp.getAllAccounts()[0]||null;
   odSt(odAcct?'サインイン中：'+odAcct.username:'サインインしていません');return msalApp}catch(e){odSt('ログイン部品を読み込めません');return null}}
-async function odToken(){const a=await odInit();if(!a||!odAcct)throw 0;try{return(await a.acquireTokenSilent({scopes:OD_SCOPES,account:odAcct})).accessToken}catch(e){await a.acquireTokenRedirect({scopes:OD_SCOPES,account:odAcct});throw 0}}
+async function odToken(){const a=await odInit();if(!a||!odAcct)throw 0;try{return(await a.acquireTokenSilent({scopes:OD_SCOPES,account:odAcct})).accessToken}catch(e){if((st.spd||0)>5||guide){odSt('サインインの更新が必要です（止まったら自動で行います）');odNeed=true;throw 0}await a.acquireTokenRedirect({scopes:OD_SCOPES,account:odAcct});throw 0}}
+let odNeed=false;
 function buildData(){return{app:'cockpit-nav',ver:2,exported:new Date().toISOString(),device:navigator.platform||'',routes,trips:trips.filter(t=>t.keep),favs,cats:pref.cats,dests:pref.dests,wash,mnt,ck:pref.ck}}
 function replaceData(d){if(!d||d.app!=='cockpit-nav')return false;const ok=p=>Array.isArray(p)&&p.length>=2&&p.every(q=>Array.isArray(q)&&isFinite(q[0])&&isFinite(q[1]));
  if(Array.isArray(d.routes))routes=d.routes.filter(r=>r&&ok(r.pts)).map(r=>({id:+r.id,name:String(r.name||'裏道').slice(0,30),pts:r.pts.map(q=>[+q[0],+q[1]]),dist:+r.dist||lenOf(r.pts),created:+r.created||Date.now(),memo:String(r.memo||'').slice(0,200),bands:Array.isArray(r.bands)?r.bands.filter(b=>BANDS.includes(b)):[],runs:Array.isArray(r.runs)?r.runs.filter(z=>z&&isFinite(z.dur)):[],elev:Array.isArray(r.elev)?r.elev:undefined}));
@@ -1873,7 +1875,12 @@ $('od-in').addEventListener('click',async()=>{const a=await odInit();if(!a){odSt
 $('od-up').addEventListener('click',odUp);$('od-down').addEventListener('click',()=>odDown(true));
 $('od-out').addEventListener('click',async()=>{const a=await odInit();if(a&&odAcct)a.logoutRedirect({account:odAcct})});
 $('b-sync').addEventListener('click',async()=>{if(!pref.odClient){$('sh-set').hidden=false;$('od-client').scrollIntoView({block:'center'});return}if(!odAcct){const a=await odInit();if(a&&!odAcct){a.loginRedirect({scopes:OD_SCOPES});return}}odReady=true;await odSync(true)});
-(async()=>{if(!pref.odClient)return;await odInit();if(odAcct){odReady=true;await odSync(false)}})();
+if(pref.odAuto==null)pref.odAuto=true;$('od-auto').checked=!!pref.odAuto;$('od-auto').addEventListener('change',e=>{pref.odAuto=e.target.checked;save()});
+async function odAutoIn(){if(!pref.odClient||!pref.odAuto||odAcct||!navigator.onLine)return false;let last=0;try{last=+localStorage.getItem('odTry')||0}catch(e){}
+ if(Date.now()-last<6*3600e3)return false; // 断ったときに何度も移動しないよう、6時間に1回まで
+ try{localStorage.setItem('odTry',String(Date.now()))}catch(e){}const a=await odInit();if(!a||odAcct)return false;msg('OneDriveに自動でサインインします…');setTimeout(()=>a.loginRedirect({scopes:OD_SCOPES}),1200);return true}
+(async()=>{if(!pref.odClient)return;await odInit();if(odAcct){odReady=true;try{localStorage.removeItem('odTry')}catch(e){}msg('OneDrive サインイン中：'+odAcct.username);await odSync(false)}else await odAutoIn()})();
+setInterval(async()=>{if(odNeed&&(st.spd||0)<3&&!guide&&odAcct){odNeed=false;try{await odToken()}catch(e){}}},30000);
 
 /* ---------- 共通：書き出し（他のアプリへ） ---------- */
 async function shareOut(name,text,mime){
