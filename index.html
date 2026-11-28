@@ -141,6 +141,7 @@ html.fixins #wxg{padding:var(--pt) var(--pr) var(--pb) var(--pl)}
 .tinfo{cursor:pointer}
 #exchip{position:absolute;left:8px;top:calc(50% + 24px);z-index:655;padding:4px 10px;border-radius:12px;border:2px solid #ff4fd8;background:#1a0b18ee;color:#ff8be6;font:700 13px 'B612',sans-serif;cursor:pointer;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#exchip i{display:inline-block;font-style:normal;color:#fff}.exm{font:700 11px 'B612',sans-serif;color:#fff;white-space:nowrap}.exm b{display:inline-block;padding:1px 5px;border-radius:5px;background:#ff4fd8;border:1.5px solid #fff;box-shadow:0 1px 4px #000a}.exm.sub b{background:#6b2a60;opacity:.85}.exm.dst b{background:#0b1016;color:#ffd27a;border-color:#ffd27a}#ex-hubs button.on{color:var(--c);border-color:var(--c)}
 #lg-hours .bands button.on{color:var(--c);border-color:var(--c)}.lgt{width:100%;border-collapse:collapse;font:12px 'B612 Mono',monospace;margin:6px 0}.lgt th,.lgt td{border-bottom:1px solid var(--ln);padding:4px 3px;text-align:right;white-space:nowrap}.lgt th{color:#9aa6b2;font-weight:400}.lgt td:first-child,.lgt th:first-child{text-align:left}#lgbox{position:absolute;left:50%;bottom:calc(var(--gdh,60px) + 40px);transform:translateX(-50%);z-index:662;background:#0b1016f0;border:1px solid var(--c);border-radius:10px;padding:6px 10px;font:700 12px 'B612',sans-serif;color:var(--w);width:min(92%,420px)}#lgbox input{width:100%;accent-color:#39d0ff}#lgbox .r{display:flex;justify-content:space-between;align-items:center;gap:6px}#lgbox button{min-height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}
+#wkbox{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:663;background:#0b1016f2;border:2px solid #ffd23a;border-radius:12px;padding:6px 10px;font:700 15px 'B612',sans-serif;color:var(--w);width:min(94%,460px);max-height:70%;overflow:auto}#wkbox .r{display:flex;justify-content:space-between;align-items:center;gap:8px}#wkbox small{font-size:11px;color:#9aa6b2}.wkb-b[hidden]{display:none!important}.wkb-b{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}#wkbox button{min-height:34px;padding:0 9px;border-radius:8px;border:1px solid var(--ln);background:#000;color:var(--c);font:700 12px 'B612',sans-serif}#wkb-x{color:#ff8b8b!important}
 #trchip{position:absolute;right:10px;top:118px;z-index:650;padding:3px 9px;border-radius:10px;border:1px solid #ffd23a;background:#2b2408e6;color:#ffd23a;font:700 11px 'B612',sans-serif}
 .wfleg{display:flex;align-items:center;gap:8px;font:11px 'B612 Mono',monospace;color:#9aa6b2;margin:4px 0 8px}.wfleg i{flex:1;height:8px;border-radius:4px}
 #wft{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:645;width:min(46%,340px);background:#0b1016d9;border:1px solid var(--ln);border-radius:10px;padding:4px 10px 2px;font:700 12px 'B612',sans-serif;color:#ffb02e;text-align:center}
@@ -213,6 +214,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <button id="back" aria-label="大地図を現在地へ戻す">◎ 現在地</button>
   <button id="trchip" hidden></button>
   <button id="exchip" hidden></button>
+  <div id="wkbox" hidden><div class="r"><span id="wkb-t"></span><button id="wkb-x">終了</button></div><div id="wkb-m" class="wkb-b"></div><div id="wkb-adj" class="wkb-b" hidden><button data-wa="-1">◀ 5m戻す</button><button data-wa="0">目印に着いた</button><button data-wa="1">5m進める ▶</button></div></div>
   <div id="lgbox" hidden><div class="r"><span id="lgb-t"></span><button id="lgb-x">地図から消す</button></div><input type="range" id="lgb-r" min="0" max="0" value="0" aria-label="時刻"><div id="lgb-w" class="note"></div></div>
   <div id="wft" hidden><span id="wft-l">風 現在</span><input type="range" id="wft-r" min="0" max="72" step="1" value="0" aria-label="風の予報の時刻"><div class="wfts"><span>現在</span><span>24</span><span>48</span><span>72h</span></div></div>
   <div id="trn" hidden></div>
@@ -225,7 +227,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
   <div class="bfix"><span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span></div>
   <div class="bsc">
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-exit">駅の出口</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button><button id="b-vol">音量 100%</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-exit">駅の出口</button><button id="b-walk">歩き道</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-train">電車</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button><button id="b-vol">音量 100%</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-log">履歴照会</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
@@ -246,6 +248,12 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <p class="note" id="lg-st"></p>
  <div class="rrow"><button id="lg-prev">◀ 前日</button><input type="date" id="lg-d" style="min-height:44px;font:16px 'B612',sans-serif;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px" aria-label="日付"><button id="lg-next">翌日 ▶</button><button id="lg-load" class="on">呼び出す</button></div>
  <div id="lg-hours"></div><div id="lg-view"></div></div></div>
+<div class="sheet" id="sh-walk" hidden><div class="shin"><header><b>歩き道（駅・地下街）</b><button data-close>閉じる</button></header>
+ <p class="note">地下ではGPSが届かないので、歩数とコンパスで歩いた道を記録します。iPhoneを胸の前で画面を上にして持ち、進む方向に向けて歩いてね。曲がり角は自動で見つけて、改札や階段は「目印」ボタンで残せます。次からは同じ場所から歩き出すと、歩数で進み具合を数えて「まもなく右へ」と案内します。ずれたら「目印に着いた」で合わせられます。</p>
+ <div class="rrow"><button id="wk-rec" class="on">● ここから記録開始</button></div>
+ <h3>歩幅</h3><div class="rrow"><input type="range" id="wk-len" min="0.5" max="0.9" step="0.01" style="flex:1;accent-color:var(--c)" aria-label="歩幅"><span id="wk-len-v" class="note"></span></div><p class="note">目安：身長×0.45。100歩歩いて実際の距離÷100で合わせると正確になるよ</p>
+ <label class="chk"><input type="checkbox" id="wk-voice">歩き道の記録・案内中は、iPhoneが縦でも声で案内する</label>
+ <h3>保存した歩き道</h3><div id="wk-list"></div><p class="note">歩き道はこのiPhoneの中だけに保存されます。</p></div></div>
 <div class="sheet" id="sh-rt" hidden><div class="shin"><header><b>裏道ガイド</b><button data-close>閉じる</button></header>
  <p class="note">いい道を走るときに「記録開始」→ 走り終えたら「記録終了」で覚えます。走行履歴の「裏道に登録」からも作れます。スタート地点に近づくと自動で案内を提案し、裏道といつもの道の所要時間も自動で記録します。</p>
  <div class="rrow"><button id="r-rec">記録開始</button><span id="r-st" class="note"></span></div>
@@ -588,7 +596,7 @@ function onOri(e){
 }
 let ref=null;
 function onMot(e){
- const g=e.accelerationIncludingGravity;if(!g||g.x==null)return;
+ const g=e.accelerationIncludingGravity;if(!g||g.x==null)return;wkMot(g);
  const a=scr()*D2R,c=Math.cos(a),s=Math.sin(a),sx=g.x*c+g.y*s,sy=-g.x*s+g.y*c,sz=g.z;
  const rr=Math.atan2(sx,sy),pp=Math.atan2(sz,Math.hypot(sx,sy));
  if(!ref)ref={r:rr,p:pp};
@@ -961,7 +969,7 @@ $('b-wxp').addEventListener('click',()=>{openSh('sh-wx');fcTick()});$('b-hist').
 
 
 /* ---------- 音声案内（Web Speech API） ---------- */
-pref.voice=pref.voice!==false;let rainSaid=false;const vVol=()=>{const x=+pref.vVol;return x>0&&x<=1?x:1},PORT=matchMedia('(orientation: portrait)'),vOn=()=>pref.voice&&!PORT.matches; // 縦向きの間は音声を自動でオフ
+pref.voice=pref.voice!==false;let rainSaid=false;const vVol=()=>{const x=+pref.vVol;return x>0&&x<=1?x:1},PORT=matchMedia('(orientation: portrait)'),vOn=()=>pref.voice&&(!PORT.matches||!!(WK&&pref.wkVoice)); // 縦向きの間は音声を自動でオフ
 const pickV=(name,re)=>{const vs=window.speechSynthesis?speechSynthesis.getVoices():[];return vs.find(v=>v.name===name)||vs.find(v=>re.test(v.lang))};
 /* ---------- 音の出し方（音楽を止めない効果音モード） ---------- */
 pref.amode=pref.amode==='voice'?'voice':'mix';let actx=null;
@@ -1326,6 +1334,8 @@ function runCmd(t){
  if(has('音量')){const up=has('上げ','あげ','大きく','おおきく'),dn=has('下げ','さげ','小さく','ちいさく');if(up||dn){setVol(vVol()+(up?.2:-.2))}return say('音量'+Math.round(vVol()*100)+'パーセントです'),1}
   if(has('出口')){const N=pref.exNav;if(N&&!off(t)){const d=map.distance([st.lat,st.lon],[N.ex.lat,N.ex.lon]);return say(`${N.ex.lab}まで${sayM(d)}、${exDir(brg([st.lat,st.lon],[N.ex.lat,N.ex.lon]))}の方向です`),1}if(N&&off(t)){pref.exNav=null;save();exDraw();exTick();return say('出口ナビを終了しました'),1}exHubs();$('sh-exit').hidden=false;return say('行きたい場所を入れてください'),1}
   if(has('履歴照会','履歴を見','記録を見')){$('b-log').click();return say('履歴照会を開きます'),1}
+  if(has('目印')&&WK&&WK.mode==='rec'){const m=WKM.find(x=>t.includes(x.replace(/[↑↓]/,'')))||'目印';wkMark(m);return say(m+'を記録しました'),1}
+  if(has('歩き道')){$('b-walk').click();return say('歩き道を開きます'),1}
   if(has('ヘルプ','何ができる','なにができる'))return say('拡大、縮小、北を上、進行方向を上、雨雲、30分後の雨雲、洪水、土砂、風、飛行機、天気、結露、洗車、太陽、月、速度、標高、時間、船橋駅まで案内、裏道案内、案内中止、逆向き、記録開始、記録終了、などが使えます'),1;
  if(has('渋滞')){if(off(t)||has('表示','出して','見せて')){B().wx.tr=!off(t);apB();return say(off(t)?'渋滞を消しました':(pref.ttKey?'渋滞を表示します':'渋滞は設定でTomTomのキーを入れると使えます')),1}
   return say(guide&&guide.nav&&guide.nav.delay!=null?(guide.nav.delay>60?`今のルートは渋滞で約${Math.round(guide.nav.delay/60)}分の遅れです`:'今のルートに大きな渋滞はありません'):(pref.ttKey?'目的地ナビ中に、ルートの渋滞をお知らせします':'渋滞は設定でTomTomのキーを入れると使えます')),1}
@@ -1799,6 +1809,74 @@ async function poiSearch(kind){const me=[st.lat,st.lon],tag=POI[kind];if(!tag)re
 document.querySelectorAll('[data-poi]').forEach(b=>b.addEventListener('click',async()=>{$('d-res').innerHTML='<p class="note">'+b.dataset.poi+'を探しています…</p>';try{dRes=await poiSearch(b.dataset.poi)}catch(e){dRes=[]}
  $('d-res').innerHTML=dRes.length?destRows(dRes,'r'):'<p class="note">近くに見つかりませんでした。</p>'}));
 $('b-poi').addEventListener('click',()=>{renderDest();$('sh-dest').hidden=false;$('poi-row').scrollIntoView({block:'nearest'})});
+const wkM=d=>d<100?Math.max(0,Math.round(d))+'m':fmtM(d);
+/* ---------- 歩き道（駅・地下街の通路を歩数とコンパスで記録して、次から案内） ---------- */
+var WK=null; // {mode:'rec'|'go', ...}
+let walks=[];try{walks=JSON.parse(localStorage.getItem('walks')||'[]')||[]}catch(e){walks=[]}
+const wkSaveAll=()=>{try{localStorage.setItem('walks',JSON.stringify(walks))}catch(e){msg('保存できません（容量不足）')}};
+if(pref.wkLen==null)pref.wkLen=0.7;if(pref.wkVoice==null)pref.wkVoice=true;
+const wkLs=VS.map(v=>L.layerGroup().addTo(v.m));let wkMe=null;
+const WKM=['改札','階段↑','階段↓','エスカレーター↑','エスカレーター↓','エレベーター','右へ','左へ','まっすぐ','出口','乗り場','トイレ'];
+const wkLL=(o,x,y)=>[o[0]+y/111320,o[1]+x/(111320*Math.cos(o[0]*D2R))];
+let wkLp=9.8,wkUp=false,wkLast=0;
+function wkMot(g){if(!WK)return;const m=Math.hypot(g.x,g.y,g.z);wkLp=wkLp*0.92+m*0.08;const d=m-wkLp,t=Date.now();
+ if(!wkUp&&d>1.2&&t-wkLast>330){wkUp=true;wkLast=t;wkStep()}else if(wkUp&&d<0.4)wkUp=false}
+function wkHdg(){return st.cmpRaw!=null?st.cmpRaw:st.hdg}
+function wkStep(){const w=WK,L2=pref.wkLen||0.7;w.n++;
+ if(w.mode==='rec'){const h=wkHdg()*D2R;w.x+=Math.sin(h)*L2;w.y+=Math.cos(h)*L2;if(w.n%2===0)w.pts.push([+w.x.toFixed(2),+w.y.toFixed(2),w.n])}
+ else{w.pos=Math.min(w.tot,w.pos+L2*(w.k||1))}
+ wkDraw();wkPanel()}
+function wkSay(t){if(!t)return;say(t);msg(t)}
+/* 記録 */
+function wkStart(){const o=[st.lat,st.lon];WK={mode:'rec',o,x:0,y:0,n:0,pts:[[0,0,0]],marks:[],t:Date.now(),fl:0};wkLp=9.8;
+ $('wkbox').hidden=false;$('sh-walk').hidden=true;wkDraw();wkPanel();wkSay('歩き道の記録を始めました。目印のところでボタンを押してね')}
+function wkMark(lab){const w=WK;if(!w||w.mode!=='rec')return;w.pts.push([+w.x.toFixed(2),+w.y.toFixed(2),w.n]);w.marks.push({i:w.pts.length-1,lab});msg('目印：'+lab);cue('ok');wkPanel()}
+function wkStop(save){const w=WK;WK=null;$('wkbox').hidden=true;wkLs.forEach(g=>g.clearLayers());try{if(w&&w.z0)map.setZoom(w.z0,{animate:false});brwOff()}catch(e){}if(!w||w.mode!=='rec'||!save)return;
+ if(w.n<10){msg('歩数が少なすぎるので保存しませんでした');return}w.pts.push([+w.x.toFixed(2),+w.y.toFixed(2),w.n]);
+ const nm=(prompt('この歩き道の名前（例：東京駅 丸の内北口→丸ビル）','歩き道 '+fmtD(w.t))||'').trim();if(!nm){msg('保存しませんでした');return}
+ walks.unshift({id:w.t,name:nm.slice(0,40),o:w.o,pts:w.pts,marks:w.marks,len:pref.wkLen,steps:w.n});wkSaveAll();msg('歩き道を保存しました');wkList()}
+/* 案内 */
+function wkPrep(r,rev){const P=r.pts.map(p=>[p[0],p[1]]),M=r.marks.map(m=>({...m}));let Q=P,MM=M;
+ if(rev){Q=P.slice().reverse();const n=P.length-1;MM=M.map(m=>({i:n-m.i,lab:m.lab.replace('↑','⇅').replace('↓','↑').replace('⇅','↓').replace('右へ','⇆').replace('左へ','右へ').replace('⇆','左へ')})).reverse()}
+ const cum=[0];for(let i=1;i<Q.length;i++)cum.push(cum[i-1]+Math.hypot(Q[i][0]-Q[i-1][0],Q[i][1]-Q[i-1][1]));
+ const T=[];const hd=(a,b)=>Math.atan2(b[0]-a[0],b[1]-a[1])/D2R;let i=0;
+ while(i<Q.length-1){let j=i+1;while(j<Q.length-1&&cum[j]-cum[i]<4)j++;let k=j+1;while(k<Q.length-1&&cum[k]-cum[j]<4)k++;if(k>=Q.length)break;
+  const a=((hd(Q[j],Q[k])-hd(Q[i],Q[j])+540)%360)-180;if(Math.abs(a)>50){let m=j,bd=-1;const A=Q[i],B=Q[k],ab=Math.hypot(B[0]-A[0],B[1]-A[1])||1;for(let q=i+1;q<k;q++){const dd=Math.abs((B[0]-A[0])*(A[1]-Q[q][1])-(A[0]-Q[q][0])*(B[1]-A[1]))/ab;if(dd>bd){bd=dd;m=q}}
+   if(cum[m]-(T.length?T[T.length-1].d:0)>6)T.push({d:cum[m],lab:a>0?(a>130?'Uターン':'右へ'):(a<-130?'Uターン':'左へ'),auto:1});i=Math.max(m,i+1);continue}i=j}
+ MM.forEach(m=>T.push({d:cum[Math.max(0,Math.min(cum.length-1,m.i))],lab:m.lab}));T.sort((a,b)=>a.d-b.d);
+ const k=(r.len||0.7)/(pref.wkLen||0.7);return{Q,cum,tot:cum[cum.length-1],T,k}}
+function wkGo(r,rev){const p=wkPrep(r,rev);WK={mode:'go',r,rev,base:r.o,...p,pos:0,n:0,said:{}};wkLp=9.8;
+ $('wkbox').hidden=false;$('sh-walk').hidden=true;wkDraw();wkPanel();const f=p.T[0];wkSay(`${r.name}を案内します。${f?wkM(f.d)+'先、'+f.lab:'まっすぐ進んでください'}`)}
+function wkAt(d){const w=WK,Q=w.Q,c=w.cum;let i=1;while(i<c.length-1&&c[i]<d)i++;const s=c[i]-c[i-1]||1,f=Math.max(0,Math.min(1,(d-c[i-1])/s));return[Q[i-1][0]+(Q[i][0]-Q[i-1][0])*f,Q[i-1][1]+(Q[i][1]-Q[i-1][1])*f]}
+function wkDraw(){wkLs.forEach(g=>g.clearLayers());const w=WK;if(!w)return;const o=w.mode==='go'?w.base:w.o;
+ const P=(w.mode==='go'?w.r.pts:w.pts).map(p=>wkLL(o,p[0],p[1]));
+ wkLs.forEach(g=>{g.addLayer(L.polyline(P,{color:w.mode==='go'?'#ffd23a':'#39d0ff',weight:4,dashArray:w.mode==='go'?'8 6':null,interactive:false}));
+  (w.mode==='go'?w.r.marks:w.marks).forEach(m=>{const p=P[m.i];if(p)g.addLayer(L.marker(p,{interactive:false,icon:L.divIcon({className:'exm sub',iconSize:null,iconAnchor:[0,10],html:'<b>'+esc(m.lab)+'</b>'})}))})});
+ const me=w.mode==='go'?wkLL(w.base,...wkAt(w.pos)):wkLL(o,w.x,w.y);
+ wkLs.forEach(g=>g.addLayer(L.circleMarker(me,{radius:8,color:'#fff',weight:2,fillColor:w.mode==='go'?'#ffd23a':'#39d0ff',fillOpacity:1,interactive:false})));wkMe=me;
+ try{brwOn();clearTimeout(brwT);if(!w.z0){w.z0=map.getZoom();map.setZoom(18,{animate:false})}brw.c=L.latLng(me);map.setView(brw.c,map.getZoom(),{animate:false})}catch(e){}}
+function wkPanel(){const w=WK,e=$('wkb-t');if(!w)return;
+ if(w.mode==='rec'){e.innerHTML=`● 記録中　${w.n}歩（約${wkM(w.n*(pref.wkLen||0.7))}）　目印 ${w.marks.length}`;$('wkb-m').hidden=false;$('wkb-adj').hidden=true;return}
+ $('wkb-m').hidden=true;$('wkb-adj').hidden=false;const nx=w.T.find(t=>t.d>w.pos+1),rem=w.tot-w.pos;
+ if(rem<3){e.innerHTML=`🏁 到着　${esc(w.r.name)}`;if(!w.said.end){w.said.end=1;wkSay('到着しました')}return}
+ if(nx){const d=nx.d-w.pos;e.innerHTML=`<span style="color:#ffd23a">${esc(nx.lab)}</span>　あと ${wkM(d)}<br><small>残り ${wkM(rem)}・${w.n}歩</small>`;
+  const key=nx.d.toFixed(1);if(d<6&&!w.said[key]){w.said[key]=1;wkSay(`まもなく${nx.lab}`)}}
+ else e.innerHTML=`まっすぐ　残り ${wkM(rem)}<br><small>${w.n}歩</small>`}
+function wkAdj(dir){const w=WK;if(!w||w.mode!=='go')return;if(dir===0){const nx=w.T.find(t=>t.d>w.pos+1);if(nx){w.pos=nx.d+0.5;msg('「'+nx.lab+'」に着いたことにしました')}}else w.pos=Math.max(0,Math.min(w.tot,w.pos+dir*5));wkDraw();wkPanel()}
+/* 一覧 */
+function wkList(){const el=$('wk-list');if(!el)return;el.innerHTML=walks.length?walks.map((r,i)=>`<div class="trip"><div><div class="t">${esc(r.name)}</div><div class="d">${fmtD(r.id)}・約${fmtM(r.steps*(r.len||0.7))}・目印 ${r.marks.length}</div></div><div class="acts"><button data-wgo="${i}" class="on">案内</button><button data-wrev="${i}">逆向き</button><button data-wdel="${i}">削除</button></div></div>`).join(''):'<p class="note">まだ歩き道はありません。</p>'}
+$('b-walk').addEventListener('click',()=>{wkList();$('wk-len').value=pref.wkLen;$('wk-voice').checked=!!pref.wkVoice;$('wk-len-v').textContent=(+pref.wkLen).toFixed(2)+'m';$('sh-walk').hidden=false});
+$('wk-rec').addEventListener('click',()=>{if(WK){msg('先に今の記録・案内を終えてね');return}wkStart()});
+$('wk-len').addEventListener('input',e=>{pref.wkLen=+e.target.value;$('wk-len-v').textContent=pref.wkLen.toFixed(2)+'m';save()});
+$('wk-voice').addEventListener('change',e=>{pref.wkVoice=e.target.checked;save()});
+$('wk-list').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.wgo!=null){if(WK)wkStop(false);wkGo(walks[+d.wgo],false)}else if(d.wrev!=null){if(WK)wkStop(false);wkGo(walks[+d.wrev],true)}
+ else if(d.wdel!=null){if(!b.dataset.arm){b.dataset.arm=1;b.textContent='本当に削除';return}walks.splice(+d.wdel,1);wkSaveAll();wkList()}});
+$('wkb-m').innerHTML=WKM.map(m=>`<button data-wm="${m}">${m}</button>`).join('')+'<button data-wm="?">自由入力</button>';
+$('wkb-m').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;let m=b.dataset.wm;if(m==='?'){m=(prompt('目印の名前（例：ドトールの角）')||'').trim().slice(0,20);if(!m)return}wkMark(m)});
+$('wkb-adj').addEventListener('click',e=>{const b=e.target.closest('button');if(b)wkAdj(+b.dataset.wa)});
+$('wkb-x').addEventListener('click',()=>{if(WK&&WK.mode==='rec'){if(!$('wkb-x').dataset.arm){$('wkb-x').dataset.arm=1;$('wkb-x').textContent='保存して終了';setTimeout(()=>{delete $('wkb-x').dataset.arm;$('wkb-x').textContent='終了'},4000);return}delete $('wkb-x').dataset.arm;$('wkb-x').textContent='終了';wkStop(true)}else{wkStop(false);msg('歩き道の案内を終了しました')}});
+
 /* ---------- 駅の出口ナビ（OpenStreetMap の出口データ） ---------- */
 const HUBS=[{n:'東京駅',la:35.6812,lo:139.7671},{n:'新宿駅',la:35.6896,lo:139.7006},{n:'渋谷駅',la:35.6580,lo:139.7016},{n:'横浜駅',la:35.4658,lo:139.6223},{n:'大阪・梅田',la:34.7025,lo:135.4959}];
 let exHub=null,exRes=[],exCand=[],exLs=VS.map(v=>L.layerGroup().addTo(v.m));
