@@ -211,7 +211,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <nav class="bar" aria-label="操作">
   <span class="tabs"><button data-pg="nav">ナビ</button><button data-pg="map">地図</button><button data-pg="wx">天気</button><button data-pg="run">走行</button><button data-pg="sys">設定</button></span>
   <span class="seg" id="segw"><button id="t-big">右 大地図</button><button id="t-mini">左下 小地図</button></span>
-  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
+  <div class="pg" data-p="nav"><button id="b-dest">目的地・★</button><button id="b-route">裏道</button><button id="b-cal2">水平器リセット</button><button id="b-trlv">渋滞 全部</button><button id="b-stop">案内中止</button><button id="b-poi">施設</button><button id="b-park">駐車</button><button id="b-car">車へ</button><button id="b-ck">チェック</button><button id="b-zo2" aria-label="広域">縮尺 −</button><button id="b-zi2" aria-label="詳細">縮尺 ＋</button><button id="b-voice">音声 ON</button></div>
   <div class="pg" data-p="map"><button id="b-up">HDG UP</button><button id="b-zo" aria-label="広域">縮尺 −</button><button id="b-zi" aria-label="詳細">縮尺 ＋</button><button id="b-base">地図 道路</button><button id="b-day">明るさ AUTO</button><button data-wx="fav">お気に入り</button><button data-hz="flood">洪水</button><button data-hz="dosha">土砂</button><button data-hz="tsunami">津波</button><button data-hz="takashio">高潮</button><label>濃さ<input id="op" type="range" min="0.3" max="1" step="0.05" value="0.55"></label></div>
   <div class="pg" data-p="wx"><button id="b-wxp">気象</button><button id="b-wxg">グラフ</button><button data-wx="wind">風</button><button data-wx="rain">雨</button><button id="b-rt">雨雲 今</button><button data-wx="pm">PM2.5</button></div>
   <div class="pg" data-p="run"><button id="b-hist">履歴</button><button id="b-rec">航跡</button><button id="b-past">過去の走行 ON</button><button id="b-log">ログ</button><button id="b-lim">制限速度 ON</button><button data-wx="gm">Gマップ</button><button data-wx="ac">飛行機</button><button id="b-spc">速度コール OFF</button></div>
@@ -280,6 +280,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <label class="chk"><input type="checkbox" id="tr-ti">TomTom 事故・工事・通行止め（同じキーで使えます）</label>
  <div class="rrow"><input id="here-key" placeholder="HERE の API キー（任意）" autocomplete="off" style="flex:1;min-width:220px;min-height:44px;font:14px 'B612 Mono',monospace;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 10px" aria-label="HERE APIキー"><button id="here-save">保存</button></div>
  <label class="chk"><input type="checkbox" id="tr-hf">HERE 渋滞の流れ（2社目。TomTomと重ねて表示）</label>
+ <div class="rrow"><span class="note" style="margin:0">渋滞の表示</span><select id="tr-lv" style="min-height:44px;font-size:16px;background:#000;color:#eef3f6;border:1px solid #26313d;border-radius:8px;padding:0 8px"><option value="0">全部（緑・黄・赤）</option><option value="1">混雑だけ（黄・赤）</option><option value="2">渋滞だけ（赤）</option></select></div>
  <p class="note">複数の情報を重ねると、片方にしかない渋滞も見落としにくくなります。重ねる順番は下から HERE → TomTom の流れ → 事故・工事。</p>
  <h3>メニュー</h3><label class="chk"><input type="checkbox" id="set-menu">下の操作メニューを表示する（上の MENU ボタンでも切り替え）</label>
 </div></div>
@@ -394,6 +395,14 @@ async function vSetBase(v,b){if(!v.vm||v.vfail)return false;if(!b.vs)return fals
 function vFallback(v){v.vfail=true;if(v.vd)v.vd.style.display='none';msg('ベクトル地図を読み込めないので、画像の地図にします');try{applyView(v)}catch(e){}}
 function vSync(v){if(!v.vm||v.vfail)return;const c=v.m.getCenter();try{v.vm.jumpTo({center:[c.lng,c.lat],zoom:v.m.getZoom()-1,bearing:v.cfg.hup?(v.hdgNow||0):0})}catch(e){}}
 /* 渋滞の状態を大地図の隅に小さく出す（キー未設定・キーが使えない） */
+/* 渋滞の色を選んで表示：画像の色を見て、緑（順調）や黄（やや混雑）を消す */
+const TRLV=['全部','混雑だけ','渋滞だけ'];
+const TrFilt=!L.GridLayer?null:L.GridLayer.extend({createTile(c,done){const t=document.createElement('canvas'),sz=this.getTileSize();t.width=sz.x;t.height=sz.y;const im=new Image();im.crossOrigin='anonymous';
+ im.onload=()=>{try{const g=t.getContext('2d');g.drawImage(im,0,0,sz.x,sz.y);const lv=this.options.lv|0;if(lv){const d=g.getImageData(0,0,sz.x,sz.y),p=d.data;
+   for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const r=p[i],gg=p[i+1],b=p[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);if(mx-mn<30){continue}
+    let h;if(mx===r)h=((gg-b)/(mx-mn)+6)%6*60;else if(mx===gg)h=((b-r)/(mx-mn)+2)*60;else h=((r-gg)/(mx-mn)+4)*60;
+    const red=h<22||h>330,yel=h>=22&&h<75;if(lv===2?!red:!(red||yel))p[i+3]=0}g.putImageData(d,0,0)}done(null,t)}catch(e){done(e,t)}};
+ im.onerror=e=>done(e||new Error('tile'),t);im.src=L.Util.template(this.options.url.split('#')[0],{x:c.x,y:c.y,z:c.z});return t}});
 let trOk={};const TRN={tf:'TomTom',ti:'TomTom事故',hf:'HERE'};
 function trSt(k,o){if(trOk[k]===o)return;
  if(!o&&k!=='hf'&&pref.ttKey&&pref.ttOrbis===undefined){pref.ttOrbis=true;save();trOk={};VS.forEach(applyView);return} // 新しいMyTomTomのキーは新しい窓口（Orbis）で試す
@@ -422,8 +431,8 @@ function applyView(v){
    want={hf:on&&T.hf&&hk?`https://traffic.maps.hereapi.com/v3/flow/mc/{z}/{x}/{y}/png?apiKey=${hk}`:'',
     tf:on&&T.tf&&tk?(pref.ttOrbis?`https://api.tomtom.com/maps/orbis/traffic/tile/flow/{z}/{x}/{y}.png?apiVersion=1&key=${tk}&style=light`:`https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${tk}&thickness=8`):'',
     ti:on&&T.ti&&tk?(pref.ttOrbis?`https://api.tomtom.com/maps/orbis/traffic/incidents/raster/tile/{z}/{x}/{y}?apiVersion=2&key=${tk}&style=light`:`https://api.tomtom.com/traffic/map/4/tile/incidents/s0/{z}/{x}/{y}.png?key=${tk}`):''},ZI={hf:7,tf:8,ti:9};
-  v.trLs=v.trLs||{};for(const k in want){const cur=v.trLs[k];if((cur&&cur.u)===want[k])continue;if(cur)m.removeLayer(cur.l);v.trLs[k]=null;
-   if(want[k]){const l=L.tileLayer(want[k],{maxZoom:18,opacity:k==='ti'?1:.85,zIndex:ZI[k]}).addTo(m);let ok=0,ng=0;l.on('tileload',()=>{ok++;trSt(k,true)});l.on('tileerror',()=>{ng++;if(ng>=4&&!ok)trSt(k,false)});v.trLs[k]={u:want[k],l}}}
+  v.trLs=v.trLs||{};for(const k in want){if(want[k]&&k!=='ti')want[k]+='#'+(pref.trLv|0);const cur=v.trLs[k];if((cur&&cur.u)===want[k])continue;if(cur)m.removeLayer(cur.l);v.trLs[k]=null;
+   if(want[k]){const lv=pref.trLv|0,l=(k!=='ti'&&lv&&TrFilt?new TrFilt({url:want[k],lv,maxZoom:18,opacity:.9,zIndex:ZI[k]}):L.tileLayer(want[k],{maxZoom:18,opacity:k==='ti'?1:.85,zIndex:ZI[k]})).addTo(m);let ok=0,ng=0;l.on('tileload',()=>{ok++;trSt(k,true)});l.on('tileerror',()=>{ng++;if(ng>=4&&!ok)trSt(k,false)});v.trLs[k]={u:want[k],l}}}
   if(v.id==='big')trChip()}
  v.wrap.classList.toggle('mapnight',nightOf(c.cm));
  if(m.getZoom()!==c.z)m.setView(ctrOf(v.id),c.z,{animate:false});
@@ -1247,6 +1256,9 @@ function runCmd(t){
  const lay=[['洪水','hz','flood'],['土砂','hz','dosha'],['津波','hz','tsunami'],['高潮','hz','takashio'],['風','wx','wind'],['飛行機','wx','ac'],['ジーマップ','wx','gm'],['Gマップ','wx','gm'],['PM','wx','pm'],['大気','wx','pm']];
  for(const[w,g,k]of lay)if(t.includes(w)&&(off(t)||has('表示','出して','見せて','オン','つけて'))){B()[g][k]=!off(t);apB();if(k==='ac'){acTime=0;acTick()}if(k==='gm')drawGm();if(k==='pm')drawSora();say(w+(off(t)?'を消しました':'を表示します'));return 1}
  if(has('天気','雨は','雨降る','降水')){say(`${wxSum.rainTxt?wxSum.rainTxt.replace('雨 2h なし','2時間以内に雨の予報はありません').replace('〜','から雨'):'予報を取得中です'}。気温${$('t-temp').textContent}度、湿度${$('t-hum').textContent}パーセントです`);return 1}
+ if(has('渋滞だけ','赤だけ'))return setTrLv(2),say('渋滞だけ表示します'),1;
+ if(has('混雑だけ'))return setTrLv(1),say('混雑だけ表示します'),1;
+ if(has('渋滞全部','全部表示'))return setTrLv(0),say('渋滞をすべて表示します'),1;
  if(has('アラート')){pref.dewMute=null;save();wxAlerts();return say($('dewal').hidden?'今は結露のアラートはありません':'結露のアラートを表示します'),1}
  if(has('グラフ','トレンド')){wxgOpen();return say('気象のグラフを表示します'),1}
  if(has('結露','夜露','霜'))return say(wxSum.dewTxt?wxSum.dewTxt.replace('〜','ごろから').replace('24h','24時間の恐れは'):'予報を取得中です'),1;
@@ -1471,6 +1483,9 @@ $('se-make').addEventListener('click',()=>{const S=seP.s,E=seP.e;if(!S||!E){$('s
 /* ---------- 渋滞（TomTom） ---------- */
 $('tt-key').value=pref.ttKey||'';
 $('tt-save').addEventListener('click',()=>{pref.ttKey=$('tt-key').value.trim();save();VS.forEach(applyView);$('tt-st').textContent=pref.ttKey?'保存しました。大地図にいつも渋滞を表示します':'キーを消しました';delete pref.ttOrbis;pref.trMuteUntil=0;save();trOk={};VS.forEach(applyView);trChip()});
+function setTrLv(n){pref.trLv=n;save();$('tr-lv').value=n;$('b-trlv').textContent='渋滞 '+TRLV[n];VS.forEach(applyView)}
+$('tr-lv').value=pref.trLv|0;$('b-trlv').textContent='渋滞 '+TRLV[pref.trLv|0];$('tr-lv').addEventListener('change',e=>setTrLv(+e.target.value));
+$('b-trlv').addEventListener('click',()=>{const n=((pref.trLv|0)+1)%3;setTrLv(n);msg('渋滞の表示：'+['全部（緑・黄・赤）','混雑だけ（黄・赤）','渋滞だけ（赤）'][n])});
 $('here-key').value=pref.hereKey||'';$('here-save').addEventListener('click',()=>{pref.hereKey=$('here-key').value.trim();save();trOk={};VS.forEach(applyView);msg(pref.hereKey?'HEREのキーを保存しました':'HEREのキーを消しました')});
 {const T=pref.trSrc=pref.trSrc||{tf:1,ti:1,hf:1};[['tr-tf','tf'],['tr-ti','ti'],['tr-hf','hf']].forEach(([id,k])=>{const c=$(id);c.checked=!!T[k];c.addEventListener('change',()=>{T[k]=c.checked?1:0;save();trOk={};VS.forEach(applyView)})})}
 async function ttRoute(me,dest){if(!pref.ttKey)return null;try{const j=await(await fetch(`https://api.tomtom.com/routing/1/calculateRoute/${me[0].toFixed(5)},${me[1].toFixed(5)}:${dest.lat.toFixed(5)},${dest.lon.toFixed(5)}/json?traffic=true&travelMode=car&key=${encodeURIComponent(pref.ttKey)}`)).json();
