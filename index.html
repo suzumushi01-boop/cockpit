@@ -246,7 +246,7 @@ body.nomenu .bar{display:none}body.nomenu #b-menu{border-color:var(--c);color:va
  <div class="bands" id="poi-row"><button data-poi="コンビニ">コンビニ</button><button data-poi="トイレ">トイレ</button><button data-poi="ガソリン">ガソリン</button><button data-poi="充電">充電</button><button data-poi="駐車場">駐車場</button><button data-poi="道の駅">道の駅</button><button data-poi="洗車場">洗車場</button></div>
  <div id="d-res"></div><div id="d-reg"></div>
  <label class="chk"><input type="checkbox" id="d-ura">登録した裏道が使えるときは裏道経由で案内（通常より早いか、1分以内の差のとき）</label>
- <h3>駐車</h3><div class="rrow"><span id="park-st" class="note">駐車位置なし</span><label class="note">タイマー<select id="park-lim" aria-label="駐車タイマー"><option value="0">なし</option><option value="30">30分</option><option value="60">60分</option><option value="90">90分</option><option value="120">2時間</option><option value="180">3時間</option></select></label></div>
+ <h3>駐車</h3><div class="rrow"><span id="park-st" class="note">駐車位置なし</span><button id="park-clr">駐車を解除</button><label class="note">タイマー<select id="park-lim" aria-label="駐車タイマー"><option value="0">なし</option><option value="30">30分</option><option value="60">60分</option><option value="90">90分</option><option value="120">2時間</option><option value="180">3時間</option></select></label></div>
  <h3>お気に入り地点</h3><div class="bands" id="f-chips"></div><div id="f-list"></div><div class="rrow"><button id="f-here">今いる場所を登録</button></div>
  <h3>最近の目的地</h3><div id="d-recent"></div>
  <details style="margin-top:14px"><summary style="min-height:44px;line-height:44px;color:#9aa6b2">カテゴリー名を変える</summary><div id="c-edit"></div><div class="rrow"><button id="c-save" class="on">カテゴリー名を保存</button></div></details>
@@ -1240,6 +1240,7 @@ function runCmd(t){
  if(has('同期')){$('b-sync').click();return say('OneDriveと同期します'),1}
  if(has('過去の走行','走行履歴')){pref.hshow=!off(t);save();drawPast();setPast();return say('過去の走行を'+(pref.hshow?'表示します':'消しました')),1}
  if(has('洗車記録','洗車の記録')){wRender();$('sh-wash').hidden=false;setTimeout(wStart,300);return 1}
+ if(has('駐車解除','駐車を解除','駐車消して','駐車を消')){if(!pref.park)return say('駐車位置は記録されていません'),1;parkClear();return say('駐車を解除しました'),1}
  if(has('駐車')&&!has('駐車場')){$('b-park').click();return 1}
  if(has('車に戻','車まで','車へ','車の場所')){if(!pref.park)return say('駐車位置が記録されていません'),1;carGo=true;return say('車まで案内します'),1}
  if(has('チェックリスト'))return openCk(),1;
@@ -1651,6 +1652,11 @@ setInterval(()=>{const p=pref.park;$('park-st').textContent=p?`駐車：${fmtT(p
  if(carGo&&p&&!guide){const me=[st.lat,st.lon],d=map.distance(me,[p.lat,p.lon]),b=brg(me,[p.lat,p.lon]);
   $('gd').hidden=false;$('gd').classList.remove('off');$('gd').innerHTML=`駐車位置<br><b>車まで ${fmtM(d)}</b><br>${fmtT(p.at)}から${Math.floor((Date.now()-p.at)/60000)}分`;$('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
   if(d<15){carGo=false;$('gd').hidden=true;$('gdp').style.display='none';sayAuto('車に着きました','arr')}}},2000);
+function parkClear(why){if(!pref.park)return;pref.park=null;save();drawPark();carGo=false;if(!guide){$('gd').hidden=true;$('gdp').style.display='none'}msg(why||'駐車位置を消しました')}
+$('park-clr').addEventListener('click',()=>{parkClear();say('駐車を解除しました')});
+/* 車で走り出したら自動で消す：駐車位置から200m以上離れ、時速15km以上が20秒続いたら */
+{let mvT=0;setInterval(()=>{const p=pref.park;if(!p||!(st.gps||st.demo)){mvT=0;return}const d=map.distance([st.lat,st.lon],[p.lat,p.lon]);
+ if(st.spd>=15&&d>200){mvT+=2;if(mvT>=20&&Date.now()-p.at>3*60000){parkClear('走り出したので駐車位置を消しました');mvT=0}}else mvT=0},2000)}
 setTimeout(drawPark,900);
 
 /* ---------- 着陸チェックリスト ---------- */
@@ -1862,7 +1868,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611281339';
+const BUILD='202611282000';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
