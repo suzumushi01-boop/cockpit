@@ -101,7 +101,9 @@ body.night .pfd,body.night .ann,body.night .bar{filter:brightness(.82)}
 .trip .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .chk{display:flex;align-items:center;gap:10px;min-height:44px}.chk input{width:22px;height:22px;accent-color:var(--c)}
 
-.gd{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:#000c;border:1px solid var(--c);border-radius:8px;padding:5px 12px;text-align:center;font:700 14px/1.3 'B612',sans-serif;max-width:60%;pointer-events:none}
+.gd{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:640;background:#000d;border:1px solid var(--c);border-radius:10px;padding:5px 12px;text-align:center;font:700 14px/1.3 'B612',sans-serif;max-width:62%;cursor:pointer}
+.gd.m1 .x2{display:none}.gd.m1{padding:4px 12px}.gd.m2{padding:3px 10px;font-size:12px;opacity:.85}.gd.m2 .x1,.gd.m2 .x2{display:none}
+#nd.guiding .ndc.wx{bottom:calc(var(--gdh,60px) + 14px)}#nd.guiding #mic{bottom:calc(var(--gdh,60px) + 14px)}
 .gd[hidden]{display:none}.gd b{color:var(--c);font-size:17px}.gd.off{border-color:var(--a)}.gd.off b{color:var(--a)}
 .rrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
 .rrow input{flex:1;min-width:160px;min-height:44px;font:16px 'B612',sans-serif;background:#000;color:var(--w);border:1px solid var(--ln);border-radius:8px;padding:0 10px}
@@ -987,28 +989,35 @@ function startGuide(r,rev,opt){const P=rev?r.pts.slice().reverse():r.pts,cum=cum
  guideL.addLayer(L.circleMarker(P[P.length-1],{radius:9,color:'#000',weight:2,fillColor:'#ff4d4d',fillOpacity:1,interactive:false}));
  if(guide.nav){const n=guide.nav;if(!opt.quiet){msg(`${r.name}へ案内開始：${(n.dist/1000).toFixed(1)}km・約${Math.round(n.dur/60)}分`);sayAuto(`${r.name}への案内を開始します。距離${(n.dist/1000).toFixed(1)}キロ、およそ${Math.round(n.dur/60)}分です`,'ok')}else sayAuto('新しいルートで案内します','ok')}
  else{msg('裏道ガイド開始：'+r.name+(rev?'（逆方向）':'')+`・曲がり角 ${guide.turns.length}か所`);sayAuto(r.name+(rev?'を逆方向で':'の')+'案内を開始します'+(r.memo?'。メモ、'+r.memo:''),'ok')}guideTick()}
-function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;try{V.mini.m.setView([st.lat,st.lon],V.mini.cfg.z,{animate:false})}catch(e){}guideL.clearLayers();$('gd').hidden=true;$('gdp').style.display='none';if(t)msg(t)}
+function stopGuide(t,v){if(v){if(/到着/.test(v))sayAuto(v,'arr');else say(v)}guide=null;try{V.mini.m.setView([st.lat,st.lon],V.mini.cfg.z,{animate:false})}catch(e){}guideL.clearLayers();$('gd').hidden=true;$('nd').classList.remove('guiding');$('gdp').style.display='none';if(t)msg(t)}
 function guideTick(){
  if(!guide)return;const g=guide,P=g.P,me=[st.lat,st.lon],now=Date.now();let lo=0,hi=P.length-1;
  if(!g.off){lo=Math.max(0,g.prog-10);hi=Math.min(P.length-1,g.prog+150)}
- let bi=lo,bd=1e12;for(let i=lo;i<=hi;i++){const d=map.distance(me,P[i]);if(d<bd){bd=d;bi=i}}
- g.prog=bi;g.off=bd>60;
+ // 点ではなく「線分」までの距離で判定（直線道路で点の間隔が広くても外れ扱いにしない）
+ const kx=111320*Math.cos(me[0]*D2R),ky=110540;let bi=lo,bd=1e12,bt=0;
+ for(let i=lo;i<Math.min(hi,P.length-1);i++){const ax=(P[i][1]-me[1])*kx,ay=(P[i][0]-me[0])*ky,dx=(P[i+1][1]-P[i][1])*kx,dy=(P[i+1][0]-P[i][0])*ky,L2=dx*dx+dy*dy;
+  const t=L2?Math.max(0,Math.min(1,-(ax*dx+ay*dy)/L2)):0,d=Math.hypot(ax+t*dx,ay+t*dy);if(d<bd){bd=d;bi=i;bt=t}}
+ if(P.length===1){bd=map.distance(me,P[0]);bi=0}
+ const offLim=Math.max(45,Math.min(120,(st.acc||15)*1.5+25)); // GPSの誤差に合わせて「外れた」とみなす距離を変える
+ g.offN2=bd>offLim?(g.offN2||0)+1:0;g.prog=bi;g.off=g.offN2>=3; // 3秒続いたら外れ
  if(map.distance(me,P[P.length-1])<40&&g.prog>P.length*0.6){stopGuide(g.nav?'目的地に到着しました':'裏道ガイド：到着しました','目的地に到着しました。案内を終了します');if(g.nav&&pref.ckAuto!==false)setTimeout(()=>openCk(true),5000);return}
- if(g.nav){if(g.off&&bd>80){g.offN=(g.offN||0)+1;if(g.offN>=8&&now-(g.rerAt||0)>30000){g.rerAt=now;g.offN=0;sayAuto('ルートを再検索します','off');navTo(g.nav.dest,{quiet:true})}}else g.offN=0}
+ if(g.nav){if(g.off&&bd>offLim+30){g.offN=(g.offN||0)+1;if(g.offN>=10&&now-(g.rerAt||0)>45000){g.rerAt=now;g.offN=0;sayAuto('ルートを再検索します','off');navTo(g.nav.dest,{quiet:true})}}else g.offN=0}
  let ti=bi;if(!g.off){while(ti<P.length-1&&g.cum[ti]-g.cum[bi]<60)ti++}
- const b=brg(me,P[ti]),rel=((b-st.hdg+540)%360)-180,ar=Math.abs(rel),dir=ar<30?'まっすぐ':ar>150?'Uターン':rel>0?'右へ':'左へ';
- const left=g.cum[P.length-1]-g.cum[bi],nt=g.turns.find(t=>t.i>bi),dn=nt?g.cum[nt.i]-g.cum[bi]:null;
+ const hd=st.spd>8&&isFinite(st.trk)?st.trk:st.hdg; // 走行中は方位磁石ではなくGPSの進行方向を使う
+ const b=brg(me,P[ti]),rel=((b-hd+540)%360)-180,ar=Math.abs(rel),dir=ar<30?'まっすぐ':ar>150?'Uターン':rel>0?'右へ':'左へ';
+ const left=g.cum[P.length-1]-(g.cum[bi]+(g.cum[Math.min(bi+1,P.length-1)]-g.cum[bi])*bt),nt=g.turns.find(t=>t.i>bi),dn=nt?g.cum[nt.i]-g.cum[bi]:null;
  let main;
  if(g.off)main=(bi===0?'スタートへ':'コースへ')+' '+dir+' '+fmtM(bd);
- else if(ar>150&&st.spd>5)main='Uターン';
+ else if(ar>150&&st.spd>8&&g.uN>=5)main='Uターン';
  else if(nt&&dn<700)main=`${nt.w.includes('Uターン')?'↶':nt.w.includes('右')?'↱':nt.w.includes('左')?'↰':'↑'} ${fmtM(dn)}先 ${nt.w}${nt.road?' '+nt.road:''}`;
  else main='しばらく道なり';
- $('gd').hidden=false;$('gd').classList.toggle('off',g.off);
+ const gm=pref.gdMode|0;$('gd').hidden=false;$('gd').classList.toggle('off',g.off);$('gd').classList.toggle('m1',gm===1);$('gd').classList.toggle('m2',gm===2);$('nd').classList.add('guiding');
  const eta=g.nav?(()=>{const rem=g.nav.dur*left/(g.cum[P.length-1]||1);return `・約${Math.max(1,Math.round(rem/60))}分（${fmtT(Date.now()+rem*1000)}着）${g.nav.delay>60?`<small> 渋滞+${Math.round(g.nav.delay/60)}分</small>`:''}`})():'';
- $('gd').innerHTML=`${esc(g.r.name)}${g.rev?'（逆）':''}${g.nav&&g.nav.ura?`<small> 裏道「${esc(g.nav.ura)}」経由</small>`:''}<br><b>${esc(main)}</b><br>残り ${(left/1000).toFixed(1)}km${eta}${g.r.memo?`<br><small>${esc(g.r.memo.slice(0,30))}</small>`:''}`;
+ $('gd').innerHTML=gm===2?`▲ 案内 ・ ${esc(main)}`:`<span class="x2">${esc(g.r.name)}${g.rev?'（逆）':''}${g.nav&&g.nav.ura?`<small> 裏道「${esc(g.nav.ura)}」経由</small>`:''}<br></span><b class="x0">${esc(main)}</b><span class="x1"><br>残り ${(left/1000).toFixed(1)}km${eta}</span>${g.r.memo?`<span class="x2"><br><small>${esc(g.r.memo.slice(0,30))}</small></span>`:''}`;
+ $('nd').style.setProperty('--gdh',$('gd').offsetHeight+'px');
  $('gdp').style.display='';$('gdp').setAttribute('transform',`rotate(${b})`);
  /* 音声 */
- const key=g.off?'off':(ar>150&&st.spd>5)?'U':'on';
+ g.uN=(ar>150&&st.spd>8)?(g.uN||0)+1:0;const key=g.off?'off':(g.uN>=5)?'U':'on';
  if(key===g.cand)g.candN++;else{g.cand=key;g.candN=1}
  if(g.candN>=2&&key!==g.lastKey){
   if(key==='off'){sayAuto(`${bi===0?'スタート':'コース'}は${dir==='まっすぐ'?'前方':dir==='Uターン'?'後方':dir==='右へ'?'右方向':'左方向'}、${sayM(bd)}です`,'off');g.offSaid=now}
@@ -1775,7 +1784,7 @@ function swapMaps(){const a=V.big.cfg,b=V.mini.cfg,cp=o=>JSON.parse(JSON.stringi
 const WXG=$('wxg');let wxgOn=false,dewWarnDay='';
 function wxgOpen(){WXG.classList.add('on');WXG.setAttribute('aria-hidden','false');wxgOn=true;wxgPos=null;fetchTrend();setTimeout(drawWxg,60)}
 function wxgClose(){WXG.classList.remove('on');WXG.setAttribute('aria-hidden','true');wxgOn=false}
-$('wxtab').addEventListener('click',wxgOpen);$('trchip').addEventListener('click',e=>{e.stopPropagation();pref.trMuteUntil=Date.now()+5*3600e3;save();trChip();msg('渋滞の札を5時間しまいました。キーは「設定」→ TomTom で確認できます')});$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
+$('wxtab').addEventListener('click',wxgOpen);$('gd').addEventListener('click',e=>{e.stopPropagation();pref.gdMode=((pref.gdMode|0)+1)%3;save();msg(['案内：全部表示','案内：1行表示','案内：小さく表示'][pref.gdMode]);if(guide)guideTick()});$('trchip').addEventListener('click',e=>{e.stopPropagation();pref.trMuteUntil=Date.now()+5*3600e3;save();trChip();msg('渋滞の札を5時間しまいました。キーは「設定」→ TomTom で確認できます')});$('dewal').addEventListener('click',e=>{e.stopPropagation();const al=$('dewal');if(al.classList.contains('m')){pref.dewMute=null;save();wxAlerts();return}pref.dewMute={k:al.dataset.k,until:Date.now()+5*3600e3};save();wxAlerts();msg('結露アラートを5時間しまいました（上の ⚠ をタップで再表示）')});document.querySelector('.tinfo').addEventListener('click',wxgOpen);$('b-wxg').addEventListener('click',wxgOpen);$('wxg-x').addEventListener('click',wxgClose);$('wxg-up').addEventListener('click',()=>{fetchTrend(true)});
 {let sw=null;const ok=t=>!(t.closest&&t.closest('#nd,#mwrap,.bar,input,select,textarea,.sheet,#pin'));
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1){sw=null;return}const t=e.touches[0];sw=(wxgOn?!(e.target.closest&&e.target.closest('svg')):ok(e.target))?{x:t.clientX,y:t.clientY,t:Date.now()}:null},{passive:true});
  document.addEventListener('touchend',e=>{if(!sw)return;const t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(Date.now()-sw.t<700&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6){if(dx<0&&!wxgOn)wxgOpen();else if(dx>0&&wxgOn)wxgClose()}sw=null},{passive:true});}
@@ -1853,7 +1862,7 @@ function dewWarn(){if(!fc||!fc.hourly)return;const h=fc.hourly,k=new Date().toIS
 setInterval(()=>{dewWarn()},60000);
 
 /* ---------- 新しい版の確認（GitHub Pagesは10分ほど古い版を覚えていることがあるため） ---------- */
-const BUILD='202611281202';
+const BUILD='202611281339';
 async function verCheck(){try{const t=await(await fetch('./?vc='+Date.now(),{cache:'no-store'})).text(),m=t.match(new RegExp('const BUI'+"LD='(\\d+)'"));
  if(m&&m[1]!==BUILD&&+m[1]>+BUILD){const b=$('newver');b.hidden=false}}catch(e){}}
 $('newver').addEventListener('click',()=>{location.replace(location.pathname+'?u='+Date.now())});
